@@ -1,0 +1,1215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Prompt Builder — T2I + I2V (Single Box + Auto-Segregate)</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121923; --muted:#8aa0b8; --text:#e8eef5; --line:#223043;
+      --ok:#34d399; --bad:#fb7185;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:linear-gradient(180deg,#070a0f,#0b0f14); color:var(--text); }
+    header{ padding:16px; border-bottom:1px solid var(--line); position:sticky; top:0;
+      background:rgba(11,15,20,.92); backdrop-filter: blur(8px); z-index:5; }
+    header h1{ margin:0; font-size:15px; }
+    header .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.4; }
+
+    main{ max-width:1240px; margin:0 auto; padding:14px; display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width: 980px){ main{ grid-template-columns:1fr; } }
+
+    .card{ background:rgba(18,25,35,.9); border:1px solid var(--line); border-radius:16px; padding:12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+    label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
+    input[type="text"], input[type="number"], textarea, select{
+      width:100%; padding:10px; border-radius:12px; border:1px solid var(--line);
+      background:#0c121b; color:var(--text); outline:none;
+    }
+    textarea{ min-height:90px; resize:vertical; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .row > *{ flex:1; min-width:210px; }
+
+    .btnbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+    button{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,#121923,#0f1620);
+      color:var(--text); padding:10px 12px; border-radius:12px; cursor:pointer;
+      font-weight:850; font-size:12px;
+    }
+    button:hover{ border-color:#2f425d; }
+    .primary{ border-color:#2b4a61; background:linear-gradient(180deg,#0f2230,#0e1a24); }
+    .ghost{ background:transparent; }
+    .danger{ border-color:#5a2230; background:linear-gradient(180deg,#2b0f18,#1a0b10); color:#ffd5de; }
+
+    .tag{ display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:999px;
+      border:1px solid var(--line); color:var(--muted); font-size:12px; }
+    .tag strong{ color:var(--text); }
+    .ok{ color:var(--ok); }
+
+    details{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:rgba(12,18,27,.65); }
+    details + details{ margin-top:10px; }
+    summary{ list-style:none; cursor:pointer; padding:12px; display:flex; justify-content:space-between; gap:10px; }
+    summary::-webkit-details-marker{ display:none; }
+    .sumTitle{ font-weight:950; font-size:13px; }
+    .sumMeta{ color:var(--muted); font-size:12px; margin-top:2px; }
+    .pill{ font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--line);
+      color:var(--muted); background:rgba(0,0,0,.18); white-space:nowrap; }
+    .sceneBody{ padding:12px; }
+
+    .two{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .three{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    @media (max-width: 860px){ .three{ grid-template-columns:1fr; } }
+    @media (max-width: 720px){ .two{ grid-template-columns:1fr; } }
+
+    .hintBox{ border:1px dashed #2b3b52; border-radius:14px; padding:10px; background:rgba(0,0,0,.12);
+      color:var(--muted); font-size:12px; }
+    .stickyRight{ position:sticky; top:86px; }
+    .smallBtn{ padding:8px 10px; font-size:11px; font-weight:900; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Prompt Builder — Single Scene Box + Auto-Segregate (Image/Motion) + Expand/Collapse</h1>
+  <div class="sub">
+    ✅ Edit/Paste inside the Scene Prompt Box → app auto-detects Image vs Motion sections and updates copy buttons correctly.
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="row">
+      <div>
+        <label>Project Title</label>
+        <input id="p_title" type="text" placeholder="Gappu — Prompt Pack"/>
+      </div>
+      <div>
+        <label>Aspect / Output</label>
+        <select id="p_format">
+          <option>Vertical 9:16 (1080×1920)</option>
+          <option>Horizontal 16:9 (1920×1080)</option>
+          <option>Square 1:1 (1080×1080)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>IMAGE Tool (Text-to-Image)</label>
+        <select id="p_imageTool">
+          <option>Nano Banana</option>
+          <option>Meta AI</option>
+        </select>
+      </div>
+      <div>
+        <label>MOTION Tool (Image-to-Video)</label>
+        <select id="p_motionTool">
+          <option>Kling</option>
+          <option>VEO</option>
+          <option>Sora 2</option>
+        </select>
+      </div>
+      <div>
+        <label>Motion Mode</label>
+        <select id="p_motionMode">
+          <option>Image-to-Video (Reference Image)</option>
+          <option>Text-to-Video (No Reference)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Character Lock (GLOBAL) — used in Image Prompt</label>
+        <textarea id="p_charLock" class="mono" placeholder="Paste your Gappu character lock here..."></textarea>
+      </div>
+      <div>
+        <label>Environment Lock (GLOBAL) — used in Image Prompt</label>
+        <textarea id="p_envLock" class="mono" placeholder="Paste environment lock here..."></textarea>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>GLOBAL Image Rules</label>
+        <textarea id="p_imgRules" class="mono" placeholder="DSLR realism, natural light, depth-of-field..."></textarea>
+      </div>
+      <div>
+        <label>GLOBAL Motion Rules</label>
+        <textarea id="p_motRules" class="mono" placeholder="Realistic motion, stable camera, slow pacing..."></textarea>
+      </div>
+    </div>
+
+    <label>GLOBAL Negative Prompt (Image + Motion)</label>
+    <textarea id="p_neg" class="mono" placeholder="no text, no watermark, no logo, no extra limbs, no redesign..."></textarea>
+
+    <div class="hintBox" style="margin-top:10px;">
+      Paste your script with markers like <b>scene 1:</b> / <b>Scene 2:</b> / even <b>scnene 3:</b> → then click <b>Create Scene Rows</b>.
+    </div>
+
+    <label style="margin-top:10px;">Paste Scenes / Script</label>
+    <textarea id="bulk" class="mono" placeholder="scene 1: Front view...&#10;scene 2: ..."></textarea>
+
+    <div class="btnbar">
+      <button class="primary" id="parseBtn">⚡ Create Scene Rows</button>
+      <button class="primary" id="regenAllBtn">↻ Regenerate All Prompts</button>
+
+      <button id="expandAllBtn">Expand All</button>
+      <button id="collapseAllBtn">Collapse All</button>
+
+      <button class="danger" id="clearBtn">Clear All</button>
+      <span class="tag">Scenes: <strong id="sceneCount">0</strong></span>
+      <span class="tag">Autosave: <strong class="ok">ON</strong></span>
+    </div>
+  </section>
+
+  <aside class="card stickyRight">
+    <div class="btnbar">
+      <button class="primary" id="copyAllMdBtn">Copy All (Markdown)</button>
+      <button id="downloadMdBtn">Download .md</button>
+      <button id="downloadJsonBtn">Download .json</button>
+    </div>
+
+    <label>All Prompts Output (Markdown)</label>
+    <textarea id="allOut" class="mono"></textarea>
+
+    <div class="hintBox" style="margin-top:10px;">
+      Copy buttons will work even if you paste your own combined text — it will auto-segregate Image/Motion.
+    </div>
+
+    <div style="margin-top:12px;" id="sceneList"></div>
+  </aside>
+</main>
+
+<script>
+(() => {
+  const LS_KEY = "prompt_builder_autosegregate_v2";
+  const $ = (id)=>document.getElementById(id);
+
+  let state = loadState() || {
+    project: {
+      title:"",
+      format:"Vertical 9:16 (1080×1920)",
+      imageTool:"Nano Banana",
+      motionTool:"Kling",
+      motionMode:"Image-to-Video (Reference Image)",
+      charLock:"",
+      envLock:"",
+      imgRules:"",
+      motRules:"",
+      neg:""
+    },
+    scenes: []
+  };
+
+  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
+  function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||""); }catch{ return null; } }
+
+  let saveT=null;
+  function saveDebounced(){
+    clearTimeout(saveT);
+    saveT=setTimeout(()=> localStorage.setItem(LS_KEY, JSON.stringify(state)), 250);
+  }
+
+  let mdT=null;
+  function mdDebounced(){
+    clearTimeout(mdT);
+    mdT=setTimeout(()=> buildAllMarkdown(), 200);
+  }
+
+  function escapeHtml(s){
+    return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+  function escapeAttr(s){
+    return String(s||"").replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+
+  function mergedNegative(scene){
+    return [state.project.neg, scene.negLocal].filter(x=>x && x.trim()).join("\n").trim();
+  }
+  function isI2V(){
+    return state.project.motionMode === "Image-to-Video (Reference Image)";
+  }
+
+
+  // ---------- COPY WRAPPERS (ensure global locks/rules are included correctly) ----------
+  function buildImageCopy(scene, raw){
+    const p = state.project;
+    let t = (raw || "").trim();
+    if(!t) return "";
+    const parts = [];
+
+    const hasChar = /CHARACTER\s*LOCK/i.test(t) || (p.charLock && p.charLock.trim() && t.includes(p.charLock.trim().slice(0, 30)));
+    const hasEnv  = /ENVIRONMENT\s*LOCK/i.test(t) || (p.envLock  && p.envLock.trim()  && t.includes(p.envLock.trim().slice(0, 30)));
+    const hasImgRules = /GLOBAL\s*IMAGE\s*RULES|\bIMAGE\s*RULES\b/i.test(t);
+
+    if(p.charLock && p.charLock.trim() && !hasChar){
+      parts.push(`CHARACTER LOCK (do not change):\n${p.charLock.trim()}`);
+    }
+    if(p.envLock && p.envLock.trim() && !hasEnv){
+      parts.push(`ENVIRONMENT LOCK (do not change):\n${p.envLock.trim()}`);
+    }
+    if(p.imgRules && p.imgRules.trim() && !hasImgRules){
+      parts.push(`GLOBAL IMAGE RULES:\n${p.imgRules.trim()}`);
+    }
+
+    parts.push(t);
+
+    const neg = mergedNegative(scene);
+    const hasNeg = /(^|\n)\s*(AVOID|NEGATIVE)/i.test(t);
+    if(neg && !hasNeg){
+      parts.push(`AVOID / NEGATIVE:\n${neg}`);
+    }
+    return parts.join("\n\n").trim();
+  }
+
+  function buildMotionCopy(scene, raw){
+    const p = state.project;
+    let t = (raw || "").trim();
+    if(!t) return "";
+    const parts = [];
+
+    const hasRef = /REFERENCE\s*IMAGE\s*MODE|Do\s*NOT\s*change:/i.test(t);
+    if(isI2V() && !hasRef){
+      parts.push(referenceModeHeader(scene));
+    }
+
+    const hasMotRules = /GLOBAL\s*MOTION\s*RULES|Motion\s*rules/i.test(t);
+    if(p.motRules && p.motRules.trim() && !hasMotRules){
+      parts.push(`GLOBAL MOTION RULES:\n${p.motRules.trim()}`);
+    }
+
+    parts.push(t);
+
+    const neg = mergedNegative(scene);
+    const hasNeg = /(^|\n)\s*(AVOID|NEGATIVE)/i.test(t);
+    if(neg && !hasNeg){
+      parts.push(`AVOID / NEGATIVE:\n${neg}`);
+    }
+    return parts.join("\n\n").trim();
+  }
+
+  // ---------- AUTO-SEGREGATE (split combined box into image + motion) ----------
+  function splitCombo(comboText){
+    const txt = (comboText || "").replace(/\r/g,"").trim();
+    if(!txt) return { img:"", mot:"" };
+
+    // Accept multiple marker styles (flexible)
+    const imgMarker = /===\s*IMAGE\s*PROMPT[\s\S]*?===/i;
+    const motMarker = /===\s*MOTION\s*PROMPT[\s\S]*?===/i;
+
+    const imgIdx = txt.search(imgMarker);
+    const motIdx = txt.search(motMarker);
+
+    // If standard markers exist
+    if(imgIdx !== -1 && motIdx !== -1){
+      // Find actual header lines start
+      const imgHeaderStart = txt.toLowerCase().indexOf("=== image prompt");
+      const motHeaderStart = txt.toLowerCase().indexOf("=== motion prompt");
+
+      if(imgHeaderStart !== -1 && motHeaderStart !== -1){
+        const imgBodyStart = txt.indexOf("\n", imgHeaderStart);
+        const motBodyStart = txt.indexOf("\n", motHeaderStart);
+
+        const imgBody = (imgBodyStart !== -1)
+          ? txt.slice(imgBodyStart+1, motHeaderStart).trim()
+          : "";
+        const motBody = (motBodyStart !== -1)
+          ? txt.slice(motBodyStart+1).trim()
+          : "";
+
+        // If content is duplicated, stop motion at the next IMAGE marker
+        const nextImgInMot = motBody.search(/\n===\s*IMAGE\s*PROMPT/i);
+        const motBodyClean = (nextImgInMot !== -1) ? motBody.slice(0, nextImgInMot).trim() : motBody;
+
+        return { img: imgBody, mot: motBodyClean };
+      }
+    }
+
+    // Fallback: try split by a line that contains "MOTION PROMPT"
+    const lines = txt.split("\n");
+    let cut = -1;
+    for(let i=0;i<lines.length;i++){
+      if(/motion\s*prompt/i.test(lines[i]) && /===/.test(lines[i])){
+        cut = i;
+        break;
+      }
+    }
+    if(cut !== -1){
+      const imgPart = lines.slice(0, cut).join("\n").trim();
+      const motPartRaw = lines.slice(cut+1).join("\n").trim();
+      const nextImgInMot = motPartRaw.search(/\n===\s*IMAGE\s*PROMPT/i);
+      const motPart = (nextImgInMot !== -1) ? motPartRaw.slice(0, nextImgInMot).trim() : motPartRaw;
+      return { img: imgPart, mot: motPart };
+    }
+
+    // If nothing found, treat all as image (safe default)
+    return { img: txt, mot: "" };
+  }
+
+  // ---------- IMAGE BUILDERS ----------
+  function buildImagePromptNano(scene){
+    const p = state.project;
+    const neg = mergedNegative(scene);
+
+    const lines = [];
+    lines.push(`ASPECT: ${p.format}`);
+    lines.push(`STYLE: Ultra-real Indian environment (DSLR/cinema realism). Gappu remains stylized 3D (locked).`);
+    lines.push(`CHARACTER LOCK (do not change):\n${p.charLock.trim() || "—"}`);
+    lines.push(`ENVIRONMENT LOCK (do not change):\n${p.envLock.trim() || "—"}`);
+    if(p.imgRules.trim()) lines.push(`GLOBAL IMAGE RULES:\n${p.imgRules.trim()}`);
+
+    lines.push(`SCENE TITLE: ${scene.title || "—"}`);
+    if(scene.location) lines.push(`LOCATION: ${scene.location}`);
+    if(scene.shot) lines.push(`SHOT/ANGLE: ${scene.shot}`);
+    if(scene.lens) lines.push(`LENS/DOF: ${scene.lens}`);
+    if(scene.emotion) lines.push(`GAPPU EMOTION: ${scene.emotion}`);
+
+    lines.push(`WHAT WE SEE (single freeze-worthy frame):\n${(scene.action||"").trim() || "—"}`);
+    if(scene.direction?.trim()) lines.push(`DIRECTOR NOTES:\n${scene.direction.trim()}`);
+    if(scene.imgAdd?.trim()) lines.push(`IMAGE-ONLY DETAILS:\n${scene.imgAdd.trim()}`);
+
+    lines.push(`QUALITY: sharp focus, realistic shadows, natural light, detailed textures, no text overlays.`);
+    if(neg) lines.push(`NEGATIVE:\n${neg}`);
+    return lines.join("\n\n").trim();
+  }
+
+  function buildImagePromptMeta(scene){
+    const p = state.project;
+    const neg = mergedNegative(scene);
+
+    const lines = [];
+    lines.push(`Create one cinematic still frame. ${p.format}.`);
+    lines.push(`Character lock:\n${p.charLock.trim() || "—"}`);
+    lines.push(`Environment lock:\n${p.envLock.trim() || "—"}`);
+    if(p.imgRules.trim()) lines.push(`Image rules:\n${p.imgRules.trim()}`);
+
+    const core = [];
+    if(scene.location) core.push(`Location: ${scene.location}`);
+    if(scene.shot) core.push(`Camera: ${scene.shot}`);
+    if(scene.lens) core.push(`Lens/DOF: ${scene.lens}`);
+    if(scene.emotion) core.push(`Emotion: ${scene.emotion}`);
+    if(core.length) lines.push(core.join(" | "));
+
+    lines.push(`Scene description:\n${(scene.action||"").trim() || "—"}`);
+    if(scene.direction?.trim()) lines.push(`Director notes:\n${scene.direction.trim()}`);
+    if(scene.imgAdd?.trim()) lines.push(`Extra image details:\n${scene.imgAdd.trim()}`);
+    if(neg) lines.push(`Avoid:\n${neg}`);
+
+    return lines.join("\n\n").trim();
+  }
+
+  function buildImagePrompt(scene){
+    return (state.project.imageTool === "Meta AI") ? buildImagePromptMeta(scene) : buildImagePromptNano(scene);
+  }
+
+  // ---------- MOTION BUILDERS ----------
+  function referenceModeHeader(scene){
+    const refLine = scene.refNote?.trim()
+      ? `Reference image note: ${scene.refNote.trim()}`
+      : `Reference: use the provided input image as the exact visual truth.`;
+    return [
+      `REFERENCE IMAGE MODE (I2V):`,
+      refLine,
+      `Do NOT change: character design, face, outfit, proportions, colors, environment, lighting, background objects.`,
+      `Keep composition consistent; only add motion as described.`
+    ].join("\n");
+  }
+
+  function buildMotionPromptKling(scene){
+    const p = state.project;
+    const neg = mergedNegative(scene);
+    const duration = (scene.duration && Number(scene.duration)>0) ? Math.min(20, Number(scene.duration)) : 6;
+
+    const lines = [];
+    lines.push(`FORMAT: ${p.format}`);
+    lines.push(`DURATION: ${duration}s`);
+    lines.push(`FPS: ${scene.fps || "24fps cinematic"}`);
+    lines.push(`PACING: ${scene.pacing || "slow, realistic"}`);
+
+    if(isI2V()){
+      lines.push(referenceModeHeader(scene));
+    } else {
+      if(p.charLock.trim()) lines.push(`CHARACTER LOCK:\n${p.charLock.trim()}`);
+      if(p.envLock.trim()) lines.push(`ENVIRONMENT LOCK:\n${p.envLock.trim()}`);
+    }
+
+    if(p.motRules.trim()) lines.push(`GLOBAL MOTION RULES:\n${p.motRules.trim()}`);
+
+    lines.push(`SHOT: ${scene.shot || "—"}`);
+    lines.push(`CAMERA MOVE: ${scene.cameraMove || (isI2V() ? "very subtle (slow push-in / slight tracking)" : "stable / minimal")}`);
+    if(scene.lens) lines.push(`LENS/DOF: ${scene.lens}`);
+    if(scene.emotion) lines.push(`GAPPU EMOTION: ${scene.emotion}`);
+
+    lines.push(`ACTION BEATS:\n${(scene.action||"").trim() || "—"}`);
+    if(scene.direction?.trim()) lines.push(`DIRECTOR NOTES:\n${scene.direction.trim()}`);
+    if(scene.motionAdd?.trim()) lines.push(`MOTION-ONLY DETAILS:\n${scene.motionAdd.trim()}`);
+
+    lines.push(`CONSTRAINTS: realistic physics, preserve identity across frames, no glitches.`);
+    if(neg) lines.push(`AVOID:\n${neg}`);
+
+    return lines.join("\n\n").trim();
+  }
+
+  function buildMotionPromptVeo(scene){
+    const p = state.project;
+    const neg = mergedNegative(scene);
+    const duration = (scene.duration && Number(scene.duration)>0) ? Math.min(20, Number(scene.duration)) : 6;
+
+    const lines = [];
+    lines.push(`Cinematic video prompt. ${p.format}. Duration ${duration}s. ${scene.fps || "24fps"}.`);
+    if(isI2V()) lines.push(referenceModeHeader(scene));
+    if(p.motRules.trim()) lines.push(`Motion rules:\n${p.motRules.trim()}`);
+    lines.push(`Camera: ${scene.shot || "—"} | Move: ${scene.cameraMove || "stable / minimal"}${scene.lens ? " | Lens/DOF: "+scene.lens : ""}`);
+    if(scene.emotion) lines.push(`Performance: ${scene.emotion}. Expressive eyes, subtle micro-expressions.`);
+    lines.push(`Action over time:\n${(scene.action||"").trim() || "—"}`);
+    if(neg) lines.push(`Avoid:\n${neg}`);
+    return lines.join("\n\n").trim();
+  }
+
+  function buildMotionPromptSora(scene){
+    const p = state.project;
+    const neg = mergedNegative(scene);
+    const duration = (scene.duration && Number(scene.duration)>0) ? Math.min(20, Number(scene.duration)) : 8;
+
+    const lines = [];
+    lines.push(`Create a coherent, physically realistic video. ${p.format}. ${duration}s. ${scene.fps || "24fps cinematic"}.`);
+    if(isI2V()) lines.push(referenceModeHeader(scene));
+    if(p.motRules.trim()) lines.push(`Motion rules:\n${p.motRules.trim()}`);
+    lines.push(`Shot: ${scene.shot || "—"}. ${scene.cameraMove ? "Move: "+scene.cameraMove+"." : "Minimal movement."}`);
+    if(scene.emotion) lines.push(`Emotion/performance: ${scene.emotion}. Prioritize readable eyes + subtle micro expressions.`);
+    lines.push(`What happens:\n${(scene.action||"").trim() || "—"}`);
+    if(neg) lines.push(`Avoid:\n${neg}`);
+    return lines.join("\n\n").trim();
+  }
+
+  function buildMotionPrompt(scene){
+    const tool = state.project.motionTool;
+    if(tool === "VEO") return buildMotionPromptVeo(scene);
+    if(tool === "Sora 2") return buildMotionPromptSora(scene);
+    return buildMotionPromptKling(scene);
+  }
+
+  function buildCombined(scene){
+    const p = state.project;
+    return [
+`=== IMAGE PROMPT (${p.imageTool}) ===
+${scene.imagePrompt || ""}
+
+=== MOTION PROMPT (${p.motionTool}) — ${p.motionMode} ===
+${scene.motionPrompt || ""}`
+    ].join("\n\n").trim();
+  }
+
+  function regenerateScenePrompts(scene){
+    scene.imagePrompt = buildImagePrompt(scene);
+    scene.motionPrompt = buildMotionPrompt(scene);
+    scene.comboPrompt = buildCombined(scene);
+  }
+
+  function regenerateAllPrompts(){
+    state.scenes.forEach(s => regenerateScenePrompts(s));
+    saveDebounced();
+    
+    document.querySelectorAll("details[data-id]").forEach(det=>{
+      const id = det.getAttribute("data-id");
+      const scene = state.scenes.find(x=>x.id===id);
+      if(!scene) return;
+
+      const ip = det.querySelector('textarea[data-k="imagePrompt"]');
+      if(ip) ip.value = scene.imagePrompt || "";
+
+      const mp = det.querySelector('textarea[data-k="motionPrompt"]');
+      if(mp) mp.value = scene.motionPrompt || "";
+
+      const cp = det.querySelector('textarea[data-k="comboPrompt"]');
+      if(cp) cp.value = scene.comboPrompt || "";
+    });
+    buildAllMarkdown();
+  }
+
+
+  // ---------- ROBUST PARSER (groups IMAGE+MOTION into ONE scene) ----------
+  // Supports:
+  //  A) "SCENE 1" blocks with === IMAGE PROMPT === and === MOTION PROMPT ===
+  //  B) Markdown output: "### Scene 1:" + "#### IMAGE PROMPT" + code fences
+  //  C) Numbered sections: "#1— ..." "#2—--- MOTION PROMPT ..." (pairs are merged)
+  function parseScenes(text){
+    const raw = (text || "").replace(/\r/g,"").trim();
+    if(!raw) return [];
+
+    // ---------- helpers ----------
+    function splitByHeader(rx){
+      const ms = [...raw.matchAll(rx)];
+      if(!ms.length) return [];
+      const blocks = [];
+      for(let i=0;i<ms.length;i++){
+        const m = ms[i];
+        const header = (m[0]||"").trim();
+        const num = (m[1]||"").trim();
+        let start = m.index + m[0].length;
+        if(raw[start] === "\n") start += 1;
+        const end = (i<ms.length-1) ? ms[i+1].index : raw.length;
+        const body = raw.slice(start,end).trim();
+        blocks.push({ num, header, body });
+      }
+      return blocks;
+    }
+
+    function extractImageMotion(full){
+      const t = (full || "").trim();
+      if(!t) return { image:"", motion:"" };
+
+      // Style A: === IMAGE PROMPT === / === MOTION PROMPT ===
+      const imgA = t.match(/===\s*IMAGE\s*PROMPT[^\n]*===\s*\n([\s\S]*?)(?=\n===\s*MOTION\s*PROMPT|\n===\s*IMAGE\s*PROMPT|\n={5,}|\n###\s*Scene|\n#\s*\d+\s*[—-]|$)/i);
+      const motA = t.match(/===\s*MOTION\s*PROMPT[^\n]*===\s*\n([\s\S]*?)(?=\n===\s*IMAGE\s*PROMPT|\n===\s*MOTION\s*PROMPT|\n={5,}|\n###\s*Scene|\n#\s*\d+\s*[—-]|$)/i);
+
+      // Style B: Markdown headings + code fences
+      let imgB = "";
+      let motB = "";
+
+      if(/####\s*IMAGE\s*PROMPT/i.test(t)){
+        const idx = t.search(/####\s*IMAGE\s*PROMPT/i);
+        if(idx >= 0){
+          const rest = t.slice(idx);
+          const f1 = rest.indexOf("```");
+          if(f1 >= 0){
+            const after = rest.slice(f1+3);
+            const f2 = after.indexOf("```");
+            if(f2 >= 0) imgB = after.slice(0,f2).trim();
+          }
+        }
+      }
+
+      if(/####\s*MOTION\s*PROMPT/i.test(t)){
+        const idx = t.search(/####\s*MOTION\s*PROMPT/i);
+        if(idx >= 0){
+          const rest = t.slice(idx);
+          const f1 = rest.indexOf("```");
+          if(f1 >= 0){
+            const after = rest.slice(f1+3);
+            const f2 = after.indexOf("```");
+            if(f2 >= 0) motB = after.slice(0,f2).trim();
+          }
+        }
+      }
+
+      const image = (imgA ? (imgA[1]||"").trim() : "") || imgB || "";
+      const motion = (motA ? (motA[1]||"").trim() : "") || motB || "";
+      return { image, motion };
+    }
+
+    function detectKind(header, body){
+      const h = (header||"") + "\n" + (body||"");
+      if(/motion\s*prompt/i.test(h) || /image-to-video/i.test(h) || /\b(kling|sora|veo)\b/i.test(h)) return "motion";
+      if(/image\s*prompt/i.test(h) || /\b(nano banana|text-to-image)\b/i.test(h)) return "image";
+      return "image";
+    }
+
+    const hasSceneHdr = /(?:^|\n)\s*(?:=+\s*)?(?:scene|scnene|scne|scean|scen)\s*\d{1,3}\b/i.test(raw);
+    const hasMdScene = /(?:^|\n)\s*###\s*Scene\s+\d+/i.test(raw);
+    const hasHashNum = /(?:^|\n)\s*#\s*\d+\s*[—-]/i.test(raw) || /(?:^|\n)\s*#\d+\s*[—-]/i.test(raw);
+
+    // Strategy A: SCENE N
+    if(hasSceneHdr){
+      const rxScene = /(?:^|\n)\s*(?:=+\s*)?(?:scene|scnene|scne|scean|scen)\s*(\d{1,3})\b[^\n]*/ig;
+      const blocks = splitByHeader(rxScene);
+      const scenes = blocks.map(b=>{
+        const em = extractImageMotion(b.body);
+        return makeScene(b.num, b.body, { imagePrompt: em.image, motionPrompt: em.motion });
+      });
+      return mergeIfNeeded(scenes);
+    }
+
+    // Strategy B: Markdown "### Scene N:"
+    if(hasMdScene){
+      const rxMd = /(?:^|\n)\s*###\s*Scene\s+(\d{1,3})\b[^\n]*/ig;
+      const blocks = splitByHeader(rxMd);
+      const scenes = blocks.map(b=>{
+        const em = extractImageMotion(b.body);
+        return makeScene(b.num, b.body, { imagePrompt: em.image, motionPrompt: em.motion });
+      });
+      return mergeIfNeeded(scenes);
+    }
+
+    // Strategy C: Numbered "#1—" sections (pair image+motion)
+    if(hasHashNum){
+      const rxHash = /(?:^|\n)\s*#\s*(\d{1,4})\s*[—-][^\n]*/ig;
+      const blocks = splitByHeader(rxHash);
+
+      const segs = blocks.map((b, i)=>{
+        const kind = detectKind(b.header, b.body);
+        const em = extractImageMotion(b.header + "\n" + b.body);
+        return { idx:i, secNo:Number(b.num)|| (i+1), kind, text:(b.body||"").trim(), image:em.image, motion:em.motion, header:b.header };
+      });
+
+      const scenes = [];
+      for(let i=0;i<segs.length;i++){
+        const s = segs[i];
+        if(s.kind === "motion" && scenes.length){
+          const prev = scenes[scenes.length-1];
+          if(!prev.motionPrompt){
+            prev.motionPrompt = s.motion || s.text;
+            continue;
+          }
+        }
+
+        const sceneNo = Math.ceil((i+1)/2);
+        const next = segs[i+1];
+        const scene = makeScene(sceneNo, s.text, { imagePrompt: s.image || (s.kind==="image" ? s.text : ""), motionPrompt: "" });
+
+        if(next && next.kind === "motion"){
+          scene.motionPrompt = next.motion || next.text;
+          i += 1;
+        }
+        scenes.push(scene);
+      }
+      return mergeIfNeeded(scenes);
+    }
+
+    // Fallback
+    const fallback = raw
+      .split(/\n{3,}|(?:\n={5,}\n)/)
+      .map((blk, i)=> makeScene(String(i+1), blk.trim(), {}))
+      .filter(s=>s.action.trim());
+
+    return mergeIfNeeded(fallback);
+  }
+
+  // If some scenes arrived as image-only/motion-only, merge adjacent ones.
+  function mergeIfNeeded(list){
+    const out = [];
+    for(let i=0;i<list.length;i++){
+      const a = list[i];
+      const b = list[i+1];
+      const aHasImg = !!(a.imagePrompt && a.imagePrompt.trim());
+      const aHasMot = !!(a.motionPrompt && a.motionPrompt.trim());
+      const bLooksMotionOnly = b && !(b.imagePrompt && b.imagePrompt.trim()) && ((b.motionPrompt && b.motionPrompt.trim()) || /motion\s*prompt/i.test(b.action||""));
+      if(aHasImg && !aHasMot && bLooksMotionOnly){
+        a.motionPrompt = (b.motionPrompt && b.motionPrompt.trim()) ? b.motionPrompt : (b.action||"");
+        i += 1;
+      }
+      out.push(a);
+    }
+    return out.filter(s => ((s.imagePrompt||"").trim() || (s.motionPrompt||"").trim() || (s.action||"").trim()));
+  }
+
+
+  
+  function makeScene(sceneNo, blk, extra){
+    extra = extra || {};
+    let clean = (blk || "").replace(/^=+\s*\n+/g,"").replace(/\n=+\s*$/g,"").trim();
+
+    const rawLines = clean.split("\n").map(x=>x.trim()).filter(Boolean);
+    let title = `Scene ${sceneNo}`;
+    for(const ln of rawLines){
+      if(/^=+$/g.test(ln)) continue;
+      if(/^[-_]{5,}$/g.test(ln)) continue;
+      if(/^\*{2,}$/g.test(ln)) continue;
+      if(/^#+\s*\d+/g.test(ln)) continue;
+      if(/^===\s*(image|motion)\s*prompt/i.test(ln)) continue;
+      if(/^####\s*(image|motion)\s*prompt/i.test(ln)) continue;
+      if(/^aspect\s*:/i.test(ln)) continue;
+      if(/^location\s*:/i.test(ln)) continue;
+      title = ln.slice(0, 90);
+      break;
+    }
+
+    let shot = "";
+    const st = clean.match(/(shot\s*\/\s*angle\s*[:\-]\s*.*|shot\s*[:\-]\s*.*|front view|side view|back view|top aerial|aerial view|close[- ]?up|wide|pov)/i);
+    if(st){
+      const v = st[0].toLowerCase();
+      if(v.includes("front")) shot="Front view";
+      else if(v.includes("side")) shot="Side view";
+      else if(v.includes("back")) shot="Back view";
+      else if(v.includes("aerial")) shot="Top aerial";
+      else if(v.includes("close")) shot="Close-up";
+      else if(v.includes("wide")) shot="Wide";
+      else if(v.includes("pov")) shot="POV";
+    }
+
+    const emo =
+      ((clean.match(/gappu\s*emotion\s*[:\-]\s*(.+)/i) || [])[1]) ||
+      ((clean.match(/emotion\s*[:\-]\s*(.+)/i) || [])[1]) ||
+      ((clean.match(/emo\w*\s*[:\-]\s*(.+)/i) || [])[1]) ||
+      "";
+
+    // Capture a richer emotion map if the user provides it (Tool 1 style).
+    // We store it into Director Notes so it flows into both Image + Motion prompts.
+    // Accepted labels (case-insensitive): Emotion Map:, emotionMap:, emotion map -
+    const emoMapRaw =
+      ((clean.match(/emotion\s*map\s*[:\-]\s*(.+)/i) || [])[1]) ||
+      ((clean.match(/emotionMap\s*[:\-]\s*(.+)/i) || [])[1]) ||
+      "";
+    const emoMap = emoMapRaw ? emoMapRaw.trim().slice(0, 260) : "";
+
+    const imgP = (extra.imagePrompt || "").trim();
+    const motP = (extra.motionPrompt || "").trim();
+
+    return {
+      id: uid(),
+      open: false,
+      sceneNo: Number(sceneNo)||null,
+      title,
+      location:"",
+      shot,
+      lens:"",
+      cameraMove:"",
+      duration: 6,
+      fps:"24fps cinematic",
+      pacing:"slow, realistic",
+      refNote:"",
+      emotion: emo ? emo.trim().slice(0,80) : "",
+      action: clean || blk || "",
+      direction: emoMap ? `Emotion Map: ${emoMap}` : "",
+      imgAdd:"",
+      motionAdd:"",
+      negLocal:"",
+      imagePrompt: imgP,
+      motionPrompt: motP,
+      comboPrompt:""
+    };
+  }
+
+
+  // ---------- MARKDOWN ----------
+  function buildAllMarkdown(){
+    const p = state.project;
+    let md = `# ${p.title || "Prompt Pack"}\n\n`;
+    md += `**Aspect:** ${p.format}\n`;
+    md += `**IMAGE (T2I):** ${p.imageTool}\n`;
+    md += `**MOTION:** ${p.motionTool}\n`;
+    md += `**Motion Mode:** ${p.motionMode}
+
+`;
+
+    // Global locks/rules summary
+    const gChar = (p.charLock || "").trim();
+    const gEnv  = (p.envLock  || "").trim();
+    const gImg  = (p.imgRules || "").trim();
+    const gMot  = (p.motRules || "").trim();
+    const gNeg  = (p.neg      || "").trim();
+
+    if(gChar || gEnv || gImg || gMot || gNeg){
+      md += `## Global Locks & Rules
+
+`;
+      if(gChar) md += `### Character Lock (Image)
+
+${gChar}
+
+`;
+      if(gEnv)  md += `### Environment Lock (Image)
+
+${gEnv}
+
+`;
+      if(gImg)  md += `### Global Image Rules
+
+${gImg}
+
+`;
+      if(gMot)  md += `### Global Motion Rules
+
+${gMot}
+
+`;
+      if(gNeg)  md += `### Global Negative (Image + Motion)
+
+${gNeg}
+
+`;
+    }
+
+    md += `## Scenes
+
+`;
+    state.scenes.forEach((s,i)=>{
+      if(!s.imagePrompt || !s.motionPrompt) regenerateScenePrompts(s);
+      // keep comboPrompt in sync for JSON export
+      s.comboPrompt = buildCombined(s);
+
+      const num = s.sceneNo ?? (i+1);
+      md += `### Scene ${num}: ${s.title || "(untitled)"}\n\n`;
+
+      md += `#### IMAGE PROMPT (${p.imageTool})\n\n`;
+      md += "```\n" + (s.imagePrompt||"").trim() + "\n```\n\n";
+
+      md += `#### MOTION PROMPT (${p.motionTool}) — ${p.motionMode}\n\n`;
+      md += "```\n" + (s.motionPrompt||"").trim() + "\n```\n\n---\n\n";
+    });
+
+    $("allOut").value = md.trim();
+    saveDebounced();
+  }// ---------- UI ----------
+  function sceneRow(scene, idx){
+    const num = scene.sceneNo ?? (idx+1);
+    const meta = `${scene.shot || "—"}${scene.emotion ? " • emo: " + scene.emotion : ""} • ${scene.duration || 6}s`;
+    return `
+      <details data-id="${scene.id}" ${scene.open ? "open":""}>
+        <summary>
+          <div>
+            <div class="sumTitle" data-sum-title>#${num} — ${escapeHtml(scene.title || ("Scene "+num))}</div>
+            <div class="sumMeta" data-sum-meta>${escapeHtml(meta)}</div>
+          </div>
+          <div class="pill">Scene</div>
+        </summary>
+        <div class="sceneBody">
+          <div class="two">
+            <div>
+              <label>Scene Title</label>
+              <input type="text" data-k="title" value="${escapeAttr(scene.title||"")}" />
+            </div>
+            <div>
+              <label>Gappu Emotion</label>
+              <input type="text" data-k="emotion" value="${escapeAttr(scene.emotion||"")}" placeholder="panic / tense / relief..." />
+            </div>
+          </div>
+
+          <div class="three">
+            <div>
+              <label>Shot / Angle</label>
+              <input type="text" data-k="shot" value="${escapeAttr(scene.shot||"")}" placeholder="Front view / Side view..." />
+            </div>
+            <div>
+              <label>Duration (sec)</label>
+              <input type="number" min="1" max="20" data-k="duration" value="${escapeAttr(scene.duration||6)}" />
+            </div>
+            <div>
+              <label>Reference Image Note (optional)</label>
+              <input type="text" data-k="refNote" value="${escapeAttr(scene.refNote||"")}" placeholder="scene1_locked.png" />
+            </div>
+          </div>
+
+          <label>Action (what we SEE)</label>
+          <textarea data-k="action" class="mono">${escapeHtml(scene.action||"")}</textarea>
+
+          <label>Director Notes (optional)</label>
+          <textarea data-k="direction" class="mono">${escapeHtml(scene.direction||"")}</textarea>
+
+          <label>Local Negative (optional)</label>
+          <textarea data-k="negLocal" class="mono">${escapeHtml(scene.negLocal||"")}</textarea>
+
+          <div class="btnbar">
+            <button class="primary smallBtn" data-act="regen">↻ Regenerate This Scene</button>
+            <button class="smallBtn" data-act="copyImage">Copy Image</button>
+            <button class="smallBtn" data-act="copyMotion">Copy Motion</button>
+            <button class="smallBtn" data-act="copyBoth">Copy Both</button>
+            <button class="ghost smallBtn" data-act="dup">Duplicate</button>
+            <button class="danger smallBtn" data-act="del">Delete</button>
+          </div>
+
+
+          <div class="two">
+            <div>
+              <label>IMAGE Prompt — editable</label>
+              <textarea data-k="imagePrompt" class="mono">${escapeHtml(scene.imagePrompt||"")}</textarea>
+            </div>
+            <div>
+              <label>MOTION Prompt — editable</label>
+              <textarea data-k="motionPrompt" class="mono">${escapeHtml(scene.motionPrompt||"")}</textarea>
+            </div>
+          </div>
+
+          <details class="comboBox" style="margin-top:10px;">
+            <summary>
+              <div>
+                <div class="sumTitle">Combined Paste Box (optional)</div>
+                <div class="sumMeta">Paste combined text → auto-splits into Image/Motion</div>
+              </div>
+              <div class="pill">Paste</div>
+            </summary>
+            <div class="sceneBody">
+              <div class="hintBox" style="margin-bottom:10px;">
+                Paste combined text that contains <b>=== IMAGE PROMPT ===</b> and <b>=== MOTION PROMPT ===</b> — the app will auto-split into the two boxes above.
+              </div>
+              <label>Combined Prompt (paste/edit) — auto-splits into Image/Motion</label>
+              <textarea data-k="comboPrompt" class="mono">${escapeHtml(scene.comboPrompt||"")}</textarea>
+            </div>
+          </details>
+</div>
+      </details>
+    `;
+  }
+
+  function render(){
+    $("p_title").value = state.project.title || "";
+    $("p_format").value = state.project.format || "Vertical 9:16 (1080×1920)";
+    $("p_imageTool").value = state.project.imageTool || "Nano Banana";
+    $("p_motionTool").value = state.project.motionTool || "Kling";
+    $("p_motionMode").value = state.project.motionMode || "Image-to-Video (Reference Image)";
+
+    $("p_charLock").value = state.project.charLock || "";
+    $("p_envLock").value = state.project.envLock || "";
+    $("p_imgRules").value = state.project.imgRules || "";
+    $("p_motRules").value = state.project.motRules || "";
+    $("p_neg").value = state.project.neg || "";
+
+    $("sceneCount").textContent = state.scenes.length;
+    $("sceneList").innerHTML = state.scenes.map((s,i)=>sceneRow(s,i)).join("");
+
+    document.querySelectorAll("details[data-id]").forEach(det=>{
+      const id = det.getAttribute("data-id");
+      const scene = state.scenes.find(x=>x.id===id);
+      det.addEventListener("toggle", ()=>{
+        scene.open = det.open;
+        saveDebounced();
+      });
+    });
+
+    buildAllMarkdown();
+  }
+
+  function findSceneByEl(el){
+    const det = el.closest("details[data-id]");
+    if(!det) return null;
+    const id = det.getAttribute("data-id");
+    const scene = state.scenes.find(s=>s.id===id);
+    return { det, scene, id };
+  }
+
+  async function copyText(text){
+    try{ await navigator.clipboard.writeText(text); alert("Copied."); }
+    catch{
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      ta.remove(); alert("Copied.");
+    }
+  }
+
+  function downloadText(filename, text){
+    const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function setAllDetails(open){
+    document.querySelectorAll("details[data-id]").forEach(det=>{
+      det.open = open;
+      const id = det.getAttribute("data-id");
+      const scene = state.scenes.find(s=>s.id===id);
+      if(scene) scene.open = open;
+    });
+    saveDebounced();
+  }
+
+  // Smooth typing: no rerender on input
+  
+  function onSceneInput(e){
+    const el = e.target;
+    if(!el.hasAttribute("data-k")) return;
+    const pack = findSceneByEl(el);
+    if(!pack) return;
+    const { scene, det } = pack;
+    const key = el.getAttribute("data-k");
+
+    if(key === "duration"){
+      const v = Math.max(1, Math.min(20, Number(el.value||6)));
+      scene.duration = v;
+      if(String(v) !== String(el.value)) el.value = v;
+    } else {
+      scene[key] = el.value;
+    }
+
+    // If user pastes/edits the combined box, auto-split into Image + Motion
+    if(key === "comboPrompt"){
+      const parts = splitCombo(scene.comboPrompt || "");
+      scene.imagePrompt = (parts.img || "").trim();
+      scene.motionPrompt = (parts.mot || "").trim();
+
+      const ip = det.querySelector('textarea[data-k="imagePrompt"]');
+      if(ip && ip.value !== scene.imagePrompt) ip.value = scene.imagePrompt;
+
+      const mp = det.querySelector('textarea[data-k="motionPrompt"]');
+      if(mp && mp.value !== scene.motionPrompt) mp.value = scene.motionPrompt;
+    }
+
+    // Keep combined in sync when editing Image or Motion directly
+    if(key === "imagePrompt" || key === "motionPrompt"){
+      scene.comboPrompt = buildCombined(scene);
+      const cp = det.querySelector('textarea[data-k="comboPrompt"]');
+      if(cp && cp.value !== scene.comboPrompt) cp.value = scene.comboPrompt;
+    }
+
+    saveDebounced();
+    mdDebounced();
+  }
+
+  $("sceneList").addEventListener("input", onSceneInput);
+  $("sceneList").addEventListener("change", onSceneInput);
+
+  $("sceneList").addEventListener("click", async (e)=>{
+    const btn = e.target.closest("[data-act]");
+    if(!btn) return;
+    e.preventDefault();
+
+    const pack = findSceneByEl(btn);
+    if(!pack) return;
+    const { scene, id, det } = pack;
+    const idx = state.scenes.findIndex(s=>s.id===id);
+    const act = btn.getAttribute("data-act");
+
+    
+    if(act === "regen"){
+      regenerateScenePrompts(scene);
+
+      const ip = det.querySelector('textarea[data-k="imagePrompt"]');
+      if(ip) ip.value = scene.imagePrompt || "";
+
+      const mp = det.querySelector('textarea[data-k="motionPrompt"]');
+      if(mp) mp.value = scene.motionPrompt || "";
+
+      const cp = det.querySelector('textarea[data-k="comboPrompt"]');
+      if(cp) cp.value = scene.comboPrompt || "";
+
+      saveDebounced();
+      buildAllMarkdown();
+      return;
+    }
+
+    if(act === "copyImage"){
+      if(!scene.imagePrompt) regenerateScenePrompts(scene);
+      let img = (scene.imagePrompt || "").trim();
+
+      // If user accidentally has combined text in the Image box, extract only IMAGE section
+      if(/===\s*IMAGE\s*PROMPT/i.test(img) && /===\s*MOTION\s*PROMPT/i.test(img)){
+        img = (splitCombo(img).img || "").trim();
+      }
+      img = buildImageCopy(scene, img);
+      await copyText(img);
+      return;
+    }
+    if(act === "copyMotion"){
+      if(!scene.motionPrompt) regenerateScenePrompts(scene);
+      let mot = (scene.motionPrompt || "").trim();
+
+      // If user accidentally has combined text in the Motion box, extract only MOTION section
+      if(/===\s*IMAGE\s*PROMPT/i.test(mot) && /===\s*MOTION\s*PROMPT/i.test(mot)){
+        mot = (splitCombo(mot).mot || "").trim();
+      }
+      mot = buildMotionCopy(scene, mot);
+      await copyText(mot);
+      return;
+    }
+    
+    if(act === "copyBoth"){
+      if(!scene.imagePrompt || !scene.motionPrompt) regenerateScenePrompts(scene);
+
+      const num = scene.sceneNo ?? (idx+1);
+      const p = state.project;
+
+      const imgOut = buildImageCopy(scene, (scene.imagePrompt || "").trim());
+      const motOut = buildMotionCopy(scene, (scene.motionPrompt || "").trim());
+
+      const out = [
+        `SCENE ${num}: ${scene.title || ""}`.trim(),
+        ``,
+        `=== IMAGE PROMPT (${p.imageTool}) ===`,
+        imgOut,
+        ``,
+        `=== MOTION PROMPT (${p.motionTool}) — ${p.motionMode} ===`,
+        motOut
+      ].join("\n").trim();
+
+      await copyText(out);
+      return;
+    }
+
+    if(act === "dup"){
+      const clone = JSON.parse(JSON.stringify(scene));
+      clone.id = uid(); clone.open = true;
+      state.scenes.splice(idx+1,0,clone);
+      saveDebounced();
+      render();
+      return;
+    }
+    if(act === "del"){
+      state.scenes.splice(idx,1);
+      saveDebounced();
+      render();
+      return;
+    }
+  });
+
+  function bindProject(){
+    $("p_title").addEventListener("input", ()=>{ state.project.title = $("p_title").value.trim(); saveDebounced(); buildAllMarkdown(); });
+    $("p_format").addEventListener("change", ()=>{ state.project.format = $("p_format").value; saveDebounced(); buildAllMarkdown(); });
+
+    $("p_imageTool").addEventListener("change", ()=>{ state.project.imageTool = $("p_imageTool").value; saveDebounced(); buildAllMarkdown(); });
+    $("p_motionTool").addEventListener("change", ()=>{ state.project.motionTool = $("p_motionTool").value; saveDebounced(); buildAllMarkdown(); });
+    $("p_motionMode").addEventListener("change", ()=>{ state.project.motionMode = $("p_motionMode").value; saveDebounced(); buildAllMarkdown(); });
+
+    $("p_charLock").addEventListener("input", ()=>{ state.project.charLock = $("p_charLock").value; saveDebounced(); });
+    $("p_envLock").addEventListener("input", ()=>{ state.project.envLock = $("p_envLock").value; saveDebounced(); });
+    $("p_imgRules").addEventListener("input", ()=>{ state.project.imgRules = $("p_imgRules").value; saveDebounced(); });
+    $("p_motRules").addEventListener("input", ()=>{ state.project.motRules = $("p_motRules").value; saveDebounced(); });
+    $("p_neg").addEventListener("input", ()=>{ state.project.neg = $("p_neg").value; saveDebounced(); });
+  }
+
+  function bindTop(){
+    $("parseBtn").addEventListener("click", ()=>{
+      const t = $("bulk").value.trim();
+      if(!t) return alert("Paste scenes first.");
+      state.scenes = parseScenes(t);
+      if(!state.scenes.length){
+        return alert(`No scenes detected. Tip: include SCENE 1 / SCENE 2 blocks, or paste the app Markdown output (### Scene 1: ...).\nIf you see 32 sections, you probably pasted #1 / #2 style — this version auto-merges them into scenes.`);
+      }
+      state.scenes.forEach(s=>{
+        // If user pasted ready prompts, keep them. Otherwise generate.
+        if(!(s.imagePrompt && s.imagePrompt.trim()) || !(s.motionPrompt && s.motionPrompt.trim())){
+          regenerateScenePrompts(s);
+        }else{
+          s.comboPrompt = buildCombined(s);
+        }
+      });
+      saveDebounced();
+      render();
+    });
+
+    $("regenAllBtn").addEventListener("click", ()=> regenerateAllPrompts());
+
+    $("expandAllBtn").addEventListener("click", ()=> setAllDetails(true));
+    $("collapseAllBtn").addEventListener("click", ()=> setAllDetails(false));
+
+    $("clearBtn").addEventListener("click", ()=>{
+      if(confirm("Clear everything?")){
+        state.scenes = [];
+        $("bulk").value = "";
+        saveDebounced();
+        render();
+      }
+    });
+
+    $("copyAllMdBtn").addEventListener("click", async ()=>{
+      buildAllMarkdown();
+      await copyText($("allOut").value);
+    });
+
+    $("downloadMdBtn").addEventListener("click", ()=>{
+      buildAllMarkdown();
+      const name = (state.project.title || "prompt_pack").replace(/[^\w\-]+/g,"_").slice(0,60);
+      downloadText(`${name}.md`, $("allOut").value);
+    });
+
+    $("downloadJsonBtn").addEventListener("click", ()=>{
+      const name = (state.project.title || "prompt_pack").replace(/[^\w\-]+/g,"_").slice(0,60);
+      downloadText(`${name}.json`, JSON.stringify(state, null, 2));
+    });
+  }
+
+  bindProject();
+  bindTop();
+  render();
+})();
+</script>
+</body>
+</html>

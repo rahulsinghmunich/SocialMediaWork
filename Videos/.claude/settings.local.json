@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__twelvelabs-mcp__get-video-indexing-tasks",
+      "WebSearch",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_wait_for",
+      "Bash(curl -L --ssl-no-revoke \"https://storage.googleapis.com/ai-sandbox-videofx/image/736f0463-4cbc-4d18-ad0c-c034c3e4de6a?GoogleAccessId=labs-ai-sandbox-videoserver-prod@system.gserviceaccount.com&Expires=1776351064&Signature=Ss8OUV6o7AV88%2Br2aMc97DA9xWjwLzit86g5S7rlIMnMMPjNezXcAh%2FzvbJuw7amh%2FUrQTFpTvivfH3CojrUUahhpJOY5Ll3xlveWRTeaAqEuC0iMaKb6Duuy3iYeuJVE3HPkgIaTFYtL0PuIegwZ5GGJn18ms2wl%2B9Dg1NvMtjtbpkO6UQiuV9m9gnrVdNcRxpHz4ylFzT6oHsXyTWI%2FnSqnkC%2FXFWrYVsDbyU4E2%2F2DMEe8SCGaIbnyF6iDaLA3ap%2FfZ%2BdN79xXc3cSZFmdL9phy67RYKUFTnKQYJ1bpWk0nwBMR1BAWcvArscC%2BOZb4rrQB6rZFwm0f8rr1c3yA%3D%3D\" -o \"d:/oldCOMPUTER/Videos/GappuMonkeyShorts/pipeline/carousel/2026-04-16_GappuTroesMangoes/images/slide_03.png\")",
+      "WebFetch(domain:www.canva.com)",
+      "Bash(npx playwright *)",
+      "Bash(pip install *)"
+    ]
+  }
+}

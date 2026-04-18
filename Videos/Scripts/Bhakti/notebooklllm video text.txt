@@ -1,0 +1,3 @@
+- Generate the entire video voiceover, explanations, and on-screen text strictly in Hindi language. Do not use English.
+- Transform this source material into a gripping, Netflix-style mini-documentary. Use a dramatic, suspenseful narrative approach (like a 'who-done-it' story). Include deep, cinematic visuals, a serious voiceover, and focus on the historical impact of the topic.
+- Explain how Kautilya used intelligence and espionage to secure state stability.

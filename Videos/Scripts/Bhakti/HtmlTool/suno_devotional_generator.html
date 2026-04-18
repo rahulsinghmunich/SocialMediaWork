@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suno Devotional Prompt Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron:#E8620A;--deep-saffron:#C44F00;--gold:#D4A017;--gold-light:#F0C040;
+    --bg:#0D0A06;--surface:#16110A;--surface2:#1E1710;--surface3:#2A2015;
+    --border:#3A2E1A;--border-glow:#6B4A1A;--text:#EDE0C8;--text-dim:#9A8570;--text-bright:#F5EDD8;--radius:8px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;overflow-x:hidden;}
+  body::after{content:'ॐ';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:600px;color:rgba(212,160,23,0.018);pointer-events:none;z-index:0;line-height:1;}
+  .container{max-width:920px;margin:0 auto;padding:32px 20px 80px;position:relative;z-index:1;}
+  .header{text-align:center;margin-bottom:38px;animation:fadeDown 0.8s ease;}
+  .header-om{font-size:52px;color:var(--gold);display:block;margin-bottom:8px;text-shadow:0 0 40px rgba(212,160,23,0.6);animation:pulse 3s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{text-shadow:0 0 30px rgba(212,160,23,0.5)}50%{text-shadow:0 0 70px rgba(212,160,23,0.9),0 0 120px rgba(232,98,10,0.3)}}
+  .header h1{font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--text-bright);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;}
+  .header h1 span{color:var(--gold);}
+  .header p{color:var(--text-dim);font-size:14px;font-style:italic;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px;transition:border-color 0.3s;}
+  .card:hover{border-color:var(--border-glow);}
+  .card-title{font-family:'Cinzel',serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .card-title::before{content:'';display:inline-block;width:4px;height:14px;background:var(--saffron);border-radius:2px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+  label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-bottom:7px;font-family:'Cinzel',serif;}
+  select,input[type="text"],textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-bright);font-family:'Crimson Pro',serif;font-size:15px;padding:9px 13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;appearance:none;}
+  select:focus,input:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,160,23,0.15);}
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23D4A017' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;cursor:pointer;}
+  select option{background:#1E1710;}
+  textarea{resize:vertical;min-height:90px;line-height:1.6;}
+  .genre-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  @media(max-width:640px){.genre-grid{grid-template-columns:repeat(2,1fr)}}
+  .genre-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+  .genre-card:hover{border-color:var(--border-glow);background:var(--surface3);transform:translateY(-1px);}
+  .genre-card.selected{border-color:var(--gold);background:rgba(212,160,23,0.1);}
+  .genre-card.selected::after{content:'✓';position:absolute;top:7px;right:10px;color:var(--gold);font-size:12px;font-family:'Cinzel',serif;}
+  .genre-icon{font-size:20px;display:block;margin-bottom:5px;}
+  .genre-name{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:1px;color:var(--text-bright);text-transform:uppercase;margin-bottom:3px;}
+  .genre-desc{font-size:11.5px;color:var(--text-dim);font-style:italic;line-height:1.35;}
+  .genre-bpm{font-size:10px;color:var(--saffron);margin-top:4px;font-family:'JetBrains Mono',monospace;}
+  .chip-group{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{padding:5px 12px;border-radius:18px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-family:'Crimson Pro',serif;font-size:13px;cursor:pointer;transition:all 0.2s;user-select:none;}
+  .chip:hover{border-color:var(--gold);color:var(--text);}
+  .chip.active{background:rgba(212,160,23,0.15);border-color:var(--gold);color:var(--gold-light);}
+
+  /* Audio */
+  .audio-drop{border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:all 0.3s;background:var(--surface2);position:relative;}
+  .audio-drop:hover,.audio-drop.dragover{border-color:var(--gold);background:rgba(212,160,23,0.05);}
+  .audio-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .audio-icon{font-size:26px;display:block;margin-bottom:7px;}
+  .audio-drop strong{color:var(--text);font-size:14px;font-weight:400;}
+  .audio-drop p{color:var(--text-dim);font-size:12px;font-style:italic;margin-top:3px;}
+  .audio-loaded{background:rgba(76,175,80,0.08)!important;border-color:#4CAF50!important;}
+  .audio-loaded p{color:#81C784!important;}
+
+  /* Analysis badge */
+  .analysis-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:rgba(76,175,80,0.12);border:1px solid rgba(76,175,80,0.4);color:#81C784;font-size:12px;font-family:'Cinzel',serif;letter-spacing:1px;margin-top:8px;}
+  .analysis-box{background:var(--surface2);border:1px solid rgba(76,175,80,0.3);border-radius:10px;padding:14px 16px;margin-top:10px;display:none;}
+  .analysis-box.visible{display:block;animation:fadeUp 0.4s ease;}
+  .analysis-box h4{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:#81C784;text-transform:uppercase;margin-bottom:8px;}
+  .analysis-box p{font-size:14px;line-height:1.7;color:var(--text);}
+
+  /* IAST toggle */
+  .iast-toggle{display:flex;align-items:center;gap:10px;margin-top:12px;}
+  .iast-toggle label{margin:0;font-size:12px;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--text);}
+  .toggle-switch{position:relative;width:40px;height:22px;flex-shrink:0;}
+  .toggle-switch input{opacity:0;width:0;height:0;}
+  .toggle-slider{position:absolute;inset:0;background:var(--surface3);border-radius:22px;cursor:pointer;border:1px solid var(--border);transition:0.3s;}
+  .toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-dim);border-radius:50%;transition:0.3s;}
+  input:checked+.toggle-slider{background:rgba(212,160,23,0.3);border-color:var(--gold);}
+  input:checked+.toggle-slider::before{transform:translateX(18px);background:var(--gold);}
+
+  .btn-generate{width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),var(--deep-saffron));border:none;border-radius:12px;color:white;font-family:'Cinzel',serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.3s;margin-top:6px;}
+  .btn-generate:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(232,98,10,0.4);}
+  .btn-generate:active{transform:translateY(0);}
+  .btn-generate:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-secondary{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-dim);font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 13px;cursor:pointer;transition:all 0.2s;}
+  .btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+  .output-card{background:var(--surface);border:1px solid var(--border-glow);border-radius:12px;overflow:hidden;margin-top:24px;display:none;}
+  .output-card.visible{display:block;animation:fadeUp 0.5s ease;}
+  .output-header{background:linear-gradient(90deg,rgba(232,98,10,0.15),rgba(212,160,23,0.1));padding:14px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  .output-header h3{font-family:'Cinzel',serif;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;}
+  .copy-buttons{display:flex;gap:6px;flex-wrap:wrap;}
+  .output-section{padding:18px 22px;border-bottom:1px solid var(--border);}
+  .output-section:last-child{border-bottom:none;}
+  .out-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--saffron);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .out-label::after{content:'';flex:1;height:1px;background:var(--border);}
+  .output-text{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;color:var(--text-bright);background:var(--surface2);border-radius:8px;padding:14px;white-space:pre-wrap;word-break:break-word;border:1px solid var(--border);}
+  .guidance-text{font-family:'Crimson Pro',serif;font-size:15px;line-height:1.8;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-family:'JetBrains Mono',monospace;background:rgba(212,160,23,0.15);color:var(--gold);border:1px solid rgba(212,160,23,0.3);margin-left:8px;}
+  .badge.over{background:rgba(239,83,80,0.15);color:#ef5350;border-color:rgba(239,83,80,0.3);}
+  .loading{text-align:center;padding:40px;display:none;}
+  .loading-om{font-size:30px;color:var(--gold);display:inline-block;animation:spin 2.5s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading p{margin-top:12px;color:var(--text-dim);font-style:italic;font-size:15px;}
+  .error-msg{background:rgba(139,26,26,0.3);border:1px solid #8B1A1A;border-radius:8px;padding:12px 16px;color:#EF9A9A;font-size:14px;margin-top:14px;display:none;}
+  .copy-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(76,175,80,0.92);color:white;padding:9px 22px;border-radius:22px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:999;font-family:'Cinzel',serif;letter-spacing:1px;}
+  .copy-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .hint{font-size:12px;color:var(--text-dim);font-style:italic;margin-top:5px;}
+  .optional{color:var(--text-dim);font-style:italic;font-size:10px;margin-left:3px;}
+  .mt{margin-top:14px;}
+  .iast-note{font-size:11px;color:var(--saffron);font-style:italic;margin-top:6px;padding:6px 10px;background:rgba(232,98,10,0.08);border-radius:6px;border-left:3px solid var(--saffron);}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <span class="header-om">ॐ</span>
+    <h1>Suno <span>Devotional</span> Prompt Generator</h1>
+    <p>15 Genres · IAST Lyrics · Audio Style Analysis · Powered by Claude AI · Suno V5.5</p>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <div class="card-title">Step 1 — Choose Your Music Genre</div>
+    <div class="genre-grid">
+      <div class="genre-card" onclick="selectGenre(this,'bhajan')" data-genre="bhajan" data-suno="hindi bhajan, devotional" data-bpm="65-85"><span class="genre-icon">🪘</span><div class="genre-name">Bhajan</div><div class="genre-desc">Traditional Hindi devotional with harmonium & tabla</div><div class="genre-bpm">65–85 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'kirtan')" data-genre="kirtan" data-suno="bhakti kirtan, call and response" data-bpm="90-120"><span class="genre-icon">🥁</span><div class="genre-name">Kirtan</div><div class="genre-desc">Call & response chanting, energetic congregation</div><div class="genre-bpm">90–120 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'vedic_chant')" data-genre="vedic_chant" data-suno="vedic chanting, Sanskrit mantra recitation" data-bpm="40-60"><span class="genre-icon">📿</span><div class="genre-name">Vedic Chant</div><div class="genre-desc">Brahmin priest style, monotone Sanskrit recitation</div><div class="genre-bpm">40–60 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'sufi')" data-genre="sufi" data-suno="sufi devotional, qawwali style" data-bpm="80-160"><span class="genre-icon">🌀</span><div class="genre-name">Sufi / Qawwali</div><div class="genre-desc">Mystical ecstatic devotion, building frenzy</div><div class="genre-bpm">80→160 BPM build</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'cinematic')" data-genre="cinematic" data-suno="cinematic orchestral, epic devotional score" data-bpm="60-90"><span class="genre-icon">🎬</span><div class="genre-name">Cinematic Devotional</div><div class="genre-desc">Orchestral epic scale, Bollywood-style sacred score</div><div class="genre-bpm">60–90 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'carnatic')" data-genre="carnatic" data-suno="carnatic vocal, South Indian classical devotional" data-bpm="50-100"><span class="genre-icon">🎵</span><div class="genre-name">Carnatic Classical</div><div class="genre-desc">South Indian raga-based, veena & mridangam</div><div class="genre-bpm">50–100 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'hindustani')" data-genre="hindustani" data-suno="Hindustani classical, raga-based" data-bpm="40-120"><span class="genre-icon">🎶</span><div class="genre-name">Hindustani Classical</div><div class="genre-desc">North Indian raga, khayal, sitar & tabla</div><div class="genre-bpm">40–120 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'lofi_spiritual')" data-genre="lofi_spiritual" data-suno="lo-fi spiritual, ambient Indian meditation" data-bpm="65-80"><span class="genre-icon">🌙</span><div class="genre-name">Lo-Fi Spiritual</div><div class="genre-desc">Modern lo-fi beats + Indian instruments & mantra</div><div class="genre-bpm">65–80 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'temple_ambient')" data-genre="temple_ambient" data-suno="sacred ambient, drone meditation, temple soundscape" data-bpm="40-55"><span class="genre-icon">🕌</span><div class="genre-name">Temple Ambient</div><div class="genre-desc">Pure soundscape, tanpura drone, bells, meditation</div><div class="genre-bpm">40–55 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'devotional_pop')" data-genre="devotional_pop" data-suno="hindi worship, modern devotional pop" data-bpm="80-100"><span class="genre-icon">🎤</span><div class="genre-name">Modern Devotional Pop</div><div class="genre-desc">Contemporary Hindi devotional, clean polished sound</div><div class="genre-bpm">80–100 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'mantra_electronic')" data-genre="mantra_electronic" data-suno="mantra fusion, chant electronic, Sanskrit beats" data-bpm="100-120"><span class="genre-icon">⚡</span><div class="genre-name">Mantra Electronic</div><div class="genre-desc">Electronic beats + Sanskrit chant, yoga/festival</div><div class="genre-bpm">100–120 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'dhrupad')" data-genre="dhrupad" data-suno="dhrupad, ancient Hindustani classical, meditative" data-bpm="30-50"><span class="genre-icon">🎙</span><div class="genre-name">Dhrupad / Dhamar</div><div class="genre-desc">Ancient form, slow deep resonant male voice</div><div class="genre-bpm">30–50 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'devotional_folk')" data-genre="devotional_folk" data-suno="Indian folk devotional, village bhakti" data-bpm="70-95"><span class="genre-icon">🌾</span><div class="genre-name">Devotional Folk</div><div class="genre-desc">Raw village bhakti, Kabir/Mirabai/Baul tradition</div><div class="genre-bpm">70–95 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'aarti')" data-genre="aarti" data-suno="hindi aarti, temple ceremony, building energy" data-bpm="80-120"><span class="genre-icon">🪔</span><div class="genre-name">Aarti</div><div class="genre-desc">Ceremonial building to climax, bells & dholak</div><div class="genre-bpm">80→120 BPM</div></div>
+      <div class="genre-card" onclick="selectGenre(this,'stotra_sanskrit')" data-genre="stotra_sanskrit" data-suno="Sanskrit stotra, vedic hymn recitation" data-bpm="55-75"><span class="genre-icon">📜</span><div class="genre-name">Sanskrit Stotra</div><div class="genre-desc">Shloka recitation, metrical Sanskrit hymn of praise</div><div class="genre-bpm">55–75 BPM</div></div>
+    </div>
+    <p class="hint" style="margin-top:10px;">Select one genre — this sets the entire prompt architecture</p>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card">
+    <div class="card-title">Step 2 — Deity / Theme</div>
+    <div class="grid-2">
+      <div>
+        <label>Deity</label>
+        <select id="deity">
+          <option value="">— Select —</option>
+          <option value="shiva">🔱 Lord Shiva / Mahadev / Bholenath</option>
+          <option value="vishnu">🌸 Lord Vishnu / Narayan</option>
+          <option value="krishna">🪈 Lord Krishna / Govind / Murari</option>
+          <option value="rama">🏹 Lord Rama / Raghunandan</option>
+          <option value="durga">🔴 Maa Durga / Bhavani / Ambika</option>
+          <option value="kali">⚫ Maa Kali / Chamunda / Tara</option>
+          <option value="lakshmi">💛 Maa Lakshmi / Mahalakshmi</option>
+          <option value="saraswati">🎵 Maa Saraswati / Sharada</option>
+          <option value="ganesh">🐘 Lord Ganesha / Vinayak / Ganapati</option>
+          <option value="hanuman">🟠 Lord Hanuman / Bajrangbali</option>
+          <option value="navratri">9️⃣ Navratri / Nav Durga</option>
+          <option value="surya">☀️ Surya Dev / Sun God</option>
+          <option value="radha_krishna">💛 Radha Krishna Divine Love</option>
+          <option value="sita_ram">❤️ Sita Ram</option>
+          <option value="subramanya">🌿 Murugan / Subramanya / Skanda</option>
+          <option value="brahma">🌅 Lord Brahma / Creator</option>
+          <option value="general">🕉️ General Sanatan Dharma</option>
+        </select>
+      </div>
+      <div>
+        <label>Specific Mantra / Stuti <span class="optional">optional</span></label>
+        <input type="text" id="specificMantra" placeholder="e.g. Gayatri Mantra, Hanuman Chalisa, Om Namah Shivaya…">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Audio Reference + Analysis -->
+  <div class="card">
+    <div class="card-title">Step 3 — Reference Audio + Style Analysis <span class="optional">optional</span></div>
+    <div class="audio-drop" id="audioDrop">
+      <input type="file" id="audioFile" accept="audio/*" onchange="handleAudio(this)">
+      <span class="audio-icon">🎵</span>
+      <strong>Drop or click — upload MP3 / WAV / M4A</strong>
+      <p>Upload your reference song — Claude will analyze its style & build matching prompts</p>
+    </div>
+    <p id="audioName" class="hint" style="margin-top:7px;display:none;"></p>
+    <div id="analysisBadgeWrap" style="display:none;">
+      <div class="analysis-badge">🎧 Audio loaded — style analysis will run on Generate</div>
+    </div>
+    <div class="analysis-box" id="analysisBox">
+      <h4>🔍 Style Analysis</h4>
+      <p id="analysisText"></p>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="card">
+    <div class="card-title">Step 4 — Mood & Vocals</div>
+    <div class="grid-2">
+      <div>
+        <label>Mood</label>
+        <select id="mood">
+          <option value="meditative">Meditative / Shant / Peaceful</option>
+          <option value="devotional_pure">Pure Bhakti / Devotion</option>
+          <option value="powerful_ugra">Powerful / Ugra / Fierce</option>
+          <option value="blissful_ananda">Blissful / Ananda / Ecstatic</option>
+          <option value="longing_viraha">Longing / Viraha / Yearning</option>
+          <option value="triumphant">Triumphant / Vijay / Heroic</option>
+          <option value="ancient_cosmic">Ancient / Cosmic / Eternal</option>
+          <option value="festive">Festive / Utsav / Celebratory</option>
+          <option value="mystical">Mystical / Transcendent</option>
+          <option value="surrender">Surrender / Sharanagati</option>
+        </select>
+      </div>
+      <div>
+        <label>Voice Type</label>
+        <select id="voiceType">
+          <option value="single_male_pandit">Single Male — Pandit / Classical</option>
+          <option value="single_male_bhajan">Single Male — Bhajan Singer</option>
+          <option value="single_male_deep">Single Male — Deep Resonant Baritone</option>
+          <option value="group_male_priests">Group Male — Brahmin Priests</option>
+          <option value="single_female_classical">Single Female — Classical Trained</option>
+          <option value="single_female_devotional">Single Female — Devotional Bhajan</option>
+          <option value="group_female">Group Female — Temple Chorus</option>
+          <option value="mixed_congregation">Mixed Group — Congregation</option>
+          <option value="child_pure">Child Voice — Pure & Innocent</option>
+          <option value="aged_saint">Aged Male — Saint / Sage Voice</option>
+          <option value="no_vocals">No Vocals — Instrumental Only</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2 mt">
+      <div>
+        <label>Vocal Style</label>
+        <select id="vocalStyle">
+          <option value="monotone_vedic">Monotone Chant (Vedic precision)</option>
+          <option value="melodic_classical">Melodic Classical (Raga-trained)</option>
+          <option value="folk_natural">Folk / Natural (Unpolished, raw)</option>
+          <option value="call_response">Call & Response (Kirtan)</option>
+          <option value="repetitive_loop">Repetitive Mantra Loop</option>
+          <option value="whispering">Whispering / Intimate</option>
+          <option value="powerful_belt">Powerful Belt / Full Voice</option>
+          <option value="sufi_ecstatic">Sufi / Ecstatic Cry</option>
+          <option value="spoken_recitation">Spoken Recitation</option>
+          <option value="harmonized_choir">Harmonized / Choir</option>
+        </select>
+      </div>
+      <div>
+        <label>Language</label>
+        <select id="language">
+          <option value="sanskrit_iast">Sanskrit — IAST Romanized</option>
+          <option value="hindi_iast">Hindi — IAST / Roman transliteration</option>
+          <option value="devanagari">Devanagari script (original)</option>
+          <option value="sanskrit_hindi_iast">Sanskrit + Hindi — IAST mixed</option>
+          <option value="mantra_om">Mantra / Om Chanting — IAST</option>
+          <option value="braj_bhasha_iast">Braj Bhasha — IAST (Krishna poetry)</option>
+          <option value="awadhi_iast">Awadhi — IAST (Rama poetry)</option>
+          <option value="instrumental">Instrumental — No lyrics</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- IAST toggle -->
+    <div class="iast-toggle mt">
+      <label class="toggle-switch">
+        <input type="checkbox" id="iastToggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+      <label for="iastToggle" style="color:var(--gold-light);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Force IAST Output (Suno copyright-safe)</label>
+    </div>
+    <div class="iast-note" id="iastNote">✦ IAST mode ON — lyrics will use Roman transliteration (e.g. <em>oṃ namaḥ śivāya</em>) instead of Devanagari. This avoids Suno matching copyrighted recordings and prevents copyright claims.</div>
+
+    <div class="mt">
+      <label>Emotional Texture <span class="optional">pick any</span></label>
+      <div class="chip-group" id="emotionChips">
+        <div class="chip" onclick="toggleChip(this)">Tearful Surrender</div>
+        <div class="chip" onclick="toggleChip(this)">Deep Reverence</div>
+        <div class="chip" onclick="toggleChip(this)">Divine Love</div>
+        <div class="chip" onclick="toggleChip(this)">Building Intensity</div>
+        <div class="chip" onclick="toggleChip(this)">Inner Stillness</div>
+        <div class="chip" onclick="toggleChip(this)">Cosmic Awe</div>
+        <div class="chip" onclick="toggleChip(this)">Joyful Celebration</div>
+        <div class="chip" onclick="toggleChip(this)">Warrior Spirit</div>
+        <div class="chip" onclick="toggleChip(this)">Longing for God</div>
+        <div class="chip" onclick="toggleChip(this)">Grace & Gratitude</div>
+        <div class="chip" onclick="toggleChip(this)">Ancient & Timeless</div>
+        <div class="chip" onclick="toggleChip(this)">Ecstatic Bliss</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="card">
+    <div class="card-title">Step 5 — Instruments <span class="optional">2–4 recommended</span></div>
+    <div class="chip-group" id="instrChips">
+      <div class="chip active" onclick="toggleChip(this)">Harmonium</div>
+      <div class="chip active" onclick="toggleChip(this)">Tabla</div>
+      <div class="chip" onclick="toggleChip(this)">Tanpura Drone</div>
+      <div class="chip" onclick="toggleChip(this)">Bansuri Flute</div>
+      <div class="chip" onclick="toggleChip(this)">Sitar</div>
+      <div class="chip" onclick="toggleChip(this)">Mridangam</div>
+      <div class="chip" onclick="toggleChip(this)">Dholak</div>
+      <div class="chip" onclick="toggleChip(this)">Temple Bells</div>
+      <div class="chip" onclick="toggleChip(this)">Veena</div>
+      <div class="chip" onclick="toggleChip(this)">Manjira Cymbals</div>
+      <div class="chip" onclick="toggleChip(this)">Shankh / Conch</div>
+      <div class="chip" onclick="toggleChip(this)">Sarangi</div>
+      <div class="chip" onclick="toggleChip(this)">Sarod</div>
+      <div class="chip" onclick="toggleChip(this)">Santoor</div>
+      <div class="chip" onclick="toggleChip(this)">Shehnai</div>
+      <div class="chip" onclick="toggleChip(this)">Dhol</div>
+      <div class="chip" onclick="toggleChip(this)">Pakhawaj</div>
+      <div class="chip" onclick="toggleChip(this)">Nagara Drum</div>
+      <div class="chip" onclick="toggleChip(this)">Nadaswaram</div>
+      <div class="chip" onclick="toggleChip(this)">Orchestra Strings</div>
+      <div class="chip" onclick="toggleChip(this)">Choir Voices</div>
+      <div class="chip" onclick="toggleChip(this)">Electronic Pads</div>
+      <div class="chip" onclick="toggleChip(this)">Ektara / Dotara</div>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="card">
+    <div class="card-title">Step 6 — Production & Exclusions</div>
+    <div class="grid-2">
+      <div>
+        <label>Production Style</label>
+        <select id="production">
+          <option value="raw_acoustic">Raw Acoustic — No effects</option>
+          <option value="warm_analog">Warm Analog — Natural</option>
+          <option value="temple_ambiance">Temple Ambiance — Sacred reverb</option>
+          <option value="studio_polished">Studio Polished — Clean modern</option>
+          <option value="cinematic_mix">Cinematic Mix — Epic scale</option>
+          <option value="lo_fi_tape">Lo-Fi Tape — Vintage warmth</option>
+          <option value="outdoor_open">Outdoor — Open air / Ghats</option>
+        </select>
+      </div>
+      <div>
+        <label>Song Structure</label>
+        <select id="structure">
+          <option value="mantra_loop">Mantra Loop — Repetitive</option>
+          <option value="verse_chorus">Verse + Chorus</option>
+          <option value="multiple_sections">Full Song — Multiple sections</option>
+          <option value="building_climax">Building to Climax</option>
+          <option value="alap_jor_jhala">Alap → Jor → Jhala (Classical)</option>
+          <option value="pure_instrumental">Pure Instrumental</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt">
+      <label>Exclude</label>
+      <div class="chip-group" id="negChips">
+        <div class="chip active" onclick="toggleChip(this)">No Electric Guitar</div>
+        <div class="chip active" onclick="toggleChip(this)">No Autotune</div>
+        <div class="chip active" onclick="toggleChip(this)">No Western Drums</div>
+        <div class="chip" onclick="toggleChip(this)">No Synthesizer</div>
+        <div class="chip" onclick="toggleChip(this)">No Bass Guitar</div>
+        <div class="chip" onclick="toggleChip(this)">No Choir</div>
+        <div class="chip" onclick="toggleChip(this)">No Pop Production</div>
+        <div class="chip" onclick="toggleChip(this)">No Heavy Reverb</div>
+        <div class="chip" onclick="toggleChip(this)">No Orchestra</div>
+        <div class="chip" onclick="toggleChip(this)">No Electronic Sounds</div>
+        <div class="chip" onclick="toggleChip(this)">No Rap Vocals</div>
+        <div class="chip" onclick="toggleChip(this)">No Melody (Pure Chant)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="card">
+    <div class="card-title">Step 7 — Lyrics & Custom Notes <span class="optional">optional</span></div>
+    <div>
+      <label>Your Lyrics <span class="optional">Devanagari or IAST — will be auto-converted if IAST mode is ON</span></label>
+      <textarea id="userLyrics" rows="5" placeholder="Paste your lyrics here (Devanagari or Roman)…&#10;&#10;e.g. ॐ नमः शिवाय  OR  oṃ namaḥ śivāya&#10;&#10;Leave blank → Claude generates original IAST lyrics."></textarea>
+    </div>
+    <div class="grid-2 mt">
+      <div>
+        <label>Special Instructions</label>
+        <input type="text" id="specialNotes" placeholder="e.g. for YouTube Shorts background, morning puja…">
+      </div>
+      <div>
+        <label>YouTube Reference Style <span class="optional">optional</span></label>
+        <input type="text" id="ytDesc" placeholder="e.g. cinematic orchestral, female vocals, slow build…">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-generate" id="generateBtn" onclick="generatePrompt()">✦ Generate with Claude AI ✦</button>
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="loading" id="loadingDiv">
+    <div class="loading-om">ॐ</div>
+    <p id="loadingMsg">Claude is crafting your sacred prompt…</p>
+  </div>
+
+  <!-- Output -->
+  <div class="output-card" id="outputCard">
+    <div class="output-header">
+      <h3>✦ Your Suno Prompt</h3>
+      <div class="copy-buttons">
+        <button class="btn-secondary" onclick="copyField('styleOutput')">Copy Style</button>
+        <button class="btn-secondary" onclick="copyField('lyricsOutput')">Copy Lyrics</button>
+        <button class="btn-secondary" onclick="copyAll()">Copy All</button>
+      </div>
+    </div>
+    <div class="output-section">
+      <div class="out-label">📌 Style of Music Field <span class="badge" id="styleCount">0 / 1000</span></div>
+      <div class="output-text" id="styleOutput"></div>
+    </div>
+    <div class="output-section">
+      <div class="out-label">📜 Lyrics Field — IAST Romanized (Custom Mode)</div>
+      <div class="output-text" id="lyricsOutput"></div>
+    </div>
+    <div class="output-section" id="analysisOutSection" style="display:none;">
+      <div class="out-label">🎧 Audio Style Analysis</div>
+      <div class="output-text guidance-text" id="analysisOutText"></div>
+    </div>
+    <div class="output-section">
+      <div class="out-label">🪔 Claude's Tips</div>
+      <div class="output-text guidance-text" id="guidanceOutput"></div>
+    </div>
+  </div>
+</div>
+<div class="copy-toast" id="copyToast">✓ Copied!</div>
+
+<script>
+let selectedGenre = null;
+let audioFile = null;
+let audioFileName = null;
+let audioBase64 = null;
+let audioMimeType = null;
+
+// IAST toggle note
+document.getElementById('iastToggle').addEventListener('change', function() {
+  document.getElementById('iastNote').style.display = this.checked ? 'block' : 'none';
+});
+
+function selectGenre(el, genre) {
+  document.querySelectorAll('.genre-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected'); selectedGenre = genre;
+  document.getElementById('errorMsg').style.display = 'none';
+}
+function toggleChip(el) { el.classList.toggle('active'); }
+
+function handleAudio(input) {
+  const file = input.files[0]; if (!file) return;
+  audioFile = file; audioFileName = file.name; audioMimeType = file.type || 'audio/mpeg';
+  const reader = new FileReader();
+  reader.onload = e => { audioBase64 = e.target.result.split(',')[1]; };
+  reader.readAsDataURL(file);
+  const drop = document.getElementById('audioDrop');
+  drop.classList.add('audio-loaded');
+  drop.querySelector('strong').textContent = '✓ ' + file.name;
+  drop.querySelector('p').textContent = 'Ready — Claude will analyze style on Generate';
+  document.getElementById('audioName').textContent = file.name + ' · ' + (file.size/1024).toFixed(0) + ' KB';
+  document.getElementById('audioName').style.display = 'block';
+  document.getElementById('analysisBadgeWrap').style.display = 'block';
+}
+
+function getChips(id) {
+  return Array.from(document.querySelectorAll('#' + id + ' .chip.active')).map(c => c.textContent.trim());
+}
+
+async function generatePrompt() {
+  if (!selectedGenre) { showError('Please select a Music Genre first (Step 1).'); return; }
+  const deity = document.getElementById('deity').value;
+  if (!deity) { showError('Please select a Deity / Theme (Step 2).'); return; }
+
+  const btn = document.getElementById('generateBtn');
+  const loading = document.getElementById('loadingDiv');
+  const outputCard = document.getElementById('outputCard');
+  document.getElementById('errorMsg').style.display = 'none';
+  btn.disabled = true; loading.style.display = 'block'; outputCard.classList.remove('visible');
+
+  const useIAST = document.getElementById('iastToggle').checked;
+  const genreEl = document.querySelector('[data-genre="' + selectedGenre + '"]');
+  const genreName = genreEl ? genreEl.querySelector('.genre-name').textContent : selectedGenre;
+  const genreSuno = genreEl ? genreEl.dataset.suno : '';
+  const genreBpm = genreEl ? genreEl.dataset.bpm : '';
+
+  const d = {
+    genre: genreName, genreSuno, genreBpm, deity,
+    specificMantra: document.getElementById('specificMantra').value,
+    mood: document.getElementById('mood').value,
+    voiceType: document.getElementById('voiceType').value,
+    vocalStyle: document.getElementById('vocalStyle').value,
+    language: document.getElementById('language').value,
+    production: document.getElementById('production').value,
+    structure: document.getElementById('structure').value,
+    instruments: getChips('instrChips').join(', '),
+    negatives: getChips('negChips').join(', '),
+    emotions: getChips('emotionChips').join(', '),
+    userLyrics: document.getElementById('userLyrics').value,
+    specialNotes: document.getElementById('specialNotes').value,
+    ytDesc: document.getElementById('ytDesc').value
+  };
+
+  // --- Step A: Audio analysis (if file uploaded) ---
+  let audioAnalysis = '';
+  if (audioBase64 && audioMimeType) {
+    document.getElementById('loadingMsg').textContent = 'Analyzing your audio style…';
+    try {
+      // Send as base64 document — Claude infers from filename + mime
+      const analysisRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 600,
+          system: 'You are an expert in Indian devotional music. Analyze the provided audio file and describe its musical style for use as a Suno AI reference. Identify: tempo/BPM estimate, instruments, vocal style, mood, production quality, genre, and any Suno-specific style tags that would recreate this sound. Be concise and practical. Write 4-6 sentences max.',
+          messages: [{
+            role: 'user',
+            content: [
+              {
+                type: 'document',
+                source: { type: 'base64', media_type: audioMimeType, data: audioBase64 }
+              },
+              { type: 'text', text: 'Analyze the musical style of this audio file: ' + audioFileName + '. What are the key stylistic elements I should use in a Suno prompt to recreate this sound?' }
+            ]
+          }]
+        })
+      });
+      const aJson = await analysisRes.json();
+      if (!aJson.error) {
+        audioAnalysis = aJson.content.map(b => b.text || '').join('').trim();
+        document.getElementById('analysisText').textContent = audioAnalysis;
+        document.getElementById('analysisBox').classList.add('visible');
+      }
+    } catch(e) {
+      audioAnalysis = '(Audio analysis unavailable — will use filename reference)';
+    }
+  }
+
+  // --- Step B: Generate prompt ---
+  document.getElementById('loadingMsg').textContent = 'Claude is crafting your sacred prompt…';
+
+  const iastInstruction = useIAST
+    ? `LYRICS FORMAT — CRITICAL: Write ALL lyrics in IAST (International Alphabet of Sanskrit Transliteration) Roman script only. Use proper diacritics: ā ī ū ṛ ṝ ḷ ṃ ḥ ś ṣ ṭ ḍ ṇ ñ ṅ. Example: "oṃ namaḥ śivāya" not "OM Namah Shivaya" and NOT Devanagari. This is essential to avoid Suno matching copyrighted recordings and triggering copyright claims. Generate entirely original lyric content — do NOT reproduce any known bhajan, aarti, or stotra verbatim.`
+    : `Write lyrics in Devanagari script.`;
+
+  const sys = `You are a Suno AI prompt engineer specializing in Indian devotional music. You know Suno V5.5 deeply.
+
+SUNO V5.5 RULES:
+- Style field: comma-separated tags, max 1000 chars, first tag = dominant genre, 8-15 tags
+- Always include BPM number in style field
+- Negative prompts at END of style field using "no [element]" format
+- Lyrics: use [Intro][Verse 1][Chorus][Bridge][Outro] section tags
+- Inline cues in parentheses inside sections only: (whispered)(building intensity)(monotone chant)(ecstatic)(harmonized)
+- For Hindi/Sanskrit: add "singing in Hindi" or "Sanskrit pronunciation" in style field
+- For Vedic/mantra: MUST include "monotone" in style field
+- For Sufi: "ecstatic devotional cry", building tempo language
+- For Cinematic: "cinematic orchestral", "epic strings", "dramatic build"
+
+${iastInstruction}
+
+CRITICAL OUTPUT FORMAT: Respond with a single raw JSON object only. No prose, no markdown, no code fences. Start with { end with }. Shape: {"stylePrompt":"...","lyrics":"...","audioStyleTags":"...","guidance":"..."}
+- audioStyleTags: if audio was analyzed, list 4-6 Suno style tags extracted from that analysis; else empty string
+- Escape ALL newlines inside string values as \\n`;
+
+  const audioRefBlock = audioAnalysis
+    ? `AUDIO REFERENCE ANALYSIS:\n${audioAnalysis}\nUse these sonic characteristics to inform the style field and match the vibe.`
+    : (audioFileName ? `AUDIO REFERENCE FILE: "${audioFileName}" — match its general style and tempo` : '');
+
+  const msg = `Generate Suno V5.5 devotional prompt:
+GENRE: ${d.genre} | Tags: ${d.genreSuno} | BPM: ${d.genreBpm}
+DEITY: ${d.deity}${d.specificMantra ? '\nMANTRA: ' + d.specificMantra : ''}
+MOOD: ${d.mood} | VOICE: ${d.voiceType} | VOCAL STYLE: ${d.vocalStyle}
+LANGUAGE: ${d.language} | IAST MODE: ${useIAST ? 'ON' : 'OFF'}
+INSTRUMENTS: ${d.instruments}
+EMOTIONS: ${d.emotions}
+PRODUCTION: ${d.production} | STRUCTURE: ${d.structure}
+NEGATIVES: ${d.negatives}
+${d.ytDesc ? 'YT REFERENCE STYLE: ' + d.ytDesc : ''}
+${d.specialNotes ? 'NOTES: ' + d.specialNotes : ''}
+${audioRefBlock}
+${d.userLyrics ? 'USER LYRICS (convert to IAST if needed):\n' + d.userLyrics : 'Generate original devotional lyrics. IAST mode: ' + (useIAST ? 'ON — use IAST Roman diacritics only' : 'OFF — use Devanagari')}
+
+Keep style field under 1000 chars. Guidance: genre+deity specific Suno tips only.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        system: sys,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const json = await res.json();
+    if (json.error) throw new Error(json.error.message);
+
+    let raw = json.content.map(b => b.text || '').join('').trim()
+      .replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '').trim();
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch {
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (m) {
+        try { parsed = JSON.parse(m[0]); }
+        catch {
+          const san = m[0].replace(/("(?:[^"\\]|\\.)*")/g, s => s.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
+          try { parsed = JSON.parse(san); }
+          catch(e) { throw new Error('Parse failed: ' + e.message); }
+        }
+      } else { throw new Error('No JSON in response. Try again.'); }
+    }
+
+    document.getElementById('styleOutput').textContent = parsed.stylePrompt || '';
+    document.getElementById('lyricsOutput').textContent = parsed.lyrics || '';
+    document.getElementById('guidanceOutput').textContent = parsed.guidance || '';
+
+    // Show audio analysis in output
+    if (audioAnalysis || parsed.audioStyleTags) {
+      const analysisOutSection = document.getElementById('analysisOutSection');
+      const analysisOutText = document.getElementById('analysisOutText');
+      let analysisContent = '';
+      if (audioAnalysis) analysisContent += audioAnalysis;
+      if (parsed.audioStyleTags) analysisContent += '\n\n🎛 Extracted Suno Style Tags:\n' + parsed.audioStyleTags;
+      analysisOutText.textContent = analysisContent.trim();
+      analysisOutSection.style.display = 'block';
+    }
+
+    const len = (parsed.stylePrompt || '').length;
+    const badge = document.getElementById('styleCount');
+    badge.textContent = len + ' / 1000';
+    badge.className = 'badge' + (len > 1000 ? ' over' : '');
+
+    outputCard.classList.add('visible');
+    setTimeout(() => outputCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  } catch(err) {
+    showError('Error: ' + (err.message || 'Please try again.'));
+  } finally {
+    btn.disabled = false; loading.style.display = 'none';
+    document.getElementById('loadingMsg').textContent = 'Claude is crafting your sacred prompt…';
+  }
+}
+
+function showError(m) { const e = document.getElementById('errorMsg'); e.textContent = m; e.style.display = 'block'; }
+function copyField(id) { doCopy(document.getElementById(id).textContent); }
+function copyAll() { doCopy('STYLE:\n' + document.getElementById('styleOutput').textContent + '\n\nLYRICS:\n' + document.getElementById('lyricsOutput').textContent); }
+function doCopy(t) {
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(toast).catch(() => fb(t));
+  else fb(t);
+}
+function fb(t) { const x = document.createElement('textarea'); x.value = t; x.style.cssText='position:fixed;opacity:0'; document.body.appendChild(x); x.select(); document.execCommand('copy'); document.body.removeChild(x); toast(); }
+function toast() { const e = document.getElementById('copyToast'); e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2000); }
+
+const drop = document.getElementById('audioDrop');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('audio/')) {
+    const i = document.getElementById('audioFile');
+    const dt = new DataTransfer(); dt.items.add(f); i.files = dt.files; handleAudio(i);
+  }
+});
+</script>
+</body>
+</html>

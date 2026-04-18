@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bhakti Prompt — Copy & Use</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Sans+Devanagari:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #070400;
+    color: #F0E0B0;
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 16px 60px;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(16px, 3.5vw, 26px);
+    letter-spacing: 4px;
+    color: #D4A017;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .sub {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: #5A3E10;
+    text-align: center;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  /* ── VIDEO TYPE TOGGLE ── */
+  .type-wrap {
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 16px;
+  }
+
+  .type-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: #5A3E10;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .type-btns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .type-btn {
+    padding: 14px 8px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(212,160,23,0.15);
+    background: rgba(255,255,255,0.02);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.22s;
+    font-family: 'Cinzel', serif;
+  }
+
+  .type-btn .t-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+  .type-btn .t-name { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #5A3E10; display: block; }
+  .type-btn .t-sub  { font-size: 10px; color: #3A2805; margin-top: 3px; display: block; line-height: 1.4; }
+
+  .type-btn.active-short  { border-color: #E67E22; background: rgba(230,126,34,0.1); }
+  .type-btn.active-short  .t-name { color: #E67E22; }
+  .type-btn.active-short  .t-sub  { color: rgba(230,126,34,0.6); }
+
+  .type-btn.active-long   { border-color: #3498DB; background: rgba(52,152,219,0.1); }
+  .type-btn.active-long   .t-name { color: #3498DB; }
+  .type-btn.active-long   .t-sub  { color: rgba(52,152,219,0.6); }
+
+  .type-btn.active-both   { border-color: #D4A017; background: rgba(212,160,23,0.1); }
+  .type-btn.active-both   .t-name { color: #D4A017; }
+  .type-btn.active-both   .t-sub  { color: rgba(212,160,23,0.6); }
+
+  /* hint strip */
+  .type-hint {
+    margin-top: 10px;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    transition: all 0.3s;
+  }
+
+  .hint-short { background: rgba(230,126,34,0.07); border: 1px solid rgba(230,126,34,0.2); color: rgba(230,126,34,0.85); }
+  .hint-long  { background: rgba(52,152,219,0.07);  border: 1px solid rgba(52,152,219,0.2);  color: rgba(52,152,219,0.85); }
+  .hint-both  { background: rgba(212,160,23,0.07);  border: 1px solid rgba(212,160,23,0.2);  color: rgba(212,160,23,0.85); }
+
+  /* ── BOX ── */
+  .box {
+    width: 100%;
+    max-width: 780px;
+    background: #100800;
+    border: 1px solid rgba(212,160,23,0.25);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .topbar {
+    background: linear-gradient(90deg, #1A0D02, #221508, #1A0D02);
+    border-bottom: 1px solid rgba(212,160,23,0.2);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .topbar-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #D4A017;
+    text-transform: uppercase;
+  }
+
+  @keyframes shine { 0%{background-position:-200% center} 100%{background-position:200% center} }
+
+  .copy-btn {
+    background: linear-gradient(135deg,#8B6914,#D4A017,#F5C842,#D4A017,#8B6914);
+    background-size: 200% auto;
+    animation: shine 3s linear infinite;
+    border: none; border-radius: 7px;
+    color: #050300;
+    font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 3px; padding: 9px 22px;
+    cursor: pointer; text-transform: uppercase;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 18px rgba(212,160,23,0.35);
+    white-space: nowrap;
+  }
+  .copy-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 28px rgba(212,160,23,0.6); }
+  .copy-btn.done  { background: #27AE60; animation: none; color: #fff; }
+
+  .prompt-text {
+    padding: 24px 26px 28px;
+    font-size: 14.5px;
+    line-height: 2;
+    color: #E5CFA0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    user-select: all;
+  }
+
+  /* badge inside prompt for video type */
+  .vtype-badge {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-family: 'Cinzel', serif;
+  }
+  .badge-short { background: rgba(230,126,34,0.2); color: #E67E22; border: 1px solid rgba(230,126,34,0.4); }
+  .badge-long  { background: rgba(52,152,219,0.2);  color: #3498DB; border: 1px solid rgba(52,152,219,0.4); }
+  .badge-both  { background: rgba(212,160,23,0.2);  color: #D4A017; border: 1px solid rgba(212,160,23,0.4); }
+
+  .story-area {
+    border-top: 1px dashed rgba(212,160,23,0.2);
+    padding: 0 26px 28px;
+  }
+
+  .story-label {
+    font-family: 'Cinzel', serif; font-size: 10px;
+    letter-spacing: 4px; color: #27AE60;
+    text-transform: uppercase; padding: 14px 0 10px;
+  }
+
+  textarea {
+    width: 100%; min-height: 130px;
+    background: #0A0500;
+    border: 1px solid rgba(39,174,96,0.3);
+    border-radius: 8px; padding: 14px 16px;
+    color: #C8E8C0;
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 14px; line-height: 1.8;
+    resize: vertical; outline: none;
+  }
+  textarea::placeholder { color: #2A4A28; }
+
+  .copy-with-story-btn {
+    margin-top: 12px; width: 100%; padding: 13px;
+    background: linear-gradient(135deg,#1a5c2e,#27AE60,#2ECC71,#27AE60,#1a5c2e);
+    background-size: 200% auto;
+    animation: shine 3s linear infinite;
+    border: none; border-radius: 8px;
+    color: #fff; font-family: 'Cinzel', serif;
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    cursor: pointer; text-transform: uppercase;
+    box-shadow: 0 2px 18px rgba(39,174,96,0.3);
+    transition: transform 0.15s;
+  }
+  .copy-with-story-btn:hover { transform: translateY(-1px); }
+  .copy-with-story-btn.done  { background: #16A085; animation: none; }
+
+  .footer {
+    text-align: center; font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 3px; color: #2A1A02;
+    margin-top: 24px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🕉️ Bhakti Video Prompt</h1>
+<div class="sub">Select Type · Add Story · Copy · Paste in Claude</div>
+
+<!-- VIDEO TYPE SELECTOR -->
+<div class="type-wrap">
+  <div class="type-label">🎞️ &nbsp; Video Type चुनो</div>
+  <div class="type-btns">
+    <button class="type-btn active-short" onclick="setType('short')">
+      <span class="t-icon">⚡</span>
+      <span class="t-name">Short</span>
+      <span class="t-sub">60 sec · Reels<br>YouTube Shorts</span>
+    </button>
+    <button class="type-btn" onclick="setType('long')">
+      <span class="t-icon">🎬</span>
+      <span class="t-name">Long Video</span>
+      <span class="t-sub">3–10 min<br>Full Episode</span>
+    </button>
+    <button class="type-btn" onclick="setType('both')">
+      <span class="t-icon">✦</span>
+      <span class="t-name">Both</span>
+      <span class="t-sub">Short + Long<br>एक साथ</span>
+    </button>
+  </div>
+  <div class="type-hint hint-short" id="typeHint">
+    ⚡ 60-second vertical video — 10 to 12 scenes, हर scene 6 से 8 seconds, Instagram Reels + YouTube Shorts के लिए
+  </div>
+</div>
+
+<!-- PROMPT BOX -->
+<div class="box">
+  <div class="topbar">
+    <div class="topbar-title">🎬 &nbsp; Rahul's Bhakti Prompt</div>
+    <button class="copy-btn" id="copyPromptBtn" onclick="copyPromptOnly()">⎘ &nbsp; Copy Prompt</button>
+  </div>
+
+  <div class="prompt-text" id="promptText"></div>
+
+  <!-- STORY INPUT -->
+  <div class="story-area">
+    <div class="story-label">📖 &nbsp; अपनी कथा यहाँ लिखो — फिर नीचे Copy करो</div>
+    <textarea id="storyInput" placeholder="यहाँ अपनी भक्ति कथा लिखो...
+
+जैसे: भगवान शिव का हलाहल विष पीना, हनुमान जी का सूर्य निगलना, कृष्ण और कालिया नाग, माता दुर्गा और महिषासुर..."></textarea>
+    <button class="copy-with-story-btn" id="copyWithStoryBtn" onclick="copyWithStory()">
+      ✦ &nbsp; Copy Prompt + Story &nbsp; → &nbsp; Claude में Paste करो
+    </button>
+  </div>
+</div>
+
+<div class="footer">✦ &nbsp; Object Talk AI &nbsp; · &nbsp; Gappu Magic Land &nbsp; ✦</div>
+
+<script>
+let currentType = 'short';
+
+const COMMON_RULES = `तुम एक expert Hindu bhakti content creator हो।
+मैं तुम्हें एक पौराणिक कथा दूंगा।
+इस कथा को CINEMATIC SCENES में तोड़ो — video generation के लिए।
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VISUAL STYLE (हर scene में यही रहेगी):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Ultra-realistic cinematic 3D — Unreal Engine 5 quality
+• Photorealistic divine lighting + volumetric god rays
+• 8K texture — skin, fabric, jewelry सब hyper-detailed
+• Jewel-encrusted divine costumes
+• Sacred fire + atmospheric incense smoke + golden haze
+• Dramatic chiaroscuro shadows
+• Ancient Indian temple — stone carvings, pillars
+• Epic scale — characters feel larger than life
+
+NARRATION:
+• सिर्फ Hindi — भक्तिपूर्ण, शक्तिशाली, emotional
+• Max 1 से 2 sentences per scene
+• Sanskrit shloka use करो जहाँ powerful लगे`;
+
+const SCENE_FORMAT = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+हर SCENE का FORMAT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎬 SCENE [number] — [0:00–0:08]
+
+📸 VISUAL PROMPT:
+[Character, pose, expression, camera angle, background, lighting, VFX, colors — ultra-detailed Unreal Engine 5 style में]
+
+🎥 MOTION PROMPT (Kling / Veo 3.1):
+[Camera move + character movement — slow push in / divine energy swirling / dramatic zoom out]
+
+🎙️ NARRATION (Hindi only):
+[Powerful devotional Hindi line — max 1 to 2 sentences]
+
+💫 EMOTION: [एक word — भय / श्रद्धा / रोमांच / करुणा / वीरता / आनंद]
+
+🔥 VIRAL SCORE: [1–10]
+──────────────────────────────────────`;
+
+const END_SECTION = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VIDEO के अंत में दो:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 OPENING HOOK (पहले 3 seconds):
+[1 shocking/emotional Hindi line — जो scroll रोक दे]
+
+🖼️ OPENING HOOK IMAGE PROMPT (Nano Banana / Kling):
+[Opening Hook dialogue के लिए image prompt — यह image video के पहले 3 seconds में दिखेगी]
+Rules:
+• Hook line के BOTH parts को visually represent करो (contrast दिखाओ — अंधकार vs प्रकाश, हार vs शक्ति)
+• Scroll-stopping dramatic composition — vertical 9:16
+• इस line से शुरू करो:
+Ultra-realistic cinematic 3D mythological realism, Unreal Engine 5 quality render, photorealistic divine lighting, volumetric god rays, subsurface scattering on skin, 8K texture detail, vertical 9:16 aspect ratio, dramatic chiaroscuro lighting, particle effects with divine energy, epic scale, ancient Indian temple architecture, jewel-encrusted divine costume, sacred fire, atmospheric golden haze, incense smoke, hyper-detailed divine facial expression,
+[then hook-specific visual description — foreground में despair/darkness, background में divine light/power emerging]
+
+🎥 OPENING HOOK MOTION PROMPT (Kling / Veo 3.1):
+[Hook image के लिए camera movement — 3 seconds max, dramatic reveal, slow push-in toward the divine element]
+
+📱 CAPTION (Hindi):
+[Viral Hindi caption with emojis + 25 hashtags — Hindi + English mix]
+
+🍌 NANO BANANA MASTER PROMPT:
+[सबसे powerful scene का image prompt — इस line से शुरू करो:]
+Ultra-realistic cinematic 3D mythological realism, Unreal Engine 5 quality render, photorealistic divine lighting, volumetric god rays, subsurface scattering on skin, 8K texture detail, vertical 9:16 aspect ratio, dramatic chiaroscuro lighting, particle effects with divine energy, epic scale, ancient Indian temple architecture, jewel-encrusted divine costume, sacred fire, atmospheric golden haze, incense smoke, hyper-detailed divine facial expression,
+[then scene specific description]`;
+
+const PROMPTS = {
+  short: `${COMMON_RULES}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VIDEO TYPE: ⚡ SHORT VIDEO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Total scenes = 10 से 12
+• हर scene = सिर्फ 6 से 8 seconds
+• Total video = 60 से 90 seconds MAX
+• Format = Vertical 9:16
+• Platform = Instagram Reels + YouTube Shorts
+• Story को fast-paced और punchy रखो
+• हर scene में एक strong visual moment हो
+
+${SCENE_FORMAT}
+
+${END_SECTION}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+मेरी कथा:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+
+  long: `${COMMON_RULES}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VIDEO TYPE: 🎬 LONG VIDEO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Total scenes = 25 से 40
+• हर scene = 6 से 8 seconds
+• Total video = 3 से 10 minutes
+• Format = Vertical 9:16
+• Platform = YouTube Long Video + Instagram
+• Story को 4 Acts में तोड़ो:
+  ACT 1 — SETUP: दुनिया और character introduce करो
+  ACT 2 — CONFLICT: tension और divine challenge
+  ACT 3 — CLIMAX: epic confrontation, divine power
+  ACT 4 — RESOLUTION: moral, blessing, lesson
+
+हर Act के शुरू में एक ACT TITLE दो।
+
+${SCENE_FORMAT}
+
+${END_SECTION}
+
+📺 LONG VIDEO EXPAND NOTES:
+[बताओ कि कौन से 5 scenes को 20 से 30 sec तक expand किया जाए — extra dialogue, slow motion, reaction shots, environment shots]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+मेरी कथा:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+
+  both: `${COMMON_RULES}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VIDEO TYPE: ✦ BOTH — SHORT + LONG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+पहले SHORT VIDEO बनाओ:
+• 10 से 12 scenes — हर scene 6 से 8 seconds
+• Total = 60 से 90 seconds
+• Platform = Instagram Reels + YouTube Shorts
+• Fast-paced, punchy, scroll-stopping
+
+फिर LONG VIDEO बनाओ:
+• 25 से 40 scenes — हर scene 6 से 8 seconds
+• Total = 3 से 10 minutes
+• Platform = YouTube Long Video
+• 4 Acts structure:
+  ACT 1 SETUP | ACT 2 CONFLICT | ACT 3 CLIMAX | ACT 4 RESOLUTION
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ SHORT VIDEO SCENES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${SCENE_FORMAT}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 LONG VIDEO SCENES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${SCENE_FORMAT}
+
+${END_SECTION}
+
+⚡ SHORT के लिए Best 5 scenes कौन से हैं और क्यों
+📺 LONG VIDEO में कौन से scenes expand होंगे और कैसे
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+मेरी कथा:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+};
+
+const TYPE_CONFIG = {
+  short: {
+    hint: '⚡ 60 से 90 second vertical video — 10 to 12 scenes, हर scene 6 से 8 seconds — Instagram Reels + YouTube Shorts के लिए',
+    hintClass: 'hint-short',
+    activeClass: 'active-short'
+  },
+  long: {
+    hint: '🎬 3 से 10 minute full episode — 25 to 40 scenes, 4-Act structure — YouTube Long Video के लिए',
+    hintClass: 'hint-long',
+    activeClass: 'active-long'
+  },
+  both: {
+    hint: '✦ दोनों एक साथ — पहले Short (60-90 sec), फिर Long (3-10 min) — सभी platforms के लिए',
+    hintClass: 'hint-both',
+    activeClass: 'active-both'
+  }
+};
+
+function setType(type) {
+  currentType = type;
+  // update buttons
+  document.querySelectorAll('.type-btn').forEach((btn, i) => {
+    btn.className = 'type-btn';
+    if (['short','long','both'][i] === type) btn.classList.add(TYPE_CONFIG[type].activeClass);
+  });
+  // update hint
+  const hint = document.getElementById('typeHint');
+  hint.className = 'type-hint ' + TYPE_CONFIG[type].hintClass;
+  hint.textContent = TYPE_CONFIG[type].hint;
+  // update prompt
+  document.getElementById('promptText').textContent = PROMPTS[type];
+}
+
+function safeCopy(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); resolve(); }
+    catch (e) { reject(e); }
+    finally { document.body.removeChild(ta); }
+  });
+}
+
+function copyPromptOnly() {
+  safeCopy(PROMPTS[currentType]).then(() => {
+    const btn = document.getElementById('copyPromptBtn');
+    btn.textContent = '✓  Copied!';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = '⎘  Copy Prompt'; btn.classList.remove('done'); }, 2200);
+  });
+}
+
+function copyWithStory() {
+  const story = document.getElementById('storyInput').value.trim();
+  const final = story ? PROMPTS[currentType] + '\n\n' + story : PROMPTS[currentType];
+  safeCopy(final).then(() => {
+    const btn = document.getElementById('copyWithStoryBtn');
+    btn.textContent = '✓  Copied! Claude में Paste करो 🙏';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = '✦  Copy Prompt + Story  →  Claude में Paste करो'; btn.classList.remove('done'); }, 2500);
+  });
+}
+
+// init
+setType('short');
+</script>
+</body>
+</html>

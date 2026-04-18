@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gappu Magic Land — Prompt Builder v2.0</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0f13;color:#e8e0d0;font-family:'Segoe UI',sans-serif;min-height:100vh}
+
+header{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:16px 24px;border-bottom:2px solid #f0a500;display:flex;align-items:center;gap:14px}
+header .logo{font-size:26px}
+header h1{font-size:17px;font-weight:700;color:#f0a500}
+header p{font-size:11px;color:#777;margin-top:2px}
+
+.container{max-width:920px;margin:0 auto;padding:20px 16px}
+
+/* PIPELINE */
+.pipeline{background:#13131a;border:1px solid #2a2a3a;border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px}
+.p-step{background:#1e1e2e;border:1px solid #2a2a3a;border-radius:6px;padding:6px 12px;color:#aaa;white-space:nowrap}
+.p-step.hl{border-color:#f0a500;color:#f0a500;font-weight:700}
+.p-arrow{color:#444;font-size:14px}
+
+.card{background:#16161f;border:1px solid #2a2a3a;border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h2{font-size:12px;font-weight:700;color:#f0a500;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+
+/* MODE */
+.mode-pills{display:flex;gap:10px;margin-bottom:12px}
+.pill{padding:7px 18px;border-radius:20px;border:1.5px solid #2a2a3a;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;background:#0d0d14;color:#666}
+.pill.active-a{border-color:#00b4d8;color:#00b4d8;background:#001f2a}
+.pill.active-b{border-color:#a855f7;color:#a855f7;background:#1a0b2e}
+.mode-hint{font-size:11px;color:#666;padding:8px 12px;background:#0d0d14;border-radius:6px;border-left:3px solid #2a2a3a;margin-bottom:14px;line-height:1.5}
+.mode-hint.a{border-left-color:#00b4d8;color:#7ecae0}
+.mode-hint.b{border-left-color:#a855f7;color:#c084fc}
+
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:0}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;border-radius:8px 8px 0 0;background:#0d0d14;color:#555;border:1px solid #2a2a3a;border-bottom:none;transition:all .2s}
+.tab.active{background:#16161f;color:#f0a500}
+.tab-panel{background:#16161f;border:1px solid #2a2a3a;border-radius:0 8px 8px 8px;padding:18px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* FORM */
+.label{font-size:11px;color:#888;margin-bottom:5px;display:block}
+.label .req{color:#e07070;margin-left:2px}
+.label .hint{color:#555;font-weight:400;margin-left:4px}
+
+textarea,input[type=text],select{width:100%;background:#0d0d14;border:1px solid #2a2a3a;border-radius:6px;color:#e8e0d0;font-size:12px;padding:8px 10px;font-family:inherit;transition:border-color .2s}
+textarea{resize:vertical;font-family:'Courier New',monospace;line-height:1.6}
+textarea:focus,input[type=text]:focus,select:focus{outline:none;border-color:#f0a500}
+select option{background:#1a1a2a}
+textarea::placeholder,input::placeholder{color:#444}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.field-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:600px){.field-grid,.field-grid-3{grid-template-columns:1fr}}
+
+/* TOGGLE BUTTONS */
+.toggle-group{display:flex;gap:6px;margin-bottom:4px}
+.tog{padding:6px 14px;border-radius:6px;border:1.5px solid #2a2a3a;font-size:11px;font-weight:700;cursor:pointer;background:#0d0d14;color:#666;transition:all .2s}
+.tog.yes.active{border-color:#4ade80;color:#4ade80;background:#0a2a14}
+.tog.no.active{border-color:#f87171;color:#f87171;background:#2a0a0a}
+.gappu-warn{font-size:10px;color:#e07070;margin-top:4px;display:none}
+
+/* ARC BUTTONS */
+.arc-group{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px}
+.arc-btn{padding:5px 12px;border-radius:5px;border:1.5px solid #2a2a3a;font-size:11px;font-weight:700;cursor:pointer;background:#0d0d14;color:#666;transition:all .2s}
+.arc-btn.active{border-color:#f0a500;color:#f0a500;background:#1a1500}
+
+/* ADVANCED */
+.adv-toggle{font-size:11px;color:#555;cursor:pointer;margin-top:12px;display:inline-flex;align-items:center;gap:5px;padding:4px 0;user-select:none}
+.adv-toggle:hover{color:#888}
+.adv-panel{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #1e1e2e}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .2s;letter-spacing:.3px}
+.btn-primary{background:#f0a500;color:#000}
+.btn-primary:hover{background:#ffc107;transform:translateY(-1px)}
+.btn-secondary{background:#1e2a3a;color:#7eb8d4;border:1px solid #2a4a6a}
+.btn-secondary:hover{background:#243344}
+.btn-copy{background:#1a2a1a;color:#6dbf6d;border:1px solid #2a4a2a}
+.btn-copy:hover{background:#1f331f}
+.btn-copy.copied{background:#0f2a0f;color:#4a9f4a}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* OUTPUT */
+.output-box{background:#0a0a10;border:1px solid #2a2a3a;border-radius:8px;padding:14px;font-size:11.5px;font-family:'Courier New',monospace;line-height:1.7;color:#c8c0b0;max-height:420px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+.output-box.empty{color:#444;font-style:italic;text-align:center;padding:40px;font-family:'Segoe UI',sans-serif;font-size:13px}
+
+.status-bar{padding:8px 14px;border-radius:6px;font-size:12px;margin-top:10px}
+.status-ok{background:#0f2a0f;color:#6dbf6d;border:1px solid #1a4a1a}
+.status-err{background:#2a0f0f;color:#e07070;border:1px solid #4a1a1a}
+
+.tip{background:#1a1a0a;border:1px solid #3a3a1a;border-radius:6px;padding:9px 13px;font-size:11px;color:#a09060;line-height:1.6;margin-bottom:14px}
+.tip strong{color:#d4b85a}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-left:6px}
+.badge-a{background:#001f2a;color:#00b4d8;border:1px solid #00b4d8}
+.badge-b{background:#1a0b2e;color:#a855f7;border:1px solid #a855f7}
+
+hr.divider{border:none;border-top:1px solid #1e1e2e;margin:12px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🐵</div>
+  <div>
+    <h1>Gappu Magic Land — Prompt Builder v2.0</h1>
+    <p>Master Prompt v7.0 · All fields correct · arc_position · fps · pacing · structured output</p>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- PIPELINE -->
+<div class="pipeline">
+  <div class="p-step hl">① This Tool</div>
+  <div class="p-arrow">→</div>
+  <div class="p-step">② Paste into Claude.ai</div>
+  <div class="p-arrow">→</div>
+  <div class="p-step">③ Get Block 1 (Scene Pack)</div>
+  <div class="p-arrow">→</div>
+  <div class="p-step">④ Paste into Builder tab → ⚡ Create Scene Rows</div>
+  <div class="p-arrow">→</div>
+  <div class="p-step">⑤ Get Block 2 (Locks Pack)</div>
+  <div class="p-arrow">→</div>
+  <div class="p-step">⑥ Paste into Locks tab → ⚡ Load All Locks</div>
+  <div class="p-arrow">→</div>
+  <div class="p-step">⑦ ↻ Regen All</div>
+</div>
+
+<!-- MODE -->
+<div class="card">
+  <h2>⚙️ Input Mode</h2>
+  <div class="mode-pills">
+    <div class="pill active-a" id="pill-a" onclick="setMode('A')">MODE A — Shot Breakdown</div>
+    <div class="pill" id="pill-b" onclick="setMode('B')">MODE B — Free-Form Story</div>
+  </div>
+  <div class="mode-hint a" id="mode-hint">
+    <strong>MODE A:</strong> Numbered/bulleted shot list → 1 shot = 1 scene, no merging, no scene cap. Claude executes your editorial decisions exactly.
+  </div>
+</div>
+
+<!-- INPUT TABS -->
+<div class="card">
+  <h2>📝 Your Input</h2>
+  <div class="tabs">
+    <div class="tab active" id="tab-btn-quick" onclick="switchTab('quick')">Quick Scene</div>
+    <div class="tab" id="tab-btn-raw" onclick="switchTab('raw')">Paste Story / Shot List</div>
+  </div>
+  <div class="tab-panel">
+
+    <!-- QUICK TAB -->
+    <div class="tab-content active" id="tab-quick">
+      <div class="tip"><strong>Quick Scene:</strong> Fill the fields → the tool outputs a clean structured field block that Claude parses directly into the Builder's <code>parseFieldBlock()</code> format.</div>
+
+      <div class="field-grid">
+        <div>
+          <span class="label">Scene Title <span class="req">*</span></span>
+          <input type="text" id="q-title" placeholder="e.g. Gappu watches his boat crushed">
+        </div>
+        <div>
+          <span class="label">Story Title <span class="hint">(for Locks Pack header)</span></span>
+          <input type="text" id="q-story-title" placeholder="e.g. Gappu's Lake Revenge">
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <span class="label">Arc Position <span class="req">*</span> <span class="hint">(click to select — also sets arc_position: 0–4)</span></span>
+        <div class="arc-group">
+          <div class="arc-btn" onclick="setArc('HOOK',0)">HOOK</div>
+          <div class="arc-btn" onclick="setArc('PAIN',1)">PAIN</div>
+          <div class="arc-btn" onclick="setArc('STRUGGLE',2)">STRUGGLE</div>
+          <div class="arc-btn" onclick="setArc('TURN',3)">TURN</div>
+          <div class="arc-btn" onclick="setArc('PAYOFF',4)">PAYOFF</div>
+        </div>
+        <input type="text" id="q-arc" placeholder="Selected arc appears here" style="margin-top:5px" readonly>
+        <input type="hidden" id="q-arc-pos" value="">
+      </div>
+
+      <div class="field-grid">
+        <div>
+          <span class="label">env_name <span class="req">*</span> <span class="hint">(2–4 words, must match Block 2 NAME)</span></span>
+          <input type="text" id="q-envname" placeholder="e.g. Alpine Lake Shore">
+        </div>
+        <div>
+          <span class="label">Location + Time of Day <span class="req">*</span></span>
+          <input type="text" id="q-location" placeholder="e.g. Alpine lake shore, early morning, golden light">
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <span class="label">Gappu in Scene? <span class="req">*</span></span>
+        <div class="toggle-group">
+          <div class="tog yes" id="tog-yes" onclick="setGappu('YES')">YES</div>
+          <div class="tog no" id="tog-no" onclick="setGappu('NO')">NO</div>
+        </div>
+        <div class="gappu-warn" id="gappu-warn">⚠️ NO selected — anatomy anchor + tail state will be skipped. Emotion field = [NOT IN SCENE].</div>
+        <input type="hidden" id="q-gappu" value="">
+      </div>
+
+      <div style="margin-bottom:10px">
+        <span class="label">Action <span class="req">*</span> <span class="hint">(single frozen frame · prompt-fragment · one movement verb · tail state if Gappu YES)</span></span>
+        <textarea id="q-action" rows="3" placeholder="e.g. Gappu crouches at lake edge, one stubby arm stretched forward fingertip barely touching water surface, small white boat gliding away in front of him, tail pointing straight up rigid"></textarea>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <span class="label">Emotion <span class="hint">(Gappu only · eyes + face + body + tail · write [NOT IN SCENE] if NO)</span></span>
+        <input type="text" id="q-emotion" placeholder="e.g. eyes wide with shock whites fully visible, lower lip trembling, tail limp dragging on ground">
+      </div>
+
+      <div class="field-grid-3">
+        <div>
+          <span class="label">Shot Type</span>
+          <select id="q-shot">
+            <option value="">— select —</option>
+            <option>EXTREME CLOSE-UP</option>
+            <option>CLOSE-UP</option>
+            <option>MEDIUM CLOSE-UP</option>
+            <option>MEDIUM SHOT</option>
+            <option>MEDIUM-WIDE</option>
+            <option>WIDE SHOT</option>
+            <option>TWO-SHOT</option>
+            <option>POV LOW ANGLE</option>
+            <option>UNDERWATER</option>
+          </select>
+        </div>
+        <div>
+          <span class="label">Lens / DOF</span>
+          <select id="q-lens">
+            <option value="">— select —</option>
+            <option>85mm – shallow bokeh</option>
+            <option>135mm – shallow bokeh</option>
+            <option>50mm – natural perspective</option>
+            <option>35mm – wide deep focus</option>
+            <option>28mm – ultra wide deep focus</option>
+          </select>
+        </div>
+        <div>
+          <span class="label">Camera Move</span>
+          <select id="q-camera">
+            <option value="">— select —</option>
+            <option>STATIC</option>
+            <option>VERY SLOW PUSH-IN</option>
+            <option>SLOW ZOOM OUT</option>
+            <option>TRACKING</option>
+            <option>FREEZE THEN PUSH</option>
+            <option>REVEAL PAN</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-grid-3">
+        <div>
+          <span class="label">Lighting</span>
+          <select id="q-lighting">
+            <option value="">— select —</option>
+            <option>Blue-grey overcast, flat diffused, no warmth (COLD/PAIN)</option>
+            <option>High contrast, deep hard shadows (HARSH/WORK)</option>
+            <option>Golden backlight, soft shadows, lens flare (WARM/HOPE)</option>
+            <option>Saturated golden-orange, long shadows (MAGIC HOUR — final payoff only)</option>
+            <option>Single lamp warm circle in darkness (NIGHT/PLAN)</option>
+            <option>Blue-grey, wet surface reflections, cool (RAIN/GRIEF)</option>
+          </select>
+        </div>
+        <div>
+          <span class="label">Duration (seconds)</span>
+          <select id="q-duration">
+            <option value="">— select —</option>
+            <option value="5">5 – Hook</option>
+            <option value="6">6 – Hook/Turn</option>
+            <option value="7">7 – Struggle</option>
+            <option value="8">8 – Pain/Payoff</option>
+            <option value="9">9 – Pain</option>
+            <option value="10">10 – Payoff (longest)</option>
+          </select>
+        </div>
+        <div>
+          <span class="label">Pacing</span>
+          <select id="q-pacing">
+            <option value="">— select —</option>
+            <option>slow</option>
+            <option>medium</option>
+            <option>fast</option>
+            <option>very slow</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div>
+          <span class="label">FPS</span>
+          <select id="q-fps">
+            <option value="">— select —</option>
+            <option value="24">24fps – cinematic</option>
+            <option value="30">30fps – standard</option>
+          </select>
+        </div>
+        <div>
+          <span class="label">Music Energy <span class="hint">(editor ref only)</span></span>
+          <select id="q-music">
+            <option value="">— select —</option>
+            <option>SILENT</option>
+            <option>BUILDING STRINGS</option>
+            <option>SOFT FOLK</option>
+            <option>SUDDEN SILENCE</option>
+            <option>SWELLING ORCHESTRA</option>
+            <option>LIGHT BEAT</option>
+            <option>LOW DRONE</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div>
+          <span class="label">Characters <span class="hint">(exact CHAR_SLOT names or "Gappu alone")</span></span>
+          <input type="text" id="q-chars" placeholder="e.g. CHAR_1: Chihuahua Alpha, CHAR_2: Chihuahua Beta">
+        </div>
+        <div>
+          <span class="label">Cut To <span class="hint">(first image of next scene)</span></span>
+          <input type="text" id="q-cutto" placeholder="e.g. Gappu standing frozen at lake edge staring at wreckage · or END">
+        </div>
+      </div>
+
+      <div style="margin-bottom:6px">
+        <span class="label">Composition</span>
+        <input type="text" id="q-comp" placeholder="e.g. Gappu at left third of frame, vast lake fills right two-thirds">
+      </div>
+
+      <!-- ADVANCED -->
+      <div class="adv-toggle" onclick="toggleAdv()">
+        <span id="adv-arrow">▶</span> Advanced Options
+      </div>
+      <div class="adv-panel" id="adv-panel">
+        <div class="field-grid">
+          <div>
+            <span class="label">Force N Character Locks in Block 2</span>
+            <input type="text" id="q-char-count" placeholder="e.g. 2">
+          </div>
+          <div>
+            <span class="label">Override Gappu Outfit</span>
+            <input type="text" id="q-outfit" placeholder="e.g. tiny red life jacket, no footwear">
+          </div>
+        </div>
+        <div>
+          <span class="label">Special Per-Scene Instructions for Claude</span>
+          <textarea id="q-special" rows="2" placeholder="e.g. Make the villain's laugh visible only in their tail posture, not their face expression"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- RAW TAB -->
+    <div class="tab-content" id="tab-raw">
+      <div class="tip"><strong>Paste your full story or numbered shot list here.</strong> The complete Master Prompt v7.0 wraps it — Claude gets full instructions + your input in one paste.</div>
+      <textarea id="raw-input" rows="13" placeholder="Shot 1: Gappu stands at the lake holding a remote, smiling.&#10;Shot 2: His toy boat bobs peacefully on the water.&#10;Shot 3: Two Chihuahuas in black suits arrive laughing...&#10;&#10;— OR —&#10;&#10;A toddler monkey's toy boat gets crushed by bully dogs.&#10;He builds a submarine in secret and takes revenge."></textarea>
+    </div>
+
+  </div><!-- tab-panel -->
+</div><!-- card -->
+
+<!-- BUILD -->
+<div style="text-align:center;margin-bottom:22px">
+  <button class="btn btn-primary" onclick="buildPrompt()" style="font-size:15px;padding:14px 38px">⚡ Build Claude Prompt</button>
+</div>
+
+<!-- OUTPUT -->
+<div class="card">
+  <h2>📋 Complete Prompt for Claude <span id="mode-badge" class="badge badge-a">MODE A</span></h2>
+  <div id="output-status"></div>
+  <div id="output-area" class="output-box empty">Your assembled prompt will appear here → copy and paste into Claude.ai</div>
+  <div class="btn-row">
+    <button class="btn btn-copy" id="copy-btn" onclick="copyPrompt()">📋 Copy Full Prompt</button>
+    <button class="btn btn-secondary" onclick="clearAll()">🗑 Clear</button>
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:#555;line-height:1.6">
+    Paste into Claude.ai → Claude returns <strong style="color:#888">Block 1</strong> (Scene Pack) + <strong style="color:#888">Block 2</strong> (Locks Pack)
+  </div>
+</div>
+
+</div><!-- container -->
+
+<script>
+let currentMode='A', currentTab='quick', selArc='', selArcPos='', selGappu='';
+
+// ── MODE ──
+function setMode(m){
+  currentMode=m;
+  document.getElementById('pill-a').className='pill'+(m==='A'?' active-a':'');
+  document.getElementById('pill-b').className='pill'+(m==='B'?' active-b':'');
+  const h=document.getElementById('mode-hint');
+  if(m==='A'){h.className='mode-hint a';h.innerHTML='<strong>MODE A:</strong> Numbered/bulleted shot list → 1 shot = 1 scene, no merging, no cap. Claude executes your editorial decisions exactly.';}
+  else{h.className='mode-hint b';h.innerHTML='<strong>MODE B:</strong> Prose / story / idea → Claude makes all editorial decisions. Max 14 scenes. Scene Survival Test applies.';}
+  document.getElementById('mode-badge').className='badge '+(m==='A'?'badge-a':'badge-b');
+  document.getElementById('mode-badge').textContent='MODE '+m;
+}
+
+// ── TABS ──
+function switchTab(t){
+  currentTab=t;
+  ['quick','raw'].forEach(id=>{
+    document.getElementById('tab-btn-'+id).classList.toggle('active',id===t);
+    document.getElementById('tab-'+id).classList.toggle('active',id===t);
+  });
+}
+
+// ── ARC BUTTONS ──
+function setArc(label,pos){
+  selArc=label; selArcPos=pos;
+  document.querySelectorAll('.arc-btn').forEach((b,i)=>b.classList.toggle('active',i===pos));
+  document.getElementById('q-arc').value=label;
+  document.getElementById('q-arc-pos').value=pos;
+  // auto-suggest duration
+  const dmap={0:'6',1:'8',2:'7',3:'6',4:'10'};
+  const dd=document.getElementById('q-duration');
+  if(!dd.value) dd.value=dmap[pos]||'';
+}
+
+// ── GAPPU TOGGLE ──
+function setGappu(v){
+  selGappu=v;
+  document.getElementById('q-gappu').value=v;
+  document.getElementById('tog-yes').classList.toggle('active',v==='YES');
+  document.getElementById('tog-no').classList.toggle('active',v==='NO');
+  document.getElementById('gappu-warn').style.display=v==='NO'?'block':'none';
+  if(v==='NO'){
+    const em=document.getElementById('q-emotion');
+    if(!em.value) em.value='[NOT IN SCENE]';
+  }
+}
+
+// ── ADVANCED TOGGLE ──
+function toggleAdv(){
+  const p=document.getElementById('adv-panel');
+  const a=document.getElementById('adv-arrow');
+  const open=p.style.display==='block';
+  p.style.display=open?'none':'block';
+  a.textContent=open?'▶':'▼';
+}
+
+// ── MASTER SYSTEM PROMPT ──
+const SYS=`════════════════════════════════════════════════════════════════
+GAPPU MAGIC LAND — CINEMATIC SCENE DIRECTOR & VIRAL ENGINEER
+v7.0 — IMAGE-TO-VIDEO EDITION
+════════════════════════════════════════════════════════════════
+
+You are a Gappu Magic Land cinematic director, cinematographer,
+and viral content engineer.
+
+Gappu is a stylized 3D animated toddler monkey (Pixar-style)
+who lives in photorealistic real-world locations anywhere on Earth.
+
+Output TWO complete blocks:
+  BLOCK 1 — Scene Pack  → paste into Builder tab
+  BLOCK 2 — Locks Pack  → paste into Auto-Load Locks Pack box
+
+════════════════════════════════════════════════════════════════
+PART 0A — DETECT INPUT MODE
+════════════════════════════════════════════════════════════════
+
+MODE A — SHOT BREAKDOWN (numbered/bulleted shot list)
+  ★ 1 SHOT = 1 SCENE. Always. No exceptions.
+  ★ NEVER merge. NEVER apply Scene Survival Test. NEVER cap.
+  ★ Shot count in = Scene count out. Always match exactly.
+
+MODE B — FREE-FORM STORY (prose / script / idea)
+  → Max 14 scenes. Apply Scene Survival Test.
+  → Same emotion + same location = merge.
+  → One moment, two emotions = split.
+
+STATE YOUR MODE at the top of Block 1 header.
+
+════════════════════════════════════════════════════════════════
+PART 0B — DOPAMINE ENGINEERING
+════════════════════════════════════════════════════════════════
+
+CURVE: SPIKE → DROP → TENSION → TENSION → RELEASE → PEAK
+REWATCH HOOK: Visual detail in scene 1 paid off in last scene.
+VISUAL ECHO: Same composition first half, reversed emotion second half.
+TRANSITION RULE: Scene ends on QUESTION. Next answers DIFFERENT question.
+
+════════════════════════════════════════════════════════════════
+PART 1 — GAPPU CHARACTER ANCHOR
+════════════════════════════════════════════════════════════════
+
+GAPPU ANATOMY ANCHOR — inject when gappu_in_scene: YES:
+  "3D Pixar-style toddler monkey, chubby round belly, short stubby arms,
+  large dark brown eyes whites clearly visible, oversized round head,
+  round button nose, warm brown fur, smooth 3D render,"
+
+IF gappu_in_scene: NO → DO NOT inject anchor.
+
+TAIL STATE — required when gappu_in_scene: YES:
+  Joy/victory     → tail pointing straight up rigid
+  Sad/fear        → tail hanging low curled downward
+  Shock/numb      → tail limp dragging on the ground
+  Nervous/hopeful → tail wagging with nervous energy
+  Max fear/shame  → tail tucked completely under body
+
+GAPPU NEVER SPEAKS — visual language only.
+
+════════════════════════════════════════════════════════════════
+PART 2 — ENVIRONMENT RULES
+════════════════════════════════════════════════════════════════
+
+Environment = ultra-realistic photographic. Gappu = 3D Pixar. Always.
+LOCATION = ANYWHERE IN THE WORLD.
+
+LIGHTING:
+  COLD/PAIN   → Blue-grey overcast, flat diffused, no warmth
+  HARSH/WORK  → High contrast, deep hard shadows
+  WARM/HOPE   → Golden backlight, soft shadows, lens flare
+  MAGIC HOUR  → Saturated golden-orange, long shadows — PAYOFF ONLY
+  NIGHT/PLAN  → Single lamp warm circle in darkness
+  RAIN/GRIEF  → Blue-grey, wet surface reflections, cool
+
+════════════════════════════════════════════════════════════════
+PART 3 — SCENE COUNT RULES
+════════════════════════════════════════════════════════════════
+
+MODE A: 1 shot = 1 scene. No cap. No test.
+MODE B: Max 14 scenes. Scene Survival Test. Merge same emotion+location.
+
+ARC POSITIONS — assign to EVERY scene:
+  HOOK=0 | PAIN=1 | STRUGGLE=2 | TURN=3 | PAYOFF=4
+
+════════════════════════════════════════════════════════════════
+PART 4 — CINEMATIC RULES
+════════════════════════════════════════════════════════════════
+
+SHOT TYPES (translate to these exact prompt words):
+  EXTREME CLOSE-UP  → "extreme close-up, face fills entire frame"
+  CLOSE-UP          → "close-up shot, face and shoulders only, background soft bokeh blur"
+  MEDIUM CLOSE-UP   → "medium close-up, chest and head visible"
+  MEDIUM SHOT       → "medium shot, full body visible head to feet"
+  MEDIUM-WIDE       → "medium-wide shot, full body plus environment"
+  WIDE SHOT         → "wide shot, small figure in large environment"
+  TWO-SHOT          → "two-shot, side by side, both figures visible"
+  POV LOW ANGLE     → "low angle shot, ground level, looking upward"
+  UNDERWATER        → "underwater shot, looking up toward surface, light caustics"
+
+LENS:
+  85mm/135mm → shallow depth of field, background bokeh blur
+  50mm       → natural perspective, moderate background sharpness
+  35mm/28mm  → wide angle, deep focus, environment sharp
+
+DURATION:
+  HOOK: 5-6 | PAIN: 7-9 | STRUGGLE: 6-7 | TURN: 5-6 | PAYOFF: 8-10
+
+FPS: 24fps cinematic default. Use as specified.
+
+PACING: slow / medium / fast / very slow — drives video model timing.
+
+════════════════════════════════════════════════════════════════
+PART 5 — CHARACTER RULES
+════════════════════════════════════════════════════════════════
+
+Non-human/animal characters → 3D Pixar same style as Gappu.
+Child characters → 3D Pixar.
+Adult humans → photorealistic.
+  Mother/Maa: NEVER show face — hands/back/silhouette only.
+  Father/Baba: CAN show face. Weathered, tired, proud.
+Background characters → photorealistic. Never give a CHAR_SLOT.
+
+════════════════════════════════════════════════════════════════
+PART 6 — ADAPTATION RULES
+════════════════════════════════════════════════════════════════
+
+1. EMOTIONAL CORE first. Build arc backward.
+2. NO DIALOGUE — visual language only.
+3. REWATCH DETAIL scene 1 — pays off in last.
+4. VISUAL ECHO PAIR.
+5. EVERY SCENE = ONE PHOTOGRAPH.
+6. SCENE 1 = 2-second scroll-stop.
+7. gappu_in_scene: NO for any frame Gappu is absent.
+8. VIRAL CHECKLIST — hit at least one:
+   □ "This is exactly what happened to me"
+   □ "I need to call someone right now"
+   □ "This made me cry and I don't know why"
+   □ "I want to watch this again immediately"
+
+════════════════════════════════════════════════════════════════
+PART 7 — OUTPUT FORMAT — BLOCK 1: SCENE PACK
+════════════════════════════════════════════════════════════════
+
+OUTPUT HEADER FIRST:
+
+┌─────────────────────────────────────────────────────────────┐
+INPUT MODE:       [A or B + scene count]
+STORY CORE:       [one sentence — central emotion]
+REWATCH DETAIL:   [scene 1 plant + last scene payoff]
+VISUAL ECHO PAIR: [scene N mirrors scene M, reversed emotion]
+VIRAL TRIGGER:    [which checklist item]
+TOTAL SCENES:     [number]
+LOCATIONS:        [all distinct env_name values]
+GAPPU OUTFIT:     [one line]
+NEW CHARACTERS:   [names needing CHAR_SLOT in Block 2]
+└─────────────────────────────────────────────────────────────┘
+
+THEN output EVERY scene in EXACTLY this format.
+CRITICAL: output ALL fields for every scene. Never skip a field.
+
+─────────────────────────────────────────────────────────────
+scene: [N]
+arc:            [HOOK / PAIN / STRUGGLE / TURN / PAYOFF]
+arc_position:   [0=HOOK / 1=PAIN / 2=STRUGGLE / 3=TURN / 4=PAYOFF]
+env_name:       [2-4 words — MUST exactly match Block 2 NAME field]
+gappu_in_scene: [YES or NO — MANDATORY]
+action:         [ONE frozen frame. Prompt-fragment style. Max 3 short sentences.
+                ONE movement verb minimum. Tail state if YES. Other characters' expressions here.]
+emotion:        [GAPPU ONLY. Eyes + face + body + tail. [NOT IN SCENE] if NO.]
+location:       [Setting. Time of day. Light quality.]
+characters:     [Exact Block 2 slot names. "Gappu alone" if none.]
+shot:           [Shot type name]
+lens:           [Focal length]
+camera_move:    [Movement]
+duration:       [Number only — e.g. 7]
+fps:            [24 or 30]
+pacing:         [slow / medium / fast / very slow]
+lighting:       [Type + tone + details]
+composition:    [Subject position + surrounding elements]
+music_energy:   [Music type — editor reference only]
+cut_to:         [First image of NEXT scene. Last scene: END]
+cin_reason:     [Director logic: what must viewer feel + why these specific tools achieve it. 2 sentences.]
+─────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════
+PART 8 — OUTPUT FORMAT — BLOCK 2: LOCKS PACK
+════════════════════════════════════════════════════════════════
+
+══════════════════════════════════════════════════
+LOCKS PACK — [Story Title]
+══════════════════════════════════════════════════
+
+##OUTFIT##
+[Gappu outfit. Prompt fragment, comma-separated, max 4 sentences.]
+##END_OUTFIT##
+
+##ENV_SLOT_START##
+NAME: [Location name — EXACTLY matching env_name in scenes]
+##ENV_LOCK##
+[Ultra-realistic environment. 4-6 lines. Prompt fragment, comma-separated, 50 words max.]
+##ENV_SLOT_END##
+
+[Repeat for each location. Max 6.]
+
+##CHAR_SLOT_START##
+SLOT: 1
+NAME: [Exact name matching characters: field]
+##CHAR_LOCK##
+Type: [Photorealistic / 3D Pixar]
+Physical description: [Species/age, build, fur/skin/color, key feature, height vs Gappu]
+Outfit for this story: [Colors, fabric, accessories]
+Expression default: [Neutral baseline]
+Key visual rule: [One consistency rule]
+Role in story: [One sentence]
+##CHAR_SLOT_END##
+
+[NO EXTRA CHARACTERS if none needed]
+
+══════════════════════════════════════════════════
+END OF LOCKS PACK
+══════════════════════════════════════════════════
+
+════════════════════════════════════════════════════════════════
+NOW PROCESS THIS INPUT:
+════════════════════════════════════════════════════════════════
+
+DETECT MODE: numbered/bulleted list → MODE A · prose/story/idea → MODE B
+
+`;
+
+// ── BUILD ──
+function buildPrompt(){
+  let userBlock='';
+
+  if(currentTab==='raw'){
+    const raw=document.getElementById('raw-input').value.trim();
+    if(!raw){showStatus('Please paste your story or shot list first.','err');return;}
+    userBlock=raw;
+  } else {
+    const title=v('q-title'), arc=v('q-arc'), arcPos=v('q-arc-pos'),
+          envname=v('q-envname'), location=v('q-location'),
+          gappu=v('q-gappu'), action=v('q-action'), emotion=v('q-emotion'),
+          shot=selVal('q-shot'), lens=selVal('q-lens'), camera=selVal('q-camera'),
+          lighting=selVal('q-lighting'), duration=selVal('q-duration'),
+          pacing=selVal('q-pacing'), fps=selVal('q-fps'), music=selVal('q-music'),
+          chars=v('q-chars'), cutto=v('q-cutto'), comp=v('q-comp'),
+          storyTitle=v('q-story-title'),
+          charCount=v('q-char-count'), outfit=v('q-outfit'), special=v('q-special');
+
+    if(!title&&!action){showStatus('Please fill in Scene Title or Action field.','err');return;}
+
+    // Structured field block — matches parseFieldBlock() exactly
+    userBlock=`scene: 1
+arc:            ${arc||'(not set — please choose an arc button)'}
+arc_position:   ${arcPos!==''?arcPos:'(not set)'}
+env_name:       ${envname||'(required — 2-4 words)'}
+gappu_in_scene: ${gappu||'(required — YES or NO)'}
+action:         ${action||'(required)'}
+emotion:        ${emotion||(gappu==='NO'?'[NOT IN SCENE]':'(required when gappu_in_scene: YES)')}
+location:       ${location||'(required)'}
+characters:     ${chars||'Gappu alone'}
+shot:           ${shot||'(not set)'}
+lens:           ${lens||'(not set)'}
+camera_move:    ${camera||'(not set)'}
+duration:       ${duration||'(not set)'}
+fps:            ${fps||'24'}
+pacing:         ${pacing||'slow'}
+lighting:       ${lighting||'(not set)'}
+composition:    ${comp||'(not set)'}
+music_energy:   ${music||'(not set)'}
+cut_to:         ${cutto||'END'}`;
+
+    if(storyTitle) userBlock=`STORY TITLE: ${storyTitle}\n\n`+userBlock;
+    if(outfit) userBlock+=`\nGAPPU OUTFIT OVERRIDE: ${outfit}`;
+    if(charCount) userBlock+=`\nFORCE CHARACTER LOCKS: ${charCount} character slots required in Block 2`;
+    if(special) userBlock+=`\nSPECIAL INSTRUCTIONS: ${special}`;
+    userBlock+=`\n\nPlease output Block 1 + Block 2 for this scene using all v7.0 rules.`;
+  }
+
+  const modeNote=`\n[USER-SELECTED MODE: MODE ${currentMode}${currentMode==='A'?' — 1 shot = 1 scene, no merging, no cap':' — free editorial, max 14 scenes'}]\n\n`;
+  const full=SYS+modeNote+userBlock;
+
+  const out=document.getElementById('output-area');
+  out.className='output-box';
+  out.textContent=full;
+
+  document.getElementById('mode-badge').textContent='MODE '+currentMode;
+  document.getElementById('mode-badge').className='badge '+(currentMode==='A'?'badge-a':'badge-b');
+  showStatus(`✅ Prompt ready — ${full.length.toLocaleString()} chars · Copy and paste into Claude.ai`,'ok');
+}
+
+function v(id){return document.getElementById(id)?.value?.trim()||''}
+function selVal(id){const el=document.getElementById(id);return el?el.value.trim():''}
+
+// ── COPY (with fallback) ──
+function copyPrompt(){
+  const out=document.getElementById('output-area');
+  if(out.classList.contains('empty')||!out.textContent.trim()){showStatus('Nothing to copy — build a prompt first.','err');return;}
+  const text=out.textContent;
+  const btn=document.getElementById('copy-btn');
+  const ok=()=>{btn.textContent='✅ Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 Copy Full Prompt';btn.classList.remove('copied');},2200);showStatus('Copied! Paste into Claude.ai → Block 1 + Block 2 returned.','ok');};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(ok).catch(()=>fallback(text,ok));
+  } else fallback(text,ok);
+}
+function fallback(text,ok){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.cssText='position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');ok();}
+  catch(e){showStatus('Auto-copy failed — select all text above and copy manually (Ctrl+A, Ctrl+C).','err');}
+  document.body.removeChild(ta);
+}
+
+// ── CLEAR ──
+function clearAll(){
+  document.getElementById('output-area').className='output-box empty';
+  document.getElementById('output-area').textContent='Your assembled prompt will appear here → copy and paste into Claude.ai';
+  document.getElementById('output-status').innerHTML='';
+  ['q-title','q-story-title','q-envname','q-location','q-action','q-emotion','q-chars','q-cutto','q-comp','q-char-count','q-outfit','q-special'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['q-shot','q-lens','q-camera','q-lighting','q-duration','q-pacing','q-fps','q-music'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  document.getElementById('q-arc').value='';
+  document.getElementById('q-arc-pos').value='';
+  document.getElementById('q-gappu').value='';
+  document.getElementById('raw-input').value='';
+  document.querySelectorAll('.arc-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tog-yes').classList.remove('active');
+  document.getElementById('tog-no').classList.remove('active');
+  document.getElementById('gappu-warn').style.display='none';
+  selArc='';selArcPos='';selGappu='';
+}
+
+function showStatus(msg,type){document.getElementById('output-status').innerHTML=`<div class="status-bar status-${type}">${msg}</div>`;}
+</script>
+</body>
+</html>

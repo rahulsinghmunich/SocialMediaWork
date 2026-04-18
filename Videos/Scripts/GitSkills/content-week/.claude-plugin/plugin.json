@@ -1,0 +1,12 @@
+{
+  "name": "content-week",
+  "description": "Turn one YouTube video into a full week of multi-platform content — Instagram carousels, captions, LinkedIn posts, and email copy — with visuals via Blotato.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Maciej Dzierzek",
+    "url": "https://maciejdzierzek.com"
+  },
+  "homepage": "https://maciejdzierzek.com",
+  "repository": "https://github.com/maciejdzierzek/content-week",
+  "license": "MIT"
+}

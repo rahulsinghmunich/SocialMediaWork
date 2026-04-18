@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Object Talk AI — Viral Strategy Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080810;
+    --surface: #0f0f1a;
+    --surface2: #16162a;
+    --surface3: #1e1e35;
+    --border: rgba(255,255,255,0.06);
+    --accent: #7c6bff;
+    --accent2: #ff6b9d;
+    --accent3: #43e8b0;
+    --gold: #ffd166;
+    --text: #f0f0ff;
+    --muted: rgba(240,240,255,0.4);
+    --muted2: rgba(240,240,255,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated orbs background */
+  .bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: orbFloat 14s ease-in-out infinite alternate;
+  }
+
+  .bg-orb-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(124,107,255,0.12), transparent 70%);
+    top: -150px; left: -100px;
+  }
+
+  .bg-orb-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,107,157,0.08), transparent 70%);
+    bottom: -100px; right: -100px;
+    animation-delay: -7s;
+  }
+
+  .bg-orb-3 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(67,232,176,0.07), transparent 70%);
+    top: 50%; left: 50%;
+    animation-delay: -3s;
+  }
+
+  @keyframes orbFloat {
+    from { transform: translate(0,0) scale(1); }
+    to { transform: translate(30px, 20px) scale(1.1); }
+  }
+
+  /* Grid texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,107,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,107,255,0.025) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 52px 0 38px;
+    text-align: center;
+  }
+
+  .header-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,107,255,0.1);
+    border: 1px solid rgba(124,107,255,0.25);
+    border-radius: 40px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(30px, 7vw, 56px);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -2px;
+  }
+
+  .h1-line1 { color: var(--text); }
+  .h1-line2 {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 12px;
+    line-height: 1.7;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .million-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(255,209,102,0.12), rgba(255,107,157,0.08));
+    border: 1px solid rgba(255,209,102,0.25);
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-top: 14px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 26px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: rgba(124,107,255,0.15); }
+
+  .card-hd {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .card-ico {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(124,107,255,0.1);
+    border: 1px solid rgba(124,107,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+
+  .card-ttl {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+  }
+
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── FORM ── */
+  .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width:560px){ .fgrid { grid-template-columns: 1fr; } }
+
+  .fg { display: flex; flex-direction: column; gap: 6px; }
+  .fg.full { grid-column: 1/-1; }
+
+  label {
+    font-size: 11px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  input[type="text"], textarea, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,107,255,0.1);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: #16162a; }
+
+  /* ── TONE PILLS ── */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 7px 15px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .pill:hover { border-color: rgba(124,107,255,0.3); color: var(--text); }
+  .pill.active { background: rgba(124,107,255,0.12); border-color: var(--accent); color: var(--accent); }
+
+  /* ── GENERATE BUTTON ── */
+  .gen-btn {
+    width: 100%;
+    padding: 17px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 17px; font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 30px rgba(124,107,255,0.25);
+    transition: all 0.2s;
+    margin-bottom: 14px;
+  }
+
+  .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(124,107,255,0.35); }
+  .gen-btn:active { transform: translateY(0); }
+  .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── LOADING ── */
+  .loading { text-align: center; padding: 50px 20px; display: none; }
+
+  .loading-orb {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    margin: 0 auto 18px;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.7; }
+  }
+
+  .loading-step { color: var(--accent); font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .loading p { color: var(--muted); font-size: 13px; }
+
+  /* ── ERROR ── */
+  .error-box {
+    background: rgba(255,107,157,0.07);
+    border: 1px solid rgba(255,107,157,0.2);
+    border-radius: 12px;
+    padding: 16px; color: var(--accent2);
+    text-align: center; font-size: 14px;
+    display: none; margin-bottom: 14px;
+  }
+
+  /* ── RESULTS ── */
+  .results { display: none; }
+
+  /* Virality Score */
+  .viral-banner {
+    background: linear-gradient(135deg, rgba(124,107,255,0.12), rgba(255,107,157,0.08));
+    border: 1px solid rgba(124,107,255,0.25);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 14px;
+  }
+
+  .vscore-ring {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 30px rgba(124,107,255,0.3);
+  }
+
+  .vscore-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 30px; font-weight: 800; color: #fff;
+  }
+
+  .vscore-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+
+  .vscore-info p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+  /* Metadata grid */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+
+  .meta-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+
+  .meta-chip-label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted); margin-bottom: 5px;
+  }
+
+  .meta-chip-val {
+    font-size: 13px; font-weight: 600;
+    color: var(--gold);
+    line-height: 1.4;
+  }
+
+  /* Platform tabs */
+  .ptabs {
+    display: flex; gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .ptab {
+    padding: 9px 20px;
+    border-radius: 30px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .ptab:hover { border-color: rgba(124,107,255,0.3); color: var(--text); }
+  .ptab.active { background: rgba(124,107,255,0.12); border-color: var(--accent); color: var(--accent); }
+
+  .ptab-content { display: none; }
+  .ptab-content.active { display: block; }
+
+  /* Result sections */
+  .rsec {
+    background: var(--surface2);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .rsec.pink { border-left-color: var(--accent2); }
+  .rsec.green { border-left-color: var(--accent3); }
+  .rsec.gold { border-left-color: var(--gold); }
+
+  .rsec-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rsec-label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--accent);
+  }
+
+  .rsec.pink .rsec-label { color: var(--accent2); }
+  .rsec.green .rsec-label { color: var(--accent3); }
+  .rsec.gold .rsec-label { color: var(--gold); }
+
+  .rsec-body {
+    color: rgba(240,240,255,0.85);
+    font-size: 14px; line-height: 1.75;
+    white-space: pre-wrap;
+  }
+
+  /* Hashtag cloud */
+  .htag-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+  .htag {
+    background: rgba(124,107,255,0.1);
+    border: 1px solid rgba(124,107,255,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px; font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .htag:hover { background: rgba(124,107,255,0.2); }
+
+  /* Copy btn */
+  .cbtn {
+    background: rgba(124,107,255,0.1);
+    border: 1px solid rgba(124,107,255,0.2);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--accent);
+    font-size: 11px; font-weight: 700;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .cbtn:hover { background: rgba(124,107,255,0.2); }
+
+  /* Growth tips */
+  .growth-tip {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    background: rgba(67,232,176,0.05);
+    border: 1px solid rgba(67,232,176,0.15);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+
+  .tip-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 13px; line-height: 1.6; color: rgba(240,240,255,0.8); }
+  .tip-text strong { color: var(--accent3); }
+
+  footer {
+    text-align: center;
+    padding: 30px;
+    color: rgba(255,255,255,0.12);
+    font-size: 12px;
+    position: relative; z-index: 1;
+  }
+
+  /* ── VIDEO UPLOAD & PLAYER ── */
+  .optional-tag {
+    display: inline-block;
+    background: rgba(255,209,102,0.1);
+    border: 1px solid rgba(255,209,102,0.25);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 10px; font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .upload-zone {
+    border: 2px dashed rgba(124,107,255,0.3);
+    border-radius: 14px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: rgba(124,107,255,0.03);
+  }
+
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(124,107,255,0.07); }
+
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+    border: none; padding: 0; background: none;
+  }
+
+  .upload-icon { font-size: 38px; display: block; margin-bottom: 8px; }
+  .upload-label { color: var(--accent); font-weight: 700; font-size: 15px; }
+  .upload-hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  /* Video Player Panel */
+  .video-panel {
+    display: none;
+    margin-top: 16px;
+    background: #000;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(124,107,255,0.2);
+    position: relative;
+  }
+
+  .video-player-wrap {
+    position: relative;
+    background: #000;
+  }
+
+  .video-player-wrap video {
+    width: 100%;
+    max-height: 320px;
+    display: block;
+    object-fit: contain;
+    background: #000;
+  }
+
+  /* Custom controls bar */
+  .vid-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .vid-play-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .vid-play-btn:hover { background: var(--accent2); transform: scale(1.05); }
+
+  .vid-progress {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    min-width: 80px;
+  }
+
+  .vid-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    width: 0%;
+    pointer-events: none;
+    transition: width 0.1s linear;
+  }
+
+  .vid-time {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .vid-vol {
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  }
+
+  .vid-vol-icon { font-size: 14px; cursor: pointer; }
+
+  .vid-vol input[type="range"] {
+    width: 60px; height: 3px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    border: none; padding: 0; background: none;
+  }
+
+  .vid-meta-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: var(--surface);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .vid-filename {
+    font-size: 12px; font-weight: 600;
+    color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; max-width: 240px;
+  }
+
+  .vid-actions { display: flex; gap: 8px; }
+
+  .vid-action-btn {
+    background: rgba(124,107,255,0.1);
+    border: 1px solid rgba(124,107,255,0.2);
+    border-radius: 8px;
+    padding: 5px 12px;
+    color: var(--accent);
+    font-size: 11px; font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .vid-action-btn:hover { background: rgba(124,107,255,0.2); }
+  .vid-action-btn.danger { color: var(--accent2); border-color: rgba(255,107,157,0.25); background: rgba(255,107,157,0.07); }
+  .vid-action-btn.danger:hover { background: rgba(255,107,157,0.15); }
+
+  /* Frames strip */
+  .frames-strip {
+    display: none;
+    padding: 12px 14px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .frames-strip.show { display: flex; }
+
+  .frame-thumb {
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color 0.15s;
+  }
+
+  .frame-thumb:hover { border-color: rgba(124,107,255,0.5); }
+  .frame-thumb.best-frame { border-color: var(--gold); }
+
+  .frame-thumb img {
+    width: 100px; height: 56px;
+    object-fit: cover; display: block;
+  }
+
+  .frame-thumb-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.6);
+    font-size: 9px; font-weight: 700;
+    color: #fff; text-align: center;
+    padding: 2px 4px;
+  }
+
+  .frame-thumb.best-frame .frame-thumb-label {
+    background: rgba(255,209,102,0.85);
+    color: #000;
+  }
+
+  /* Video analysis results */
+  .vid-analysis {
+    display: none;
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<div class="wrap">
+
+  <header>
+    <div class="header-eyebrow">⚡ Instagram · Facebook · Viral Growth</div>
+    <h1>
+      <div class="h1-line1">Object Talk AI</div>
+      <div class="h1-line2">Viral Strategy Tool</div>
+    </h1>
+    <p class="header-sub">Paste your script details — get a complete viral strategy optimised for 1 million followers</p>
+    <div class="million-badge">🎯 Goal: 1 Million Followers in 12 Months</div>
+  </header>
+
+  <!-- INPUT -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-ico">🎬</div>
+      <div>
+        <div class="card-ttl">Video Details</div>
+        <div class="card-sub">Tell us about your 8-second animated video</div>
+      </div>
+    </div>
+
+    <div class="fgrid">
+
+      <div class="fg">
+        <label>Hero Character</label>
+        <input type="text" id="hero" placeholder="e.g. Ginger, Noodle, Turmeric">
+      </div>
+
+      <div class="fg">
+        <label>Target Character</label>
+        <input type="text" id="target" placeholder="e.g. Sore Throat, Stomach, Heart">
+      </div>
+
+      <div class="fg full">
+        <label>Battle / Topic</label>
+        <input type="text" id="topic" placeholder="e.g. Ginger vs Sore Throat, Noodle vs Stomach">
+      </div>
+
+      <div class="fg full">
+        <label>Health / Ayurveda Message</label>
+        <input type="text" id="healthMsg" placeholder="e.g. Ginger reduces inflammation and kills throat infections naturally">
+      </div>
+
+      <div class="fg full">
+        <label>Key Hindi Dialogue Lines (optional — paste 1-2 punchy lines)</label>
+        <textarea id="dialogue" placeholder="e.g. मैं हूँ अदरक — तेरा काल! / साँस नहीं आ रही!"></textarea>
+      </div>
+
+      <div class="fg full">
+        <label>Video Tone</label>
+        <div class="pill-row">
+          <button class="pill active" onclick="setPill(this,'Funny Swag')">😎 Funny Swag</button>
+          <button class="pill" onclick="setPill(this,'Heroic')">⚔️ Heroic</button>
+          <button class="pill" onclick="setPill(this,'Dramatic')">🎬 Dramatic</button>
+          <button class="pill" onclick="setPill(this,'Horror')">😱 Horror</button>
+          <button class="pill" onclick="setPill(this,'Emotional')">💛 Emotional</button>
+        </div>
+        <input type="hidden" id="tone" value="Funny Swag">
+      </div>
+
+      <div class="fg full">
+        <label>Target Audience Emotion</label>
+        <div class="pill-row">
+          <button class="pill active" onclick="setEmo(this,'Shocked & Surprised')">😲 Shocked</button>
+          <button class="pill" onclick="setEmo(this,'Laughing & Entertained')">😂 Laughing</button>
+          <button class="pill" onclick="setEmo(this,'Informed & Educated')">🧠 Informed</button>
+          <button class="pill" onclick="setEmo(this,'Inspired & Motivated')">🔥 Inspired</button>
+          <button class="pill" onclick="setEmo(this,'Curious & Intrigued')">🤔 Curious</button>
+        </div>
+        <input type="hidden" id="emotion" value="Shocked & Surprised">
+      </div>
+
+    </div>
+  </div>
+
+  </div>
+
+  <!-- VIDEO UPLOAD + PLAYER CARD -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-ico">🎥</div>
+      <div>
+        <div class="card-ttl">Upload & Watch Your Video <span class="optional-tag">Optional</span></div>
+        <div class="card-sub">Watch your video, extract key frames, get deeper visual metadata for a richer strategy</div>
+      </div>
+    </div>
+
+    <!-- Drop zone -->
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="vidFile" accept="video/*" onchange="handleUpload(event)">
+      <span class="upload-icon">🎬</span>
+      <div class="upload-label">Drop your video or click to browse</div>
+      <div class="upload-hint">MP4 · MOV · WEBM — Max 80MB</div>
+    </div>
+
+    <!-- Player panel (hidden until upload) -->
+    <div class="video-panel" id="videoPanel">
+
+      <!-- Video element -->
+      <div class="video-player-wrap">
+        <video id="vidEl" preload="metadata" onclick="togglePlay()"></video>
+      </div>
+
+      <!-- Custom controls -->
+      <div class="vid-controls">
+        <button class="vid-play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+        <div class="vid-progress" id="progressBar" onclick="seekVideo(event)">
+          <div class="vid-progress-fill" id="progressFill"></div>
+        </div>
+        <div class="vid-time" id="vidTime">0:00 / 0:00</div>
+        <div class="vid-vol">
+          <span class="vid-vol-icon" onclick="toggleMute()">🔊</span>
+          <input type="range" id="volSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+        </div>
+      </div>
+
+      <!-- Meta bar -->
+      <div class="vid-meta-bar">
+        <div class="vid-filename" id="vidFileName">—</div>
+        <div class="vid-actions">
+          <button class="vid-action-btn" onclick="extractFrames()">🖼️ Extract Frames</button>
+          <button class="vid-action-btn danger" onclick="removeVideo()">✕ Remove</button>
+        </div>
+      </div>
+
+      <!-- Frames strip -->
+      <div class="frames-strip" id="framesStrip"></div>
+    </div>
+
+    <!-- Hidden canvas for frame extraction -->
+    <canvas id="frameCanvas" style="display:none"></canvas>
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="generate()">
+    🚀 Generate Viral Strategy — 1M Goal
+  </button>
+
+  <div class="loading" id="loading">
+    <div class="loading-orb"></div>
+    <div class="loading-step" id="loadStep">Crafting viral captions...</div>
+    <p>Building hashtag strategy · Timing analysis · Growth tips</p>
+  </div>
+
+  <div class="error-box" id="errBox">⚠️ Something went wrong. Please try again.</div>
+
+  <!-- VIDEO ANALYSIS RESULTS -->
+  <div class="vid-analysis card" id="vidAnalysisCard">
+    <div class="card-hd">
+      <div class="card-ico">🔬</div>
+      <div><div class="card-ttl">Visual Analysis from Your Video</div></div>
+    </div>
+    <div id="vidAnalysisBody"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <!-- Virality Score -->
+    <div class="viral-banner">
+      <div class="vscore-ring">
+        <span class="vscore-num" id="scoreNum">--</span>
+      </div>
+      <div class="vscore-info">
+        <h3 id="scoreLabel">Viral Potential</h3>
+        <p id="scoreReason"></p>
+      </div>
+    </div>
+
+    <!-- Metadata -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-ico">🧬</div>
+        <div><div class="card-ttl">Viral Metadata</div></div>
+      </div>
+      <div class="meta-grid" id="metaGrid"></div>
+    </div>
+
+    <!-- Platform Tabs -->
+    <div class="card">
+      <div class="ptabs">
+        <button class="ptab active" onclick="switchTab('ig',this)">📸 Instagram</button>
+        <button class="ptab" onclick="switchTab('fb',this)">👥 Facebook</button>
+        <button class="ptab" onclick="switchTab('growth',this)">📈 1M Growth Tips</button>
+      </div>
+
+      <div class="ptab-content active" id="tab-ig"></div>
+      <div class="ptab-content" id="tab-fb"></div>
+      <div class="ptab-content" id="tab-growth"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>Object Talk AI Viral Strategy Tool — Built for Rahul ⚡ 1M Vision 🎯</footer>
+
+<script>
+  // ── VIDEO PLAYER ──
+  let vidFrames = [];
+  let vidLoaded = false;
+  let bestFrameIdx = -1;
+
+  function handleUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 80 * 1024 * 1024) { alert('Video too large. Please use under 80MB.'); return; }
+
+    const url = URL.createObjectURL(file);
+    const vid = document.getElementById('vidEl');
+    vid.src = url;
+    vid.load();
+
+    document.getElementById('vidFileName').textContent = file.name;
+    document.getElementById('videoPanel').style.display = 'block';
+    document.getElementById('uploadZone').style.display = 'none';
+
+    vid.addEventListener('loadedmetadata', () => {
+      document.getElementById('vidTime').textContent = `0:00 / ${fmtTime(vid.duration)}`;
+    }, { once: true });
+
+    vid.addEventListener('timeupdate', updateProgress);
+    vid.addEventListener('ended', () => { document.getElementById('playBtn').textContent = '▶'; });
+
+    vidLoaded = true;
+    vidFrames = [];
+  }
+
+  function togglePlay() {
+    const vid = document.getElementById('vidEl');
+    const btn = document.getElementById('playBtn');
+    if (vid.paused) { vid.play(); btn.textContent = '⏸'; }
+    else { vid.pause(); btn.textContent = '▶'; }
+  }
+
+  function updateProgress() {
+    const vid = document.getElementById('vidEl');
+    if (!vid.duration) return;
+    const pct = (vid.currentTime / vid.duration) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('vidTime').textContent = `${fmtTime(vid.currentTime)} / ${fmtTime(vid.duration)}`;
+  }
+
+  function seekVideo(e) {
+    const vid = document.getElementById('vidEl');
+    const bar = document.getElementById('progressBar');
+    const rect = bar.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    vid.currentTime = pct * vid.duration;
+  }
+
+  function setVolume(val) {
+    document.getElementById('vidEl').volume = parseFloat(val);
+  }
+
+  function toggleMute() {
+    const vid = document.getElementById('vidEl');
+    const icon = document.querySelector('.vid-vol-icon');
+    vid.muted = !vid.muted;
+    icon.textContent = vid.muted ? '🔇' : '🔊';
+  }
+
+  function fmtTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60).toString().padStart(2, '0');
+    return `${m}:${sec}`;
+  }
+
+  function removeVideo() {
+    const vid = document.getElementById('vidEl');
+    vid.pause();
+    vid.src = '';
+    document.getElementById('vidFile').value = '';
+    document.getElementById('videoPanel').style.display = 'none';
+    document.getElementById('uploadZone').style.display = 'block';
+    document.getElementById('framesStrip').innerHTML = '';
+    document.getElementById('framesStrip').classList.remove('show');
+    vidFrames = [];
+    vidLoaded = false;
+    bestFrameIdx = -1;
+  }
+
+  function extractFrames() {
+    const vid = document.getElementById('vidEl');
+    const canvas = document.getElementById('frameCanvas');
+    const ctx = canvas.getContext('2d');
+    const dur = vid.duration;
+    if (!dur) { alert('Video not ready yet.'); return; }
+
+    canvas.width = 320; canvas.height = 180;
+    vidFrames = [];
+
+    const times = [0.04, 0.2, 0.4, 0.6, 0.8, 0.96].map(p => p * dur);
+    let idx = 0;
+
+    const strip = document.getElementById('framesStrip');
+    strip.innerHTML = '<span style="color:var(--muted);font-size:12px;align-self:center">Extracting frames...</span>';
+    strip.classList.add('show');
+
+    function capture() {
+      if (idx >= times.length) {
+        renderFrameStrip();
+        return;
+      }
+      vid.currentTime = times[idx];
+    }
+
+    vid.addEventListener('seeked', function onSeek() {
+      ctx.drawImage(vid, 0, 0, 320, 180);
+      vidFrames.push(canvas.toDataURL('image/jpeg', 0.75).split(',')[1]);
+      idx++;
+      if (idx < times.length) {
+        vid.currentTime = times[idx];
+      } else {
+        vid.removeEventListener('seeked', onSeek);
+        renderFrameStrip();
+      }
+    });
+
+    vid.currentTime = times[0];
+  }
+
+  function renderFrameStrip(highlightIdx = -1) {
+    const strip = document.getElementById('framesStrip');
+    strip.innerHTML = '';
+    const labels = ['5%','20%','40%','60%','80%','96%'];
+    vidFrames.forEach((f, i) => {
+      const isBest = i === highlightIdx;
+      const div = document.createElement('div');
+      div.className = 'frame-thumb' + (isBest ? ' best-frame' : '');
+      div.title = `Frame at ${labels[i]}${isBest ? ' ⭐ Best Thumbnail' : ''}`;
+      div.onclick = () => {
+        const vid = document.getElementById('vidEl');
+        vid.currentTime = (parseInt(labels[i]) / 100) * vid.duration;
+      };
+      div.innerHTML = `<img src="data:image/jpeg;base64,${f}"><div class="frame-thumb-label">${isBest ? '⭐ Best' : labels[i]}</div>`;
+      strip.appendChild(div);
+    });
+    strip.classList.add('show');
+  }
+
+  // Drag-drop support
+  const uz = document.getElementById('uploadZone');
+  uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag'); });
+  uz.addEventListener('dragleave', () => uz.classList.remove('drag'));
+  uz.addEventListener('drop', e => {
+    e.preventDefault(); uz.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('video/')) {
+      const dt = new DataTransfer(); dt.items.add(f);
+      document.getElementById('vidFile').files = dt.files;
+      handleUpload({ target: { files: [f] } });
+    }
+  });
+</script>
+
+<script>
+  let tone = 'Funny Swag';
+  let emotion = 'Shocked & Surprised';
+
+  function setPill(btn, val) {
+    btn.closest('.pill-row').querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    tone = val;
+  }
+
+  function setEmo(btn, val) {
+    btn.closest('.pill-row').querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    emotion = val;
+  }
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.ptab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  function copy(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => btn.textContent = orig, 2000);
+    });
+  }
+
+  function renderSec(label, content, cls = '', copyable = false) {
+    const id = 'sec_' + Math.random().toString(36).slice(2);
+    const cb = copyable ? `<button class="cbtn" onclick="copy(document.getElementById('${id}').textContent, this)">📋 Copy</button>` : '';
+    return `<div class="rsec ${cls}">
+      <div class="rsec-hd"><span class="rsec-label">${label}</span>${cb}</div>
+      <div class="rsec-body" id="${id}">${content}</div>
+    </div>`;
+  }
+
+  function renderTags(tagStr, copyAll = true) {
+    const tags = String(tagStr).split(/\s+/).filter(t => t.startsWith('#'));
+    const pills = tags.map(t => `<span class="htag" onclick="copy('${t}', this)">${t}</span>`).join('');
+    const cb = copyAll ? `<button class="cbtn" onclick="copy('${tagStr.replace(/'/g,"\\'")}', this)">📋 Copy All</button>` : '';
+    return `<div class="rsec">
+      <div class="rsec-hd"><span class="rsec-label">📌 Hashtags</span>${cb}</div>
+      <div class="htag-cloud">${pills || tagStr}</div>
+    </div>`;
+  }
+
+  async function generate() {
+    const hero = document.getElementById('hero').value.trim();
+    const target = document.getElementById('target').value.trim();
+    const topic = document.getElementById('topic').value.trim();
+    const healthMsg = document.getElementById('healthMsg').value.trim();
+    const dialogue = document.getElementById('dialogue').value.trim();
+
+    if (!hero || !target || !topic) {
+      alert('Please fill in Hero, Target and Topic!');
+      return;
+    }
+
+    document.getElementById('genBtn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('errBox').style.display = 'none';
+    document.getElementById('vidAnalysisCard').style.display = 'none';
+
+    const steps = ['Crafting viral captions...','Building hashtag strategy...','Analysing timing windows...','Calculating virality score...','Writing 1M growth tips...'];
+    let si = 0;
+    const timer = setInterval(() => {
+      si = (si + 1) % steps.length;
+      document.getElementById('loadStep').textContent = steps[si];
+    }, 1100);
+
+    try {
+      // Step 1: Analyse video frames if available
+      let videoCtx = '';
+      let videoAnalysis = null;
+      if (vidLoaded && vidFrames.length > 0) {
+        document.getElementById('loadStep').textContent = '🎬 Analysing your video frames...';
+        videoAnalysis = await analyseFrames();
+        videoCtx = buildVideoContext(videoAnalysis);
+        renderVideoAnalysis(videoAnalysis);
+      }
+
+      // Step 2: Generate full strategy
+      document.getElementById('loadStep').textContent = '🚀 Building viral strategy...';
+      await generateFullStrategy(hero, target, topic, healthMsg, dialogue, videoCtx);
+
+    } catch(err) {
+      clearInterval(timer);
+      console.error(err);
+      document.getElementById('errBox').style.display = 'block';
+    } finally {
+      clearInterval(timer);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('genBtn').disabled = false;
+    }
+  }
+
+  async function analyseFrames() {
+    const imgContent = vidFrames.map((f, i) => ([
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: f } },
+      { type: 'text', text: `Frame ${i+1}` }
+    ])).flat();
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: [
+            ...imgContent,
+            { type: "text", text: `Analyse these frames from an 8-second Object Talk AI animated video — Pixar-style characters (everyday objects come alive), Hindi dialogue, health/Ayurveda topic. Return JSON ONLY:
+{
+  "visual_mood": "<3 words>",
+  "color_palette": "<dominant colors>",
+  "animation_quality": "<Rough Draft | Good | Polished | Exceptional>",
+  "character_visibility": "<both characters clearly visible / one dominant / unclear>",
+  "best_thumbnail_frame": <1-6>,
+  "thumbnail_reason": "<why this frame>",
+  "thumbnail_text_overlay": "<bold Hindi or English text to overlay>",
+  "hook_strength": "<Weak | Moderate | Strong | Very Strong>",
+  "hook_frame_notes": "<what works or doesn't in opening frame>",
+  "scene_descriptions": ["<frame 1>","<frame 2>","<frame 3>","<frame 4>","<frame 5>","<frame 6>"],
+  "visual_emotion": "<dominant emotion seen>",
+  "pacing": "<Too Fast | Good | Too Slow>",
+  "visual_keywords": "<4 keywords from visuals>",
+  "improvement_tip": "<one specific visual improvement for next video>"
+}` }
+          ]
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content.map(i => i.text || '').join('');
+    return JSON.parse(text.replace(/```json|```/g,'').trim());
+  }
+
+  function buildVideoContext(va) {
+    return `
+VIDEO VISUAL ANALYSIS (from actual uploaded video frames):
+- Visual Mood: ${va.visual_mood}
+- Color Palette: ${va.color_palette}
+- Animation Quality: ${va.animation_quality}
+- Character Visibility: ${va.character_visibility}
+- Hook Strength: ${va.hook_strength} — ${va.hook_frame_notes}
+- Best Thumbnail Frame: Frame ${va.best_thumbnail_frame} — ${va.thumbnail_reason}
+- Thumbnail Text Overlay Suggestion: ${va.thumbnail_text_overlay}
+- Visual Emotion: ${va.visual_emotion}
+- Pacing: ${va.pacing}
+- Visual Keywords: ${va.visual_keywords}
+`;
+  }
+
+  function renderVideoAnalysis(va) {
+    const bestIdx = (va.best_thumbnail_frame || 1) - 1;
+    renderFrameStrip(bestIdx);
+    bestFrameIdx = bestIdx;
+
+    document.getElementById('vidAnalysisBody').innerHTML =
+      rsec('⭐ Best Thumbnail Frame', `Frame ${va.best_thumbnail_frame} — ${va.thumbnail_reason}`, 'gold') +
+      rsec('✏️ Thumbnail Text Overlay', va.thumbnail_text_overlay, 'green', true) +
+      rsec('⚡ Hook Strength', `${va.hook_strength} — ${va.hook_frame_notes}`, va.hook_strength.includes('Strong') ? '' : 'pink') +
+      rsec('🎨 Visual Mood & Colors', `${va.visual_mood} · ${va.color_palette}`, '') +
+      rsec('✨ Animation Quality', va.animation_quality, '') +
+      rsec('😊 Visual Emotion', va.visual_emotion, '') +
+      rsec('🏃 Pacing', va.pacing, va.pacing === 'Good' ? '' : 'pink') +
+      rsec('💡 Improvement Tip', va.improvement_tip, 'gold');
+
+    document.getElementById('vidAnalysisCard').style.display = 'block';
+  }
+
+  function rsec(label, content, cls='', copyable=false) {
+    const id = 'r'+Math.random().toString(36).slice(2);
+    const cb = copyable ? `<button class="cbtn" onclick="copy(document.getElementById('${id}').textContent,this)">📋 Copy</button>` : '';
+    return `<div class="rsec ${cls}"><div class="rsec-hd"><span class="rsec-label">${label}</span>${cb}</div><div class="rsec-body" id="${id}">${content}</div></div>`;
+  }
+
+  async function generateFullStrategy(hero, target, topic, healthMsg, dialogue, videoCtx) {
+    const prompt = `You are a viral social media growth expert specialising in short-form animated health and Ayurveda content for Indian audiences.
+
+CHANNEL: Object Talk AI
+FORMAT: 8-second animated Pixar-style videos — everyday objects (food, organs, ingredients) come alive as funny characters delivering health/Ayurveda facts
+LANGUAGE: Hindi Devanagari dialogue in videos, Hindi+English mixed captions
+NICHE: Health education + Ayurveda + Funny animation
+TARGET AUDIENCE: Hindi-speaking Indians aged 18-40, health-conscious, love funny content
+CREATOR LOCATION: Germany (targeting Indian IST peak times)
+GOAL: 1 MILLION followers in 12 months on Instagram and Facebook
+
+VIDEO DETAILS:
+Hero Character: ${hero}
+Target Character: ${target}
+Topic / Battle: ${topic}
+Health / Ayurveda Message: ${healthMsg || 'natural health wisdom'}
+Key Dialogue: ${dialogue || 'not provided'}
+Video Tone: ${tone}
+Target Audience Emotion: ${emotion}
+${videoCtx}
+
+Generate a complete viral growth strategy in JSON ONLY — no extra text:
+
+{
+  "virality_score": <1-100>,
+  "virality_label": <"Low" | "Building" | "Good" | "High" | "VIRAL POTENTIAL">,
+  "virality_reason": <2 punchy sentences on why this will or won't go viral>,
+  "metadata": {
+    "primary_keyword": <single most powerful keyword for this video>,
+    "secondary_keywords": <4 keywords comma separated>,
+    "emotion_tag": <emotion this triggers in viewer>,
+    "content_category": <e.g. "Ayurveda Comedy" / "Health Horror" / "Funny Facts">,
+    "trending_hook": <what trending angle or format this fits>,
+    "best_posting_window": <specific day + IST time e.g. "Tuesday 8PM IST">,
+    "share_trigger": <one sentence on WHY people will share this specific video>
+  },
+  "instagram": {
+    "caption_hindi_english": <full caption — start with a HOOK line, mix Hindi+English, emojis, max 120 words — make it punchy and shareable>,
+    "hashtags": <25 hashtags — 8 niche health/ayurveda, 8 medium animation/funny, 9 broad viral — space separated>,
+    "posting_time": <best IST day and time + reason why>,
+    "reel_hook_frame": <exact description of what should appear in the FIRST 1 second to stop scroll>,
+    "audio_strategy": <which type of trending audio to pair — describe the mood/beat>,
+    "engagement_cta": <single powerful question or challenge to end the caption>,
+    "cover_frame_text": <bold text overlay to put on the Reel thumbnail cover>,
+    "story_amplification": <how to use Instagram Stories in next 24hrs to boost this Reel's reach>,
+    "collab_angle": <what type of creator to collab with for maximum reach>
+  },
+  "facebook": {
+    "caption": <full caption — warmer family tone, slightly longer, Hindi+English, emojis, max 160 words>,
+    "hashtags": <12 hashtags space separated>,
+    "posting_time": <best IST day and time>,
+    "shareability_hook": <what element makes this Facebook-shareable — family angle, shock value, etc.>,
+    "group_types": <3 specific types of Facebook groups to share this in>,
+    "boost_strategy": <should they boost? budget? targeting suggestion>,
+    "comment_seed": <a comment to post yourself right after publishing to spark replies>
+  },
+  "growth_tips": [
+    {
+      "icon": <emoji>,
+      "title": <short tip title>,
+      "tip": <2-3 sentence actionable tip specifically for reaching 1M on this niche>
+    }
+  ]
+}
+
+Make the growth_tips array have exactly 6 tips — focused on Object Talk AI's specific niche of 8-second health animation in Hindi. Tips must be specific, actionable, not generic.`;
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const r = JSON.parse(clean);
+    render(r);
+  }
+
+  function render(r) {
+    // Score
+    document.getElementById('scoreNum').textContent = r.virality_score;
+    document.getElementById('scoreLabel').textContent = `🔥 ${r.virality_label}`;
+    document.getElementById('scoreReason').textContent = r.virality_reason;
+
+    const ring = document.querySelector('.vscore-ring');
+    if (r.virality_score >= 80) ring.style.background = 'linear-gradient(135deg, #ffd166, #ff6b9d)';
+    else if (r.virality_score >= 60) ring.style.background = 'linear-gradient(135deg, #7c6bff, #43e8b0)';
+    else ring.style.background = 'linear-gradient(135deg, #555, #333)';
+
+    // Metadata
+    const m = r.metadata;
+    document.getElementById('metaGrid').innerHTML = `
+      <div class="meta-chip"><div class="meta-chip-label">Primary Keyword</div><div class="meta-chip-val">${m.primary_keyword}</div></div>
+      <div class="meta-chip"><div class="meta-chip-label">Emotion Tag</div><div class="meta-chip-val">${m.emotion_tag}</div></div>
+      <div class="meta-chip"><div class="meta-chip-label">Content Category</div><div class="meta-chip-val">${m.content_category}</div></div>
+      <div class="meta-chip"><div class="meta-chip-label">Best Window</div><div class="meta-chip-val">${m.best_posting_window}</div></div>
+      <div class="meta-chip" style="grid-column:1/-1"><div class="meta-chip-label">Trending Hook</div><div class="meta-chip-val">${m.trending_hook}</div></div>
+      <div class="meta-chip" style="grid-column:1/-1"><div class="meta-chip-label">Secondary Keywords</div><div class="meta-chip-val">${m.secondary_keywords}</div></div>
+      <div class="meta-chip" style="grid-column:1/-1"><div class="meta-chip-label">🔁 Share Trigger</div><div class="meta-chip-val" style="color:var(--accent3)">${m.share_trigger}</div></div>
+    `;
+
+    // Instagram tab
+    const ig = r.instagram;
+    document.getElementById('tab-ig').innerHTML =
+      renderSec('✍️ Caption', ig.caption_hindi_english, '', true) +
+      renderTags(ig.hashtags) +
+      renderSec('🕐 Best Posting Time', ig.posting_time, 'gold') +
+      renderSec('🎯 First Second Hook', ig.reel_hook_frame, 'pink') +
+      renderSec('🎵 Audio Strategy', ig.audio_strategy, '') +
+      renderSec('🖼️ Cover Frame Text Overlay', ig.cover_frame_text, 'green', true) +
+      renderSec('💬 Engagement CTA', ig.engagement_cta, 'gold', true) +
+      renderSec('📱 Story Amplification (24hrs)', ig.story_amplification, '') +
+      renderSec('🤝 Collab Angle', ig.collab_angle, '');
+
+    // Facebook tab
+    const fb = r.facebook;
+    document.getElementById('tab-fb').innerHTML =
+      renderSec('✍️ Caption', fb.caption, '', true) +
+      renderTags(fb.hashtags) +
+      renderSec('🕐 Best Posting Time', fb.posting_time, 'gold') +
+      renderSec('🔁 Shareability Hook', fb.shareability_hook, 'pink') +
+      renderSec('👥 Group Strategy', fb.group_types, '') +
+      renderSec('💰 Boost Strategy', fb.boost_strategy, 'green') +
+      renderSec('💬 Seed Comment', fb.comment_seed, 'gold', true);
+
+    // Growth tips tab
+    const tips = r.growth_tips || [];
+    document.getElementById('tab-growth').innerHTML = tips.map(t => `
+      <div class="growth-tip">
+        <div class="tip-icon">${t.icon}</div>
+        <div class="tip-text"><strong>${t.title}</strong><br>${t.tip}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

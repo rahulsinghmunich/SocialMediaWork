@@ -1,0 +1,3072 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>🐵 Gappu Viral Prompt Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#0a0e13; --card:#111820; --card2:#161f2c; --muted:#7a95b2; --text:#e6edf5;
+      --line:#1e2e42; --line2:#253548;
+      --ok:#2dce89; --bad:#ff6b6b; --warn:#ffc107;
+      --gappu:#ff6b35; --gappu2:#ff9a56; --gappu-glow:rgba(255,107,53,0.18);
+      --viral:#7c3aed; --viral2:#a855f7;
+      --emotion:#0ea5e9;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      font-family:'Baloo 2', system-ui, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    /* ANIMATED GRAIN */
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity:0.4;
+    }
+
+    header{
+      padding:14px 20px; border-bottom:1px solid var(--line);
+      position:sticky; top:0; z-index:100;
+      background:rgba(10,14,19,0.94); backdrop-filter:blur(12px);
+      display:flex; align-items:center; gap:14px;
+    }
+    .logo{ font-size:28px; line-height:1; }
+    header h1{ font-size:16px; font-weight:800; color:var(--gappu); }
+    header .sub{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+    .tabs{
+      display:flex; gap:6px; margin-left:auto;
+    }
+    .tab-btn{
+      padding:7px 14px; border-radius:999px; border:1px solid var(--line2);
+      background:transparent; color:var(--muted); font-family:'Baloo 2', sans-serif;
+      font-size:12px; font-weight:600; cursor:pointer; transition:all .2s;
+    }
+    .tab-btn.active{
+      background:var(--gappu); color:#fff; border-color:var(--gappu);
+    }
+
+    main{ max-width:1320px; margin:0 auto; padding:16px; position:relative; z-index:1; }
+
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    @media(max-width:960px){ .grid-2{ grid-template-columns:1fr; } .grid-3{ grid-template-columns:1fr; } }
+
+    .card{
+      background:var(--card); border:1px solid var(--line); border-radius:18px;
+      padding:16px; position:relative; overflow:hidden;
+    }
+    .card::before{
+      content:""; position:absolute; inset:0; pointer-events:none; border-radius:18px;
+      background:linear-gradient(135deg, rgba(255,107,53,.03) 0%, transparent 60%);
+    }
+    .card.viral-accent{ border-color:#3d1e6b; }
+    .card.viral-accent::before{ background:linear-gradient(135deg, rgba(124,58,237,.06) 0%, transparent 60%); }
+    .card.emotion-accent{ border-color:#0c3a52; }
+
+    .card-title{
+      font-size:13px; font-weight:800; color:var(--gappu);
+      display:flex; align-items:center; gap:6px; margin-bottom:12px;
+      letter-spacing:.02em; text-transform:uppercase;
+    }
+    .card-title .badge{
+      font-size:10px; padding:2px 7px; border-radius:999px;
+      background:var(--gappu-glow); color:var(--gappu); border:1px solid rgba(255,107,53,.3);
+    }
+
+    label{ display:block; font-size:11px; font-weight:600; color:var(--muted); margin:10px 0 5px; letter-spacing:.04em; text-transform:uppercase; }
+    input[type="text"], input[type="number"], textarea, select{
+      width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--line2);
+      background:#0c1420; color:var(--text); font-family:'JetBrains Mono', monospace; font-size:12px;
+      outline:none; transition:border-color .2s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus{ border-color:var(--gappu); }
+    select{ font-family:'Baloo 2', sans-serif; }
+    textarea{ min-height:90px; resize:vertical; line-height:1.5; }
+    .mono{ font-family:'JetBrains Mono', monospace; }
+
+    /* EMOTION TAGS */
+    .emotion-grid{
+      display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;
+    }
+    .emo-tag{
+      padding:5px 12px; border-radius:999px; border:1px solid var(--line2);
+      font-size:11px; font-weight:600; cursor:pointer; transition:all .15s;
+      background:#0c1420; color:var(--muted);
+    }
+    .emo-tag:hover{ border-color:var(--emotion); color:var(--emotion); }
+    .emo-tag.active{ background:rgba(14,165,233,.18); border-color:var(--emotion); color:var(--text); }
+
+    /* VIRAL HOOK TEMPLATES */
+    .hook-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+    .hook-card{
+      padding:10px 12px; border-radius:12px; border:1px solid var(--line2);
+      background:#0c1420; cursor:pointer; transition:all .15s;
+    }
+    .hook-card:hover{ border-color:var(--viral); background:rgba(124,58,237,.08); }
+    .hook-card .hook-title{ font-size:11px; font-weight:800; color:var(--viral2); margin-bottom:3px; }
+    .hook-card .hook-desc{ font-size:10px; color:var(--muted); line-height:1.4; }
+
+    /* SCENE DETAILS */
+    details{ border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--card2); }
+    details + details{ margin-top:8px; }
+    summary{
+      list-style:none; cursor:pointer; padding:12px 14px;
+      display:flex; justify-content:space-between; align-items:center; gap:8px;
+    }
+    summary > div:not(.drag-handle):not(.sum-right){ flex:1; min-width:0; }
+    summary::-webkit-details-marker{ display:none; }
+    .sum-title{ font-weight:800; font-size:13px; }
+    .sum-meta{ color:var(--muted); font-size:11px; margin-top:2px; }
+    .sum-right{ display:flex; gap:6px; align-items:center; }
+    .pill{
+      font-size:11px; padding:3px 9px; border-radius:999px;
+      border:1px solid var(--line2); color:var(--muted); background:rgba(0,0,0,.2);
+      white-space:nowrap;
+    }
+    .pill.viral{ border-color:#4c1d95; color:var(--viral2); background:rgba(124,58,237,.1); }
+    .pill.emo{ border-color:#0c4a6e; color:var(--emotion); background:rgba(14,165,233,.1); }
+
+    .scene-body{ padding:14px; }
+
+    /* BUTTONS */
+    .btnbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+    button{
+      border:1px solid var(--line2);
+      background:linear-gradient(180deg,#141e2a,#0f1820);
+      color:var(--text); padding:9px 14px; border-radius:12px; cursor:pointer;
+      font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12px;
+      transition:all .15s;
+    }
+    button:hover{ border-color:var(--line); background:#1a2535; }
+    .btn-primary{ border-color:var(--gappu); background:linear-gradient(180deg,rgba(255,107,53,.15),rgba(255,107,53,.08)); color:var(--gappu2); }
+    .btn-primary:hover{ background:linear-gradient(180deg,rgba(255,107,53,.25),rgba(255,107,53,.15)); }
+    .btn-viral{ border-color:var(--viral); background:linear-gradient(180deg,rgba(124,58,237,.15),rgba(124,58,237,.08)); color:var(--viral2); }
+    .btn-viral:hover{ background:linear-gradient(180deg,rgba(124,58,237,.25),rgba(124,58,237,.15)); }
+    .btn-sm{ padding:7px 11px; font-size:11px; }
+    .btn-danger{ border-color:#5a1a1a; background:linear-gradient(180deg,#1a0a0a,#120808); color:#fca5a5; }
+    .btn-ghost{ background:transparent; }
+
+    /* TAGS */
+    .tag{ display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; border:1px solid var(--line2); color:var(--muted); font-size:11px; }
+    .tag strong{ color:var(--text); }
+
+    /* STICKY PANEL */
+    .sticky-panel{ position:sticky; top:72px; }
+
+    /* HINT */
+    .hint{ border:1px dashed #1e3a52; border-radius:12px; padding:10px 12px; background:rgba(0,0,0,.15); color:var(--muted); font-size:11px; line-height:1.5; margin-top:10px; }
+    .hint b{ color:var(--text); }
+
+    /* VIRAL SCORE */
+    .viral-score-bar{
+      margin-top:10px; padding:12px; border-radius:12px;
+      background:rgba(124,58,237,.08); border:1px solid rgba(124,58,237,.2);
+    }
+    .vs-label{ font-size:11px; font-weight:700; color:var(--viral2); margin-bottom:6px; display:flex; justify-content:space-between; }
+    .vs-track{ background:#1a2535; border-radius:999px; height:6px; overflow:hidden; }
+    .vs-fill{ height:100%; border-radius:999px; background:linear-gradient(90deg,var(--viral),var(--viral2)); transition:width .4s; }
+
+    /* SECTION TABS */
+    .tab-panel{ display:none; }
+    .tab-panel.active{ display:block; }
+
+    /* GAPPU PRE-FILLS */
+    .prefill-bar{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .pf-btn{
+      padding:5px 11px; border-radius:999px; border:1px solid var(--line2);
+      font-size:11px; font-weight:600; cursor:pointer; background:#0c1420; color:var(--muted);
+      transition:all .15s;
+    }
+    .pf-btn:hover{ border-color:var(--gappu); color:var(--gappu); }
+
+    /* SCENE ARC */
+    .arc-row{
+      display:flex; gap:8px; align-items:stretch; margin-bottom:12px; overflow-x:auto;
+      padding-bottom:4px;
+    }
+    .arc-step{
+      flex:1; min-width:120px; padding:10px; border-radius:12px;
+      border:1px solid var(--line2); background:#0c1420; text-align:center; position:relative;
+    }
+    .arc-step.active{ border-color:var(--gappu); background:var(--gappu-glow); }
+    .arc-step::after{
+      content:"→"; position:absolute; right:-12px; top:50%; transform:translateY(-50%);
+      color:var(--muted); font-size:14px; z-index:1;
+    }
+    .arc-step:last-child::after{ display:none; }
+    .arc-num{ font-size:10px; color:var(--muted); margin-bottom:4px; }
+    .arc-label{ font-size:12px; font-weight:700; color:var(--text); }
+    .arc-emo{ font-size:10px; color:var(--gappu2); margin-top:3px; }
+
+    .section-gap{ height:14px; }
+    .divider{ border:none; border-top:1px solid var(--line); margin:14px 0; }
+
+    /* ORGANIC IMPERFECTION LAYER */
+    .organic-panel{
+      border:1px solid #1a3a1a; border-radius:16px;
+      background:rgba(34,197,94,0.04); padding:14px; margin-bottom:14px;
+    }
+    .organic-panel .card-title{ color:#86efac; }
+    .organic-toggle-row{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .organic-master-toggle{
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+      font-size:12px; font-weight:700; color:#86efac; user-select:none;
+    }
+    .toggle-sw{
+      width:36px; height:20px; background:#1a2535; border-radius:10px;
+      border:1px solid #22c55e44; position:relative; transition:background .2s; flex-shrink:0;
+    }
+    .toggle-sw.on{ background:#22c55e33; border-color:#22c55e; }
+    .toggle-sw::after{
+      content:""; position:absolute; top:3px; left:3px;
+      width:12px; height:12px; border-radius:50%; background:#4b5563; transition:all .2s;
+    }
+    .toggle-sw.on::after{ left:19px; background:#22c55e; }
+    .intensity-row{ display:flex; gap:6px; margin-bottom:10px; }
+    .int-btn{
+      flex:1; padding:6px 8px; border-radius:8px; border:1px solid var(--line2);
+      background:#0c1420; color:var(--muted); font-size:11px; font-weight:700;
+      cursor:pointer; text-align:center; transition:all .15s;
+    }
+    .int-btn:hover{ border-color:#22c55e44; color:#86efac; }
+    .int-btn.active{ border-color:#22c55e; background:rgba(34,197,94,0.12); color:#86efac; }
+    .organic-preview{
+      font-family:'JetBrains Mono',monospace; font-size:10px; color:#4ade80;
+      background:#050f05; border:1px solid #1a3a1a; border-radius:8px;
+      padding:10px; margin-top:8px; line-height:1.6; white-space:pre-wrap; max-height:120px; overflow-y:auto;
+    }
+    .organic-badge{
+      display:inline-flex; align-items:center; gap:4px; font-size:10px; padding:2px 8px;
+      border-radius:999px; background:rgba(34,197,94,0.12); border:1px solid #22c55e44;
+      color:#86efac; font-weight:700; white-space:nowrap;
+    }
+
+    /* EXTRA CHAR LOCKS */
+    .char-lock-block{
+      border:1px solid var(--line2); border-radius:14px; padding:12px;
+      background:#0c1420; margin-bottom:10px; position:relative;
+    }
+    .char-lock-block.has-content{ border-color:#1e3d5a; }
+    .char-name-row{ display:flex; gap:10px; align-items:center; margin-bottom:8px; }
+    .char-color-dot{
+      width:10px; height:10px; border-radius:50%; flex-shrink:0;
+    }
+    .char-name-input{
+      flex:1; padding:7px 10px; border-radius:8px; border:1px solid var(--line2);
+      background:#0a0e13; color:var(--text); font-family:'Baloo 2',sans-serif;
+      font-size:12px; font-weight:700; outline:none;
+    }
+    .char-name-input:focus{ border-color:var(--emotion); }
+
+    /* SCENE CHARACTER CHECKBOXES */
+    .scene-chars-row{
+      display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 4px;
+    }
+    .char-check-label{
+      display:flex; align-items:center; gap:6px; padding:7px 12px;
+      border-radius:8px; border:1.5px dashed var(--line2); cursor:pointer;
+      font-size:11px; font-weight:600; color:var(--muted); background:#0a1120;
+      transition:all .15s; user-select:none; position:relative;
+    }
+    .char-check-label::before{
+      content:"☐"; font-size:13px; color:var(--muted); transition:all .15s;
+    }
+    .char-check-label:hover{ border-color:var(--emotion); color:var(--text); background:#0f1e30; }
+    .char-check-label:hover::before{ color:var(--emotion); }
+    .char-check-label input{ display:none; }
+    .char-check-label.checked{
+      border:1.5px solid var(--emotion); color:var(--text);
+      background:rgba(14,165,233,.12); border-style:solid;
+    }
+    .char-check-label.checked::before{ content:"☑"; color:#38bdf8; }
+    .char-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+    /* DRAG TO REORDER */
+    .drag-handle{
+      cursor:grab; padding:0 6px; color:#2a3a4a; font-size:16px;
+      display:flex; align-items:center; user-select:none; flex-shrink:0;
+      transition:color .15s;
+    }
+    .drag-handle:hover{ color:#7a95b2; }
+    details[data-id]{ transition:opacity .15s; }
+    details[data-id].drag-over{ border-color:var(--gappu)!important; background:var(--gappu-glow)!important; }
+    details[data-id].dragging{ opacity:0.4; }
+    summary{ user-select:none; }
+
+    /* COPY HISTORY */
+    .history-panel{
+      background:var(--card); border:1px solid var(--line); border-radius:16px;
+      padding:14px; margin-top:14px;
+    }
+    .history-title{
+      font-size:12px; font-weight:800; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.05em;
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:10px;
+    }
+    .history-list{ display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto; }
+    .history-item{
+      display:flex; align-items:center; gap:8px; padding:8px 10px;
+      border-radius:10px; border:1px solid var(--line2); background:#0c1420;
+      font-size:11px; cursor:pointer; transition:border-color .15s;
+    }
+    .history-item:hover{ border-color:var(--gappu); }
+    .history-item .hi-type{
+      font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px;
+      white-space:nowrap; flex-shrink:0;
+    }
+    .hi-img{ background:rgba(255,107,53,.15); color:var(--gappu2); border:1px solid rgba(255,107,53,.3); }
+    .hi-mot{ background:rgba(124,58,237,.15); color:var(--viral2); border:1px solid rgba(124,58,237,.3); }
+    .hi-both{ background:rgba(14,165,233,.15); color:#7dd3fc; border:1px solid rgba(14,165,233,.3); }
+    .history-item .hi-scene{ font-weight:700; color:var(--text); flex-shrink:0; }
+    .history-item .hi-preview{ color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+    .history-item .hi-time{ color:#2a3a4a; font-size:10px; flex-shrink:0; }
+    .history-empty{ color:#2a3a4a; font-size:12px; text-align:center; padding:20px; font-style:italic; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">🐵</div>
+  <div>
+    <h1>Gappu Viral Prompt Builder</h1>
+    <div class="sub">v6 · Image-to-Video · gappu_in_scene YES/NO · Nano Banana → Kling / VEO · Viral-Optimized · <span id="headerOrganicBadge" style="color:#86efac;display:none;">🎞️ Organic Layer ON</span></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="builder">🎬 Builder</button>
+    <button class="tab-btn" data-tab="locks">🔒 Locks</button>
+    <button class="tab-btn" data-tab="viral">📈 Viral Kits</button>
+    <button class="tab-btn" data-tab="output">📋 Output</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ======================== TAB: BUILDER ======================== -->
+<div class="tab-panel active" id="tab-builder">
+  <div class="grid-2">
+
+    <!-- LEFT: Project + Scene Input -->
+    <section>
+      <div class="card">
+        <div class="card-title">🎬 Project Setup <span class="badge">Gappu Magic Land</span></div>
+        <div class="grid-2">
+          <div>
+            <label>Series / Episode Title</label>
+            <input id="p_title" type="text" placeholder="Gappu ka Dil Toot Gaya 💔"/>
+          </div>
+          <div>
+            <label>Emotional Theme</label>
+            <select id="p_theme">
+              <option value="">Select theme...</option>
+              <option value="heartbreak">💔 Heartbreak / Loss</option>
+              <option value="reunion">🤗 Reunion / Coming Home</option>
+              <option value="struggle">😤 Struggle / Mehnat</option>
+              <option value="success">🌟 Success / Jeet</option>
+              <option value="friendship">🤝 Dosti / Friendship</option>
+              <option value="maa">🙏 Maa ka Pyaar</option>
+              <option value="school">📚 School / Padhai</option>
+              <option value="festival">🎉 Festival / Tyohar</option>
+              <option value="helpless">😢 Helpless / Akela</option>
+              <option value="brave">💪 Bravery / Darr Pe Jeet</option>
+              <option value="funny">😂 Comedy / Mazaak</option>
+              <option value="mystery">🔍 Mystery / Raaz</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div>
+            <label>Aspect / Output</label>
+            <select id="p_format">
+              <option>Vertical 9:16 (1080×1920)</option>
+              <option>Horizontal 16:9 (1920×1080)</option>
+              <option>Square 1:1 (1080×1080)</option>
+            </select>
+          </div>
+          <div>
+            <label>Image Tool</label>
+            <select id="p_imageTool">
+              <option>Nano Banana</option>
+              <option>Meta AI</option>
+            </select>
+          </div>
+          <div>
+            <label>Motion Tool</label>
+            <select id="p_motionTool">
+              <option>Kling</option>
+              <option>VEO</option>
+              <option>Sora 2</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label>Motion Mode</label>
+            <select id="p_motionMode">
+              <option>Image-to-Video (Reference Image)</option>
+              <option>Text-to-Video (No Reference)</option>
+            </select>
+          </div>
+          <div>
+            <label>Setting Override (optional)</label>
+            <input id="p_setting" type="text" placeholder="Alpine lake shore, European village, workshop... or leave blank"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- VIRAL EMOTIONAL ARC -->
+      <div class="card viral-accent">
+        <div class="card-title">📈 Viral Emotional Arc <span class="badge">Dopamine Loop</span></div>
+        <div class="arc-row" id="arcRow">
+          <div class="arc-step active" data-arc="0">
+            <div class="arc-num">S1</div>
+            <div class="arc-label">HOOK</div>
+            <div class="arc-emo">😮 Shock/Curiosity</div>
+          </div>
+          <div class="arc-step" data-arc="1">
+            <div class="arc-num">S2</div>
+            <div class="arc-label">PAIN</div>
+            <div class="arc-emo">😢 Dard</div>
+          </div>
+          <div class="arc-step" data-arc="2">
+            <div class="arc-num">S3</div>
+            <div class="arc-label">STRUGGLE</div>
+            <div class="arc-emo">😤 Mehnat</div>
+          </div>
+          <div class="arc-step" data-arc="3">
+            <div class="arc-num">S4</div>
+            <div class="arc-label">TURN</div>
+            <div class="arc-emo">🌟 Hope</div>
+          </div>
+          <div class="arc-step" data-arc="4">
+            <div class="arc-num">S5</div>
+            <div class="arc-label">PAYOFF</div>
+            <div class="arc-emo">❤️ Emotional Peak</div>
+          </div>
+        </div>
+        <div class="hint">
+          This arc drives watch time → saves → shares. Scene 1 must stop the scroll. Scene 5 must make them save or comment. <b>Middle = relatability. End = feel-good release.</b>
+        </div>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- SCENE INPUT -->
+      <div class="card">
+        <div class="card-title">📝 Paste Scenes / Script</div>
+        <div class="hint" style="margin-bottom:10px;">
+          <b>MODE A — Shot Breakdown</b> (image-to-video): paste Claude's Block 1 directly — one scene block per shot, no merging.<br/>
+          <b>MODE B — Quick entry</b>: <b>scene: 1</b> arc: HOOK action: ... <b>scene: 2</b> arc: PAIN ...<br/>
+          Paste Claude's full Block 1 output or use the <b>🎲 Quick Fill</b> buttons for templates.
+        </div>
+
+        <div class="prefill-bar">
+          <button class="pf-btn" id="pfHeartbreak">💔 Heartbreak Story</button>
+          <button class="pf-btn" id="pfMaa">🙏 Maa Story</button>
+          <button class="pf-btn" id="pfSchool">📚 School Story</button>
+          <button class="pf-btn" id="pfFriendship">🤝 Dosti Story</button>
+          <button class="pf-btn" id="pfFestival">🎉 Festival Story</button>
+          <button class="pf-btn" id="pfFunny">😂 Comedy Story</button>
+        </div>
+
+        <label style="margin-top:10px;">Scenes</label>
+        <textarea id="bulk" class="mono" style="min-height:160px;" placeholder="scene 1: ...&#10;scene 2: ..."></textarea>
+
+        <div class="btnbar">
+          <button class="btn-primary" id="parseBtn">⚡ Create Scene Rows</button>
+          <button class="btn-primary" id="regenAllBtn">↻ Regen All</button>
+          <button id="expandAllBtn">Expand All</button>
+          <button id="collapseAllBtn">Collapse All</button>
+          <button class="btn-danger" id="clearBtn">Clear All</button>
+          <span class="tag">Scenes: <strong id="sceneCount">0</strong></span>
+          <span class="tag">Autosave: <strong style="color:var(--ok)">ON</strong></span>
+        </div>
+      </div>
+
+      <div class="section-gap"></div>
+
+      <!-- QUICK SCENE PICKER -->
+      <div id="quickPicker" style="display:none; background:#0c1420; border:1px solid var(--gappu); border-radius:14px; padding:14px; margin-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+          <span style="font-size:12px; font-weight:800; color:var(--gappu); text-transform:uppercase; letter-spacing:.05em;">⚡ Quick Copy</span>
+          <select id="quickSceneSel" style="flex:1; min-width:140px; padding:8px 10px; border-radius:10px; border:1px solid var(--gappu); background:#0a0e13; color:var(--text); font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:700; cursor:pointer;">
+            <option value="">— pick a scene —</option>
+          </select>
+          <button id="quickPrevBtn" style="padding:7px 12px; border-radius:8px; border:1px solid var(--line2); background:#0a0e13; color:var(--muted); font-size:13px; cursor:pointer;" title="Previous scene">◀</button>
+          <button id="quickNextBtn" style="padding:7px 12px; border-radius:8px; border:1px solid var(--line2); background:#0a0e13; color:var(--muted); font-size:13px; cursor:pointer;" title="Next scene">▶</button>
+        </div>
+        <div id="quickContent" style="display:none;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <div>
+              <div style="font-size:10px; font-weight:700; color:var(--gappu2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">📋 Image Prompt</div>
+              <textarea id="quickImgBox" class="mono" readonly style="min-height:120px; font-size:11px; background:#070d16; border-color:#1e2e42;"></textarea>
+            </div>
+            <div>
+              <div style="font-size:10px; font-weight:700; color:var(--viral2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">🎞 Motion Prompt</div>
+              <textarea id="quickMotBox" class="mono" readonly style="min-height:120px; font-size:11px; background:#070d16; border-color:#1e2e42;"></textarea>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="quickCopyImg" class="btn-primary btn-sm">📋 Copy Image</button>
+            <button id="quickCopyMot" class="btn-viral btn-sm">🎞 Copy Motion</button>
+            <button id="quickCopyBoth" class="btn-sm" style="border-color:#0ea5e9; color:#7dd3fc; background:rgba(14,165,233,.08);">📦 Copy Both</button>
+          </div>
+        </div>
+        <div id="quickEmpty" style="color:var(--muted); font-size:12px; text-align:center; padding:10px 0;">Select a scene above to see its prompts</div>
+      </div>
+
+      <div id="sceneList"></div>
+
+      <!-- COPY HISTORY -->
+      <div class="history-panel">
+        <div class="history-title">
+          <span>📋 Copy History</span>
+          <button class="btn-ghost btn-sm" id="clearHistoryBtn" style="font-size:10px;padding:4px 8px;">Clear</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty" id="historyEmpty">Nothing copied yet — use Copy Image / Copy Motion buttons above</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Output + Viral Score -->
+    <aside>
+      <div class="sticky-panel">
+        <div class="card">
+          <div class="card-title">📋 All Prompts Output</div>
+          <div class="btnbar" style="margin-bottom:10px;">
+            <button class="btn-primary" id="copyAllMdBtn">Copy All (Markdown)</button>
+            <button id="downloadMdBtn">⬇ .md</button>
+            <button id="downloadJsonBtn">⬇ .json</button>
+          </div>
+          <textarea id="allOut" class="mono" style="min-height:300px;"></textarea>
+        </div>
+
+        <!-- VIRAL SCORE CARD -->
+        <div class="section-gap"></div>
+        <div class="card viral-accent">
+          <div class="card-title">🔥 Viral Score Checker</div>
+          <div id="viralScorePanel">
+            <div class="viral-score-bar">
+              <div class="vs-label"><span>Emotional Hook</span><span id="vs1pct">0%</span></div>
+              <div class="vs-track"><div class="vs-fill" id="vs1fill" style="width:0%"></div></div>
+            </div>
+            <div class="viral-score-bar">
+              <div class="vs-label"><span>Scene Variety</span><span id="vs2pct">0%</span></div>
+              <div class="vs-track"><div class="vs-fill" id="vs2fill" style="width:0%"></div></div>
+            </div>
+            <div class="viral-score-bar">
+              <div class="vs-label"><span>Arc Completeness</span><span id="vs3pct">0%</span></div>
+              <div class="vs-track"><div class="vs-fill" id="vs3fill" style="width:0%"></div></div>
+            </div>
+            <div class="viral-score-bar">
+              <div class="vs-label"><span>Gappu Lock Strength</span><span id="vs4pct">0%</span></div>
+              <div class="vs-track"><div class="vs-fill" id="vs4fill" style="width:0%"></div></div>
+            </div>
+            <div style="margin-top:10px; font-size:11px; color:var(--muted); text-align:center;" id="viralTip">Fill in your scenes to see score 🐵</div>
+          </div>
+        </div>
+
+        <!-- CAPTION GENERATOR -->
+        <div class="section-gap"></div>
+        <div class="card emotion-accent">
+          <div class="card-title">✍️ Caption Kit <span class="badge">Hindi + English</span></div>
+          <div id="captionPanel">
+            <div class="hint">Fill project title + theme → captions auto-generate.</div>
+          </div>
+          <button class="btn-viral btn-sm" id="genCaptionBtn" style="margin-top:10px;">Generate Caption Ideas</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ======================== TAB: LOCKS ======================== -->
+<div class="tab-panel" id="tab-locks">
+  <div class="grid-2">
+
+    <!-- AUTO LOAD BOX — top priority, full width -->
+    <div class="card" style="grid-column:1/-1;border-color:#22c55e55;background:rgba(34,197,94,0.04);">
+      <div class="card-title">⚡ Auto-Load Locks Pack <span class="badge" style="background:#22c55e22;color:#86efac;border-color:#22c55e55;">PASTE BLOCK 2 HERE</span></div>
+      <div class="hint" style="margin-bottom:12px;">
+        Paste the entire <b>LOCKS PACK</b> block from Claude's output here and click <b>⚡ Load All Locks</b>.
+        The tool will automatically fill: Outfit, all Location slots, all Character slots.
+        <b>Zero manual copy-paste.</b>
+      </div>
+      <textarea id="locksPackInput" class="mono" style="min-height:120px;border-color:#22c55e33;" placeholder="Paste LOCKS PACK block from Claude output here...&#10;&#10;Everything from ══════ LOCKS PACK ══════ to ══════ END OF LOCKS PACK ══════"></textarea>
+      <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
+        <button class="btn-primary" id="autoLoadLocksBtn" style="background:#22c55e;border-color:#22c55e;">⚡ Load All Locks</button>
+        <span id="locksLoadStatus" style="font-size:11px;color:var(--muted);"></span>
+      </div>
+    </div>
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title">🐵 Gappu Character Lock <span class="badge">ALWAYS ACTIVE</span></div>
+      <div class="hint" style="margin-bottom:12px;">
+        Split into two fields. <b>Master Lock</b> = anatomy, proportions, fur — never changes across any story.
+        <b>Outfit This Story</b> = changes per episode. Only the outfit line gets replaced, master lock stays intact.
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="prefill-bar">
+            <button class="pf-btn" id="loadDefaultChar">Load Default Master Lock</button>
+          </div>
+          <label>Master Lock — Anatomy / Proportions <span style="color:var(--bad);font-size:10px;">NEVER changes</span></label>
+          <textarea id="p_charLock" class="mono" style="min-height:130px;" placeholder="Gappu anatomy, proportions, fur, face — paste master lock here..."></textarea>
+        </div>
+        <div>
+          <div class="prefill-bar">
+            <button class="pf-btn" id="loadDefaultOutfit">Load City Default Outfit</button>
+          </div>
+          <label>Outfit This Story <span style="color:var(--gappu);font-size:10px;">changes per episode</span></label>
+          <textarea id="p_outfitLock" class="mono" style="min-height:130px;" placeholder="OUTFIT THIS STORY: Red shorts, white crew-neck t-shirt, sport shoes. Tail visible, uncovered.&#10;&#10;Paste outfit from your Locks Pack here. Overrides any outfit in the master lock above."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title">🏡 Location Locks <span class="badge">AUTO-DETECTED PER SCENE</span></div>
+      <div class="hint" style="margin-bottom:14px;">
+        Define named locations. Auto-expands when you load a Locks Pack with more locations than current slots.
+        Each scene's <b>location:</b> field is auto-matched to the right lock — no mixing.
+        Use <b>🗑️</b> to clear any badly-loaded slot.
+      </div>
+      <div id="envSlotsContainer"><!-- rendered by JS --></div>
+    </div>
+
+    <!-- EXTRA CHARACTERS — full width -->
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title">👥 Extra Characters <span class="badge">IMAGE PROMPT ONLY — per scene</span></div>
+      <div class="hint" style="margin-bottom:14px;">
+        Define extra characters here. Auto-expands when you load a Locks Pack with more characters — up to 10 slots.
+        Then in each <b>Scene</b>, tick which characters appear — their lock will be injected into that scene's <b>Image Prompt only</b> (not Motion). Motion always uses your reference image. Use <b>🗑️ Clear</b> to remove any badly-loaded slot.
+      </div>
+
+      <div id="extraCharsContainer">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🖼️ Global Image Rules</div>
+      <div class="prefill-bar">
+        <button class="pf-btn" id="loadImgRules">Load Gappu Image Defaults</button>
+      </div>
+      <label>Image Rules</label>
+      <textarea id="p_imgRules" class="mono" placeholder="DSLR realism, natural light..."></textarea>
+    </div>
+    <div class="card">
+      <div class="card-title">🎞️ Global Motion Rules</div>
+      <div class="prefill-bar">
+        <button class="pf-btn" id="loadMotRules">Load Gappu Motion Defaults</button>
+      </div>
+      <label>Motion Rules</label>
+      <textarea id="p_motRules" class="mono" placeholder="Slow push-in, emotional pacing..."></textarea>
+    </div>
+    <!-- ORGANIC IMPERFECTION LAYER — full width -->
+    <div class="organic-panel" style="grid-column:1/-1;">
+      <div class="card-title">🎞️ Organic Imperfection Layer <span class="badge" style="background:rgba(34,197,94,.15);color:#86efac;border-color:#22c55e44;">YouTube Feed Recovery</span></div>
+      <div class="hint" style="margin-bottom:12px;border-color:#1a3a1a;">
+        Injects <b>handheld camera feel, film grain, lens breathing, and organic imperfections</b> into every Kling motion prompt automatically.
+        Reduces YouTube AI-content detection by making renders feel like real filmed footage.
+        <b>Intensity:</b> Subtle = light touch, Medium = clear handheld, Heavy = documentary feel.
+      </div>
+      <div class="organic-toggle-row">
+        <label class="organic-master-toggle" id="organicToggleLabel">
+          <div class="toggle-sw" id="organicToggleSw"></div>
+          <span id="organicToggleText">OFF — click to enable</span>
+        </label>
+        <span class="organic-badge" id="organicStatusBadge" style="display:none;">✅ Active — injecting into all Kling prompts</span>
+      </div>
+      <div class="intensity-row" id="intensityRow" style="opacity:.4;pointer-events:none;">
+        <div class="int-btn active" data-int="subtle">🌿 Subtle</div>
+        <div class="int-btn" data-int="medium">🎬 Medium</div>
+        <div class="int-btn" data-int="heavy">📽️ Heavy</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;" id="organicPreviewLabel" style="display:none;">Preview — what gets injected into each motion prompt:</div>
+      <div class="organic-preview" id="organicPreview" style="display:none;"></div>
+    </div>
+
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title">🚫 Global Negative Prompt</div>
+      <div class="prefill-bar">
+        <button class="pf-btn" id="loadNeg">Load Default Negatives</button>
+      </div>
+      <textarea id="p_neg" class="mono" placeholder="no text overlays, no watermark..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== TAB: VIRAL KITS ======================== -->
+<div class="tab-panel" id="tab-viral">
+  <div class="grid-2">
+    <div class="card viral-accent">
+      <div class="card-title">🎯 Viral Hook Templates</div>
+      <div class="hook-grid">
+        <div class="hook-card" data-hook="curiosity">
+          <div class="hook-title">😮 Curiosity Gap</div>
+          <div class="hook-desc">Gappu finds something shocking, viewer wants to know what happens</div>
+        </div>
+        <div class="hook-card" data-hook="relatability">
+          <div class="hook-title">🥺 Relatability Bomb</div>
+          <div class="hook-desc">Scene every Indian child/parent has lived — instant emotional lock-in</div>
+        </div>
+        <div class="hook-card" data-hook="reversal">
+          <div class="hook-title">🔄 Emotional Reversal</div>
+          <div class="hook-desc">Sad opening → happy ending. Or happy → heartbreak. Strongest save-driver</div>
+        </div>
+        <div class="hook-card" data-hook="maa">
+          <div class="hook-title">🙏 Maa Factor</div>
+          <div class="hook-desc">Anything involving Maa's sacrifice = highest comment + share rate in Indian content</div>
+        </div>
+        <div class="hook-card" data-hook="childhood">
+          <div class="hook-title">🌾 Childhood Nostalgia</div>
+          <div class="hook-desc">Village childhood memories — hits 25-40yr audience hardest, massive saves</div>
+        </div>
+        <div class="hook-card" data-hook="underdog">
+          <div class="hook-title">💪 Underdog Win</div>
+          <div class="hook-desc">Gappu underestimated → does something extraordinary. Motivational dopamine hit</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card emotion-accent">
+      <div class="card-title">😭 Emotion Dial — Viral Emotions for Indian Content</div>
+      <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">Click to copy emotion tag for your scene</div>
+      <div class="emotion-grid" id="viralEmotionGrid">
+        <div class="emo-tag" data-emo="crying silently, big teary eyes, trembling lip">😢 Rona (Silent)</div>
+        <div class="emo-tag" data-emo="surprised with mouth open, eyes wide, both hands on cheeks">😮 Hairaan</div>
+        <div class="emo-tag" data-emo="innocent confused look, tilted head, blinking eyes">🤔 Confused (Cute)</div>
+        <div class="emo-tag" data-emo="proud smile, chest out, shy but happy">😊 Proud Smile</div>
+        <div class="emo-tag" data-emo="scared trembling, hiding behind object, huge eyes">😱 Dara Hua</div>
+        <div class="emo-tag" data-emo="angry pouty face, arms crossed, puffed cheeks">😤 Naraaz (Pouting)</div>
+        <div class="emo-tag" data-emo="pure joy, jumping, clapping, eyes sparkling">🎉 Khushi (Pure)</div>
+        <div class="emo-tag" data-emo="sad drooping ears, slumped shoulders, looking down">😔 Udaas</div>
+        <div class="emo-tag" data-emo="determined face, brow furrowed, fists clenched, ready">💪 Pakka Iraada</div>
+        <div class="emo-tag" data-emo="sneaky grin, side-eye, trying not to laugh">😏 Sly / Mischief</div>
+        <div class="emo-tag" data-emo="longing, staring into distance, soft melancholy gaze">🌅 Yaad / Longing</div>
+        <div class="emo-tag" data-emo="grateful tearful smile, hands joined in thanks">🙏 Shukriya</div>
+      </div>
+    </div>
+
+    <!-- HINDI CAPTION FORMULAS -->
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title">📢 Proven Hindi Caption Formulas <span class="badge">Copy-Ready</span></div>
+      <div class="grid-3">
+        <div>
+          <div style="font-size:11px; font-weight:700; color:var(--gappu2); margin-bottom:6px;">SAVE-TRIGGERS</div>
+          <div style="font-size:11px; color:var(--muted); line-height:2; background:#0c1420; padding:10px; border-radius:10px; border:1px solid var(--line2);">
+            🔖 Save karo, baar baar dekho 🐵<br/>
+            ❤️ Ye wala scene dil tod deta hai<br/>
+            😭 Kisi ko tag karo jo samjhe<br/>
+            💾 Ye video save mat karna agar dil nahi lagta
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px; font-weight:700; color:var(--viral2); margin-bottom:6px;">COMMENT-HOOKS</div>
+          <div style="font-size:11px; color:var(--muted); line-height:2; background:#0c1420; padding:10px; border-radius:10px; border:1px solid var(--line2);">
+            💬 Batao kya tumne aisa kiya hai?<br/>
+            🥺 Gappu ki jagah tum hote to kya karte?<br/>
+            ❓ Kya Gappu sahi hai ya galat?<br/>
+            ⬇️ Next part chahiye? Comment karo
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px; font-weight:700; color:var(--emotion); margin-bottom:6px;">SHARE-TRIGGERS</div>
+          <div style="font-size:11px; color:var(--muted); line-height:2; background:#0c1420; padding:10px; border-radius:10px; border:1px solid var(--line2);">
+            📤 Share karo un dosto ko jo akele hain<br/>
+            👩 Maa ko zaroor dikhao ye video<br/>
+            🤝 Tag karo apne pakke dost ko<br/>
+            💔 Jisne dil toda use zaroor dikhao
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== TAB: OUTPUT ======================== -->
+<div class="tab-panel" id="tab-output">
+  <div class="card">
+    <div class="card-title">📦 Full Prompt Pack Output</div>
+    <div class="btnbar" style="margin-bottom:12px;">
+      <button class="btn-primary" id="copyAllMdBtn2">Copy All (Markdown)</button>
+      <button id="downloadMdBtn2">⬇ Download .md</button>
+      <button id="downloadJsonBtn2">⬇ Download .json</button>
+    </div>
+    <textarea id="allOut2" class="mono" style="min-height:600px;" readonly></textarea>
+  </div>
+</div>
+
+</main>
+
+<script>
+(() => {
+  // ---- SAFE BOOT — catch any crash and show debug info ----
+  window.onerror = (msg, src, line, col, err) => {
+    document.body.innerHTML = `<div style="padding:40px;color:#f87171;font-family:monospace;background:#0a0f1a;min-height:100vh;">
+      <h2 style="color:#fca5a5;">🐵 Tool crashed on load</h2>
+      <p><b>Error:</b> ${msg}</p>
+      <p><b>Line:</b> ${line}</p>
+      <p style="margin-top:20px;color:#94a3b8;">Clearing saved data and reloading...</p>
+    </div>`;
+    // Clear old localStorage and reload fresh
+    try { localStorage.removeItem("gappu_viral_builder_v1"); localStorage.removeItem("gappu_viral_builder_v2"); } catch(e){}
+    setTimeout(() => location.reload(), 2000);
+    return true;
+  };
+
+try {
+  const LS_KEY = "gappu_viral_builder_v2";
+  const $ = id => document.getElementById(id);
+
+  // -------- DEFAULT GAPPU LOCKS --------
+  const DEFAULT_CHAR = `Gappu — stylized 3D animated toddler monkey (male), 3-4 years old appearance.
+FACE: large expressive eyes (dark brown iris, white sclera, thick cartoon lashes), small round black nose, prominent rounded ears with soft peach inner ear, wide mouth showing small teeth when smiling.
+BODY: chubby toddler proportions, short arms, round belly, small curled tail (light brown tip).
+OUTFIT: plain white kurta-pyjama (village Indian child style) OR simple cotton shirt + short pants — keep consistent per episode.
+SKIN/FUR: warm golden-tan monkey fur, smooth 3D Pixar-style render.
+HEAD: slightly oversized Pixar proportions — do NOT redesign or make more realistic.
+RULE: Gappu is ALWAYS stylized 3D. Environment is ALWAYS photorealistic. This contrast is the signature look.`;
+
+  const DEFAULT_ENV = `Ultra-realistic photorealistic environment. DSLR-quality backgrounds anywhere in the world.
+Match setting to the story world — village, city, mountain, waterfront, workshop, school, wherever the story demands.
+LIGHTING: natural cinematic light — warm golden hour, diffused overcast, dramatic sky, or workshop lamp.
+ATMOSPHERE: authentic ambient life true to the setting — people, animals, weather, movement.
+COLOR PALETTE: true to the real-world location. Rich depth and texture.
+Environment must feel like a real photograph of a real place.`;
+
+  const DEFAULT_IMG_RULES = `DSLR cinema realism for environment. Gappu stays stylized 3D Pixar throughout.
+Shot on Canon EOS R5, 85mm prime lens, f/2.0–f/2.8 aperture, natural light.
+Rich depth-of-field — sharp Gappu, softly blurred authentic Indian background.
+Film grain (subtle). Warm Indian light. No studio lighting look.
+Composition: rule-of-thirds. Gappu slightly off-center. Background tells story.
+No text overlays, watermarks, or UI elements in frame.`;
+
+  const DEFAULT_MOT_RULES = `REFERENCE IMAGE MODE: preserve Gappu's design, colors, outfit, proportions exactly.
+Pacing: slow, emotional, 24fps cinematic. No fast cuts in single clip.
+Camera: mostly subtle — slow push-in for emotional moments, slight rack focus.
+Gappu's movements: toddler-like, slightly clumsy, Pixar-physics (slightly exaggerated but grounded).
+Environment: realistic ambient motion — leaves rustling, dust settling, distant animals.
+No jitter, no AI morphing artifacts, no body-part duplication.
+Preferred duration: 5–8s per clip for I2V. Let emotion breathe.`;
+
+  const DEFAULT_NEG = `no text, no watermark, no logo, no subtitles, no UI overlay
+no extra limbs, no fused fingers, no body deformation
+no Gappu redesign — same face/outfit/proportions as reference
+no urban modern background, no Western settings, no cartoon environment (env must be photorealistic)
+no horror elements, no violence, no adult content
+no fast camera shake, no drone fly-through, no 3D environment flyover
+no blurry faces, no broken teeth, no nightmare fuel`;
+
+  // -------- STATE --------
+  // Extra char slot colors
+  const CHAR_COLORS = ["#0ea5e9","#22c55e","#f59e0b","#ec4899","#a78bfa","#f97316","#14b8a6","#e11d48","#84cc16","#fb923c"];
+  const CHAR_EMOJIS = ["👩","👦","👴","🧒","🧔","👧","👨","🧕","👱","🧙"];
+  const DEFAULT_EXTRA_CHARS = [
+    { id:"ec1", name:"Maa", color:"#0ea5e9", lock:"" },
+    { id:"ec2", name:"Best Friend", color:"#22c55e", lock:"" },
+    { id:"ec3", name:"Dadi / Nana", color:"#f59e0b", lock:"" },
+    { id:"ec4", name:"Bully / Villain", color:"#ec4899", lock:"" }
+  ];
+
+  const ENV_COLORS = ["#6366f1","#14b8a6","#f97316","#8b5cf6","#84cc16","#e879f9","#0ea5e9","#f43f5e","#22c55e","#a78bfa","#fb923c","#2dd4bf","#e11d48"];
+  const ENV_EMOJIS = ["🏞️","🏚️","🏫","🏥","🌙","🎉","🏙️","🌧️","🏡","🌅","🏪","🌿","🕌"];
+  const DEFAULT_ENV_SLOTS = [
+    { id:"ev1", name:"", color:"#6366f1", lock:"" },
+    { id:"ev2", name:"", color:"#14b8a6", lock:"" },
+    { id:"ev3", name:"", color:"#f97316", lock:"" },
+    { id:"ev4", name:"", color:"#8b5cf6", lock:"" },
+    { id:"ev5", name:"", color:"#84cc16", lock:"" },
+    { id:"ev6", name:"", color:"#e879f9", lock:"" },
+  ];
+
+  let state = loadState() || {
+    project:{
+      title:"", theme:"", format:"Vertical 9:16 (1080×1920)",
+      imageTool:"Nano Banana", motionTool:"Kling",
+      motionMode:"Image-to-Video (Reference Image)",
+      setting:"",
+      charLock:"", outfitLock:"", envSlots:[], imgRules:"", motRules:"", neg:""
+    },
+    extraChars: DEFAULT_EXTRA_CHARS.map(c=>({...c})),
+    scenes:[]
+  };
+  // Migrate old saves
+  if(!state.extraChars) state.extraChars = DEFAULT_EXTRA_CHARS.map(c=>({...c}));
+  // Always ensure envSlots is at least the default 6-element array (grows further via applyLocksPack)
+  if(!Array.isArray(state.project.envSlots) || state.project.envSlots.length < 6){
+    const oldEnv = state.project.envLock || "";
+    const existing = Array.isArray(state.project.envSlots) ? state.project.envSlots : [];
+    state.project.envSlots = DEFAULT_ENV_SLOTS.map((s, i) => ({
+      ...s,
+      ...(existing[i] || {}),
+      name: existing[i]?.name || (i===0 && oldEnv ? "Environment" : ""),
+      lock: existing[i]?.lock || (i===0 ? oldEnv : "")
+    }));
+    delete state.project.envLock;
+  }
+  // Ensure color is set on all envSlots (for slots added dynamically before colors were stored)
+  state.project.envSlots.forEach((s, i) => {
+    if(!s.color) s.color = ENV_COLORS[i % ENV_COLORS.length];
+    if(!s.id) s.id = "ev" + (i+1);
+  });
+  // Migrate: add organic imperfection layer state if missing
+  if(!state.organic) state.organic = { enabled: false, intensity: "subtle" };
+
+  function uid(){ return Math.random().toString(16).slice(2)+Date.now().toString(16); }
+  function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||""); }catch{ return null; } }
+
+  let saveT=null;
+  function saveDebounced(){ clearTimeout(saveT); saveT=setTimeout(()=>localStorage.setItem(LS_KEY, JSON.stringify(state)), 300); }
+
+  let mdT=null;
+  function mdDebounced(){ clearTimeout(mdT); mdT=setTimeout(()=>{ buildAllMarkdown(); updateViralScore(); }, 250); }
+
+  function escH(s){ return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+  function escA(s){ return String(s||"").replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+
+  // -------- EXTRA CHARS UI --------
+  function renderExtraChars(){
+    const container = $("extraCharsContainer");
+    if(!container) return;
+    let html = '';
+    state.extraChars.forEach((ch, i) => {
+      const hasContent = ch.lock && ch.lock.trim();
+      const statusText = hasContent ? '✅ Lock set' : '⬜ Empty';
+      const emoji = CHAR_EMOJIS[i % CHAR_EMOJIS.length];
+      html += '<div class="char-lock-block '+(hasContent?'has-content':'')+'" data-ec-idx="'+i+'">';
+      html += '<div class="char-name-row">';
+      html += '<div class="char-color-dot" style="background:'+ch.color+'"></div>';
+      html += '<input class="char-name-input" type="text" data-ec-name="'+i+'" value="'+escA(ch.name||'')+'" placeholder="Character '+(i+1)+' name..." />';
+      html += '<span style="font-size:18px;">'+emoji+'</span>';
+      html += '<span style="font-size:10px;color:var(--muted);white-space:nowrap;">'+statusText+'</span>';
+      html += '<button class="btn-sm btn-danger" data-ec-clear="'+i+'" title="Clear this character slot" style="padding:4px 9px;font-size:11px;border-radius:8px;flex-shrink:0;">🗑️ Clear</button>';
+      html += '</div>';
+      html += '<label style="color:'+ch.color+';text-transform:none;font-size:11px;font-weight:700;margin-bottom:4px;">Character Lock — IMAGE PROMPT ONLY (injected only in scenes where ticked)</label>';
+      html += '<textarea class="mono" data-ec-lock="'+i+'" rows="5" placeholder="Describe fully — appearance, outfit, style, distinguishing features." style="border-color:'+(hasContent ? ch.color+'55' : 'var(--line2)')+';min-height:90px;">'+escH(ch.lock||'')+'</textarea>';
+      html += '</div>';
+    });
+    container.innerHTML = html;
+
+    container.querySelectorAll("[data-ec-name]").forEach(el => {
+      el.addEventListener("input", () => {
+        const i = Number(el.getAttribute("data-ec-name"));
+        state.extraChars[i].name = el.value;
+        saveDebounced();
+        document.querySelectorAll(`.char-name-span[data-char-slot="${i}"]`).forEach(sp => {
+          sp.textContent = el.value || `Char ${i+1}`;
+        });
+      });
+    });
+    container.querySelectorAll("[data-ec-lock]").forEach(el => {
+      el.addEventListener("input", () => {
+        const i = Number(el.getAttribute("data-ec-lock"));
+        state.extraChars[i].lock = el.value;
+        // refresh status dot without full re-render
+        const block = el.closest(".char-lock-block");
+        if(block){
+          block.classList.toggle("has-content", !!el.value.trim());
+          const statusSpan = block.querySelector(".char-name-row span:nth-last-child(2)");
+          if(statusSpan) statusSpan.textContent = el.value.trim() ? "✅ Lock set" : "⬜ Empty";
+          el.style.borderColor = el.value.trim() ? (state.extraChars[i].color+"55") : "var(--line2)";
+        }
+        saveDebounced();
+      });
+    });
+
+    container.querySelectorAll("[data-ec-clear]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.getAttribute("data-ec-clear"));
+        const charName = state.extraChars[i].name || ("Char " + (i+1));
+        if(!confirm("Clear \"" + charName + "\"? This removes the name and lock from slot " + (i+1) + ", and removes this character from all scenes.")) return;
+        const charId = state.extraChars[i].id;
+        state.extraChars[i].name = "";
+        state.extraChars[i].lock = "";
+        state.scenes.forEach(s => {
+          if(s.sceneChars) s.sceneChars = s.sceneChars.filter(id => id !== charId);
+        });
+        saveDebounced();
+        renderExtraChars();
+        render();
+      });
+    });
+  }
+
+  // -------- ENV SLOTS UI --------
+  function renderEnvSlots(){
+    const container = $("envSlotsContainer");
+    if(!container) return;
+    if(!Array.isArray(state.project.envSlots) || state.project.envSlots.length === 0){
+      state.project.envSlots = DEFAULT_ENV_SLOTS.map(s=>({...s}));
+    }
+    const slots = state.project.envSlots;
+
+    // Build HTML without nested template literals to avoid parse issues
+    let html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">';
+    for(let i = 0; i < slots.length; i++){
+      const ev = slots[i];
+      const color = ev.color || ENV_COLORS[i % ENV_COLORS.length];
+      const emoji = ENV_EMOJIS[i % ENV_EMOJIS.length];
+      const hasBorder = ev.lock && ev.lock.trim() ? color+'66' : 'var(--line2)';
+      const statusIcon = ev.lock && ev.lock.trim() ? '✅' : '⬜';
+      const lockBorder = ev.lock && ev.lock.trim() ? color+'44' : 'var(--line2)';
+      html += '<div style="background:#0a1120;border:1.5px solid '+hasBorder+';border-radius:12px;padding:12px;">';
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
+      html += '<span style="font-size:14px;">'+emoji+'</span>';
+      html += '<div style="width:8px;height:8px;border-radius:50%;background:'+color+';flex-shrink:0;"></div>';
+      html += '<input type="text" data-ev-name="'+i+'" value="'+escA(ev.name||'')+'" placeholder="Location name e.g. City Pond" style="flex:1;background:transparent;border:none;border-bottom:1px solid var(--line2);color:var(--text);font-size:11px;font-weight:700;padding:2px 0;outline:none;min-width:0;"/>';
+      html += '<span style="font-size:10px;color:var(--muted);white-space:nowrap;">'+statusIcon+'</span>';
+      html += '<button class="btn-sm btn-danger" data-ev-clear="'+i+'" title="Clear this location slot" style="padding:3px 8px;font-size:10px;border-radius:6px;flex-shrink:0;">🗑️</button>';
+      html += '</div>';
+      html += '<textarea data-ev-lock="'+i+'" class="mono" style="min-height:80px;font-size:10px;border-color:'+lockBorder+';" placeholder="Paste environment lock for this location. Auto-matched to scenes by name keywords.">'+escH(ev.lock||'')+'</textarea>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<div class="hint" style="margin-top:10px;font-size:10px;">💡 Name each slot to match your story locations. Tool auto-matches scene location text to the right slot — no mixing. Expands automatically when loading a Locks Pack with more locations.</div>';
+
+    container.innerHTML = html;
+
+    container.querySelectorAll("[data-ev-name]").forEach(el => {
+      el.addEventListener("input", () => {
+        const i = Number(el.getAttribute("data-ev-name"));
+        state.project.envSlots[i].name = el.value;
+        saveDebounced();
+      });
+    });
+    container.querySelectorAll("[data-ev-lock]").forEach(el => {
+      el.addEventListener("input", () => {
+        const i = Number(el.getAttribute("data-ev-lock"));
+        state.project.envSlots[i].lock = el.value;
+        const card = el.closest("div[style]");
+        if(card){
+          const col = state.project.envSlots[i].color || ENV_COLORS[i % ENV_COLORS.length];
+          card.style.borderColor = el.value.trim() ? col+'66' : 'var(--line2)';
+          el.style.borderColor = el.value.trim() ? col+'44' : 'var(--line2)';
+          const statusSpan = card.querySelector("span[style*='color:var(--muted)']");
+          if(statusSpan) statusSpan.textContent = el.value.trim() ? '✅' : '⬜';
+        }
+        saveDebounced();
+      });
+    });
+
+    container.querySelectorAll("[data-ev-clear]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.getAttribute("data-ev-clear"));
+        const locName = state.project.envSlots[i].name || ("Location " + (i+1));
+        if(!confirm("Clear \"" + locName + "\"? This removes the name and lock from slot " + (i+1) + ", and clears this location from all scenes that use it.")) return;
+        const slotId = state.project.envSlots[i].id;
+        state.project.envSlots[i].name = "";
+        state.project.envSlots[i].lock = "";
+        // Clear from scenes that had this env slot assigned
+        state.scenes.forEach(s => {
+          if(s.envSlotId === slotId) s.envSlotId = null;
+        });
+        saveDebounced();
+        renderEnvSlots();
+        render();
+      });
+    });
+  }
+  const STORY_TEMPLATES = {
+    heartbreak:`scene 1: HOOK — Gappu runs excited toward school gate, dabbba in hand, emotion: pure joy, eyes sparkling
+scene 2: PAIN — Gappu sees his best friend walk away with new friends, not noticing him, emotion: confused sad, big eyes welling up
+scene 3: STRUGGLE — Gappu sits alone under peepal tree eating his dabba alone, emotion: silent crying, wiping tears with kurta sleeve
+scene 4: TURN — An old dadi passes by, sees Gappu, sits beside him and shares her roti, emotion: surprised, grateful
+scene 5: PAYOFF — Gappu and dadi sharing food and laughing, his friend watches from distance feeling regret, emotion: warm smile, bittersweet`,
+
+    maa:`scene 1: HOOK — Gappu wakes up at 4am to strange sounds in kitchen, emotion: sleepy curious
+scene 2: PAIN — Peeks through door — Maa (off-screen light) cooking by candle, hands tired, emotion: Gappu's eyes go wide with realization
+scene 3: STRUGGLE — Gappu tiptoes back to bed but can't sleep, thinking, emotion: troubled innocent face
+scene 4: TURN — Morning. Gappu brings Maa a cup of chai he tried to make, spilled everywhere, emotion: nervous proud smile
+scene 5: PAYOFF — Maa (hands only in frame) holds Gappu's small hands around the chai cup. Gappu's face: purest grateful smile, tears and happiness`,
+
+    school:`scene 1: HOOK — Gappu stares at exam paper, pencil frozen, emotion: panicked, sweating, eyes darting
+scene 2: PAIN — Classmates all writing fast, Gappu looks at blank paper, emotion: shame, drooping ears, slumped
+scene 3: STRUGGLE — Gappu closes eyes, takes deep breath, starts writing slowly, emotion: determined brow furrow
+scene 4: TURN — Teacher collects papers, Gappu the last to hand in, emotion: nervous, hopeful small smile
+scene 5: PAYOFF — Results day — Gappu's name read first, he freezes then jumps in pure disbelief and joy, emotion: shocked then exploding happiness`,
+
+    friendship:`scene 1: HOOK — Gappu and his best friend argue over a cricket bat, both pulling it, emotion: both angry pouty faces
+scene 2: PAIN — Friend walks away, Gappu stands alone with the bat, emotion: hollow victory, looks at bat sadly
+scene 3: STRUGGLE — Gappu plays cricket alone, ball rolls away, sits in field, emotion: deep longing, missing friend
+scene 4: TURN — Friend appears at the field boundary, holding their favorite biscuit packet as peace offering, emotion: Gappu surprised, cautious hope
+scene 5: PAYOFF — Both sitting together eating biscuits, sharing the bat between them, laughing, emotion: pure uncomplicated childhood joy`,
+
+    festival:`scene 1: HOOK — Diwali night, Gappu holds unlit diya, emotion: excited trembling anticipation
+scene 2: PAIN — Rain starts. All diyas going out. Gappu watches his go dark, emotion: heartbroken, clutching dark diya
+scene 3: STRUGGLE — Gappu cups hands around the diya, shielding it with his whole small body, emotion: fierce determined
+scene 4: TURN — The flame catches. Glows stronger than before. Gappu's face lit from below by the light, emotion: wonder, awe
+scene 5: PAYOFF — Gappu runs to light other diyas from his one flame, the whole chowk lighting up, emotion: joy, purpose, belonging`,
+
+    funny:`scene 1: HOOK — Gappu tries to act grown-up, sitting at Baba's chair with chai cup too big for his hands, emotion: serious puffed-up pride
+scene 2: PAIN — Takes a sip — too hot! Jumps up flailing, chai everywhere, emotion: shocked flailing
+scene 3: STRUGGLE — Tries to hide the mess before anyone sees, wiping frantically with kurta, emotion: panicked sneaky
+scene 4: TURN — Maa walks in, looks at the mess, then at Gappu's guilty face, emotion: Gappu: frozen guilty smile
+scene 5: PAYOFF — Maa breaks into laughter, Gappu starts laughing too with relief, both laughing together, emotion: pure relief + shared joy`
+  };
+
+  // QUICK FILL BUTTONS
+  ["Heartbreak","Maa","School","Friendship","Festival","Funny"].forEach(name => {
+    const btn = $("pf"+name);
+    if(btn) btn.addEventListener("click", ()=>{
+      $("bulk").value = STORY_TEMPLATES[name.toLowerCase()] || "";
+    });
+  });
+
+  // DEFAULT LOCK LOADERS
+  $("loadDefaultChar").addEventListener("click", ()=>{ $("p_charLock").value = DEFAULT_CHAR; state.project.charLock = DEFAULT_CHAR; saveDebounced(); });
+
+  $("autoLoadLocksBtn").addEventListener("click", ()=>{
+    const raw = $("locksPackInput").value.trim();
+    const status = $("locksLoadStatus");
+    if(!raw){ status.textContent = "⚠️ Nothing pasted yet."; status.style.color="#f59e0b"; return; }
+    const parsed = parseLocksPack(raw);
+    const applied = applyLocksPack(parsed);
+    if(applied.length === 0){
+      status.textContent = "⚠️ No markers found — make sure you pasted the correct format.";
+      status.style.color = "#f59e0b";
+    } else {
+      status.textContent = applied.join("  ");
+      status.style.color = "#86efac";
+      // Re-detect all scenes with fresh slate — wipe old sceneChars first to clear any stale/bad state
+      state.scenes.forEach(s => {
+        // RESET sceneChars completely, then re-detect from scratch with correct logic
+        s.sceneChars = [];
+        const charsField = (s.characters||"").toLowerCase();
+        const actionText = (s.action||"").toLowerCase();
+        state.extraChars.forEach(ch => {
+          if(!ch.name.trim()) return;
+          // Strategy 1: exact CHAR_N label match
+          const labelMatch = ch.name.match(/^(CHAR[_\s]?\d+)/i);
+          if(labelMatch){
+            const label = labelMatch[1].toLowerCase().replace(/\s/g,"_");
+            if(charsField.includes(label)){ s.sceneChars.push(ch.id); return; }
+          }
+          // Strategy 2: clean name words only (strip CHAR_N: prefix, min 4 chars)
+          const cleanName = ch.name.replace(/^CHAR[_\s]?\d+\s*[:–-]\s*/i,"").trim();
+          const words = cleanName.toLowerCase().replace(/[^a-z0-9\s\/]/g," ").split(/[\s\/]+/).filter(w=>w.length>3);
+          if(words.length && words.some(w => charsField.includes(w))) s.sceneChars.push(ch.id);
+        });
+        // Re-detect env slot
+        if(!s.envManual){
+          const locText = ((s.location||"")+" "+(s.action||"")).toLowerCase().slice(0,400);
+          const envNameExact = (s.env_name||"").trim().toLowerCase();
+          const slots = state.project.envSlots.filter(sl=>sl.name.trim()&&sl.lock.trim());
+          // Try exact env_name match first
+          let bestId = null;
+          if(envNameExact){
+            const exact = slots.find(sl=>sl.name.trim().toLowerCase()===envNameExact);
+            if(exact) bestId = exact.id;
+          }
+          if(!bestId){
+            let bestScore=0;
+            slots.forEach(sl=>{
+              const words = sl.name.toLowerCase().replace(/[^a-z0-9\s]/g,"").split(/\s+/).filter(w=>w.length>2);
+              const score = words.filter(w=>locText.includes(w)).length;
+              if(score>bestScore){ bestScore=score; bestId=sl.id; }
+            });
+          }
+          if(bestId) s.envSlotId=bestId;
+        }
+      });
+      saveDebounced(); render();
+    }
+  });
+  $("loadDefaultOutfit").addEventListener("click", ()=>{
+    const cityOutfit = `OUTFIT THIS STORY: Red shorts, white crew-neck t-shirt, sport shoes. Tail visible, uncovered.`;
+    $("p_outfitLock").value = cityOutfit; state.project.outfitLock = cityOutfit; saveDebounced();
+  });
+  $("loadImgRules").addEventListener("click", ()=>{ $("p_imgRules").value = DEFAULT_IMG_RULES; state.project.imgRules = DEFAULT_IMG_RULES; saveDebounced(); });
+  $("loadMotRules").addEventListener("click", ()=>{ $("p_motRules").value = DEFAULT_MOT_RULES; state.project.motRules = DEFAULT_MOT_RULES; saveDebounced(); });
+  $("loadNeg").addEventListener("click", ()=>{ $("p_neg").value = DEFAULT_NEG; state.project.neg = DEFAULT_NEG; saveDebounced(); });
+
+  // -------- ORGANIC IMPERFECTION LAYER UI --------
+  const ORGANIC_PREVIEW_TEXTS = {
+    subtle: "ORGANIC CAMERA FEEL:\nHandheld camera — very slight natural sway, imperceptible micro-tremor as if held by a human.\nSubtle lens breathing — focal length drifts ±1% across the shot, barely perceptible.\nFilm grain — fine natural grain overlay, ISO 800 feel, not digital noise.\nImperfect rack focus — focus settles slightly slowly, not instantaneous.\nNo motion is perfectly smooth — all movement has micro-organic irregularity.",
+    medium: "ORGANIC CAMERA FEEL:\nHandheld documentary style — visible but controlled natural camera sway, human breathing rhythm in the movement.\nLens breathing — subtle focal pull between subjects, as if a cinematographer is making real-time adjustments.\nFilm grain — medium grain, Kodak 5219 feel, warm in highlights, cool in shadows.\nNatural motion blur on movement — no crisp digital edges on fast gestures.\nOccasional imperceptible camera reframe — like the operator subconsciously adjusting framing.",
+    heavy: "ORGANIC CAMERA FEEL:\nHandheld vérité style — pronounced natural camera movement, clearly shot by a human holding the camera.\nStrong lens breathing — focal length shifts are visible, like a news documentary or indie film.\nHeavy film grain — pushed film look, Kodak 5213 pushed 2 stops, grain is character.\nMotion blur on all fast movement — natural cinematic smear, no sharpened AI edges.\nChromatic aberration at frame edges — slight colour fringing on high-contrast edges, lens character."
+  };
+
+  function syncOrganicUI(){
+    const enabled = state.organic.enabled;
+    const sw = $("organicToggleSw");
+    const txt = $("organicToggleText");
+    const badge = $("organicStatusBadge");
+    const intRow = $("intensityRow");
+    const preview = $("organicPreview");
+    const previewLabel = $("organicPreviewLabel");
+
+    sw.classList.toggle("on", enabled);
+    txt.textContent = enabled ? "ON — organic imperfections active" : "OFF — click to enable";
+    badge.style.display = enabled ? "inline-flex" : "none";
+    intRow.style.opacity = enabled ? "1" : ".4";
+    intRow.style.pointerEvents = enabled ? "auto" : "none";
+    preview.style.display = enabled ? "block" : "none";
+    previewLabel.style.display = enabled ? "block" : "none";
+
+    // intensity buttons
+    document.querySelectorAll(".int-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-int") === state.organic.intensity);
+    });
+    preview.textContent = ORGANIC_PREVIEW_TEXTS[state.organic.intensity] || ORGANIC_PREVIEW_TEXTS.subtle;
+
+    // header badge
+    const hBadge = $("headerOrganicBadge");
+    if(hBadge) hBadge.style.display = enabled ? "inline" : "none";
+  }
+
+  $("organicToggleLabel").addEventListener("click", ()=>{
+    state.organic.enabled = !state.organic.enabled;
+    syncOrganicUI();
+    saveDebounced();
+    // regen all scenes so prompts update immediately
+    state.scenes.forEach(s => { s.imagePrompt=""; s.motionPrompt=""; s.comboPrompt=""; regenScene(s); });
+    buildAllMarkdown(); updateViralScore();
+  });
+
+  document.querySelectorAll(".int-btn").forEach(btn => {
+    btn.addEventListener("click", ()=>{
+      state.organic.intensity = btn.getAttribute("data-int");
+      syncOrganicUI();
+      saveDebounced();
+      state.scenes.forEach(s => { s.imagePrompt=""; s.motionPrompt=""; s.comboPrompt=""; regenScene(s); });
+      buildAllMarkdown(); updateViralScore();
+    });
+  });
+
+  // Init organic UI on load
+  syncOrganicUI();
+
+  // EMOTION TAG COPY
+  document.querySelectorAll(".emo-tag").forEach(tag => {
+    tag.addEventListener("click", ()=>{
+      const emo = tag.getAttribute("data-emo");
+      navigator.clipboard?.writeText(emo).catch(()=>{});
+      tag.classList.add("active");
+      setTimeout(()=>tag.classList.remove("active"), 1200);
+    });
+  });
+
+  // HOOK CARDS — paste template to bulk
+  document.querySelectorAll(".hook-card").forEach(card => {
+    card.addEventListener("click", ()=>{
+      const hook = card.getAttribute("data-hook");
+      const templates = {
+        curiosity:"scene 1: HOOK — Gappu discovers something hidden, emotion: wide-eyed shock\nscene 2: ...",
+        relatability:"scene 1: HOOK — Gappu does something every Indian child does, emotion: innocent joy\nscene 2: ...",
+        reversal:"scene 1: HOOK — Gappu is at his happiest, emotion: pure joy\nscene 2: PAIN — Everything changes suddenly\nscene 3: ...",
+        maa: STORY_TEMPLATES.maa,
+        childhood:"scene 1: HOOK — Gappu in classic village childhood moment, emotion: nostalgic innocent\nscene 2: ...",
+        underdog:"scene 1: HOOK — Everyone doubts Gappu, emotion: sad determined\nscene 2: ...\nscene 5: PAYOFF — Gappu proves them wrong"
+      };
+      if(templates[hook]) $("bulk").value = templates[hook];
+    });
+  });
+
+  // -------- TABS --------
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+      btn.classList.add("active");
+      $("tab-"+btn.getAttribute("data-tab")).classList.add("active");
+    });
+  });
+
+  // -------- CAPTION GENERATOR --------
+  $("genCaptionBtn").addEventListener("click", ()=>{
+    const title = state.project.title || "Gappu ki kahani";
+    const theme = state.project.theme || "heartbreak";
+    const themeMap = {
+      heartbreak:["💔 Dil toot gaya Gappu ka... kya tumhara bhi aisa hua?", "Ye scene dekh ke aankhein bhar aayi 😢 Tag karo jo samjhe"],
+      maa:["🙏 Maa ke haath ki roti ki yaad aa gayi... 😭", "Maa ko zaroor dikhao ye video ❤️"],
+      school:["📚 Gappu ne karke dikha diya! 💪 Kya tumne bhi aisa feel kiya hai?", "School ke din yaad aa gaye 😭🔖"],
+      friendship:["Sachchi dosti ka matlab Gappu ne sikha diya 🤝", "Apne pakke dost ko tag karo ❤️"],
+      festival:["Gappu ke dil ki roshni kabhi nahi bujhti 🪔✨", "Diwali wali feeling aa gayi 🎉 Save karo"],
+      helpless:["Gappu akela tha... par himmat nahi haari 💪", "Jab sab saath chod dete hain tab bhi ek asha hoti hai 🌟"],
+      brave:["Gappu ne darr ko hi saathi bana liya 🦁", "Himmat wali kahani 💪 Share karo"],
+      funny:["Gappu ne phir kar diya karnama 😂😂", "Comment karo kya tumne aisa kabhi kiya? 😂"],
+      success:["Mehnat kabhi bekaar nahi jaati 🌟 Gappu ne prove kar diya", "Motivational kahani 💪 Save karo zaroor"],
+      reunion:["Saalon baad milne ki khushi 😭❤️ Ye feeling sabne feel ki hogi", "Tag karo jis se bichhad gaye ho 🤗"],
+      default:["Gappu ki ye kahani dil chhu gayi 🐵❤️", "Save karo, baar baar dekhoge 🔖"]
+    };
+    const caps = themeMap[theme] || themeMap.default;
+    $("captionPanel").innerHTML = caps.map(c=>`
+      <div style="background:#0c1420;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font-size:12px;margin-top:8px;cursor:pointer;color:var(--text);"
+        onclick="navigator.clipboard?.writeText(this.textContent.trim())"
+        title="Click to copy">${escH(c)}</div>
+    `).join("") + `<div style="font-size:10px;color:var(--muted);margin-top:6px;">Click any caption to copy</div>`;
+  });
+
+  // -------- VIRAL SCORE --------
+  function updateViralScore(){
+    const scenes = state.scenes;
+    const p = state.project;
+
+    // Score 1: Emotional Hook (does scene 1 have strong emotion?)
+    const s1 = scenes[0];
+    const hookScore = s1 ? (s1.emotion ? 80 : 40) : 0;
+
+    // Score 2: Scene variety (different shots/emotions)
+    const shots = new Set(scenes.map(s=>s.shot).filter(Boolean));
+    const emos = new Set(scenes.map(s=>s.emotion).filter(Boolean));
+    const varietyScore = Math.min(100, (shots.size * 20) + (emos.size * 15));
+
+    // Score 3: Arc completeness — measure presence of all 5 arc positions, not raw count
+    const arcSet = new Set(scenes.map(s => {
+      const a = (s.title||"").split("—")[0].trim().toUpperCase();
+      if(/HOOK/.test(a)) return "HOOK";
+      if(/PAIN/.test(a)) return "PAIN";
+      if(/STRUGGLE/.test(a)) return "STRUGGLE";
+      if(/TURN/.test(a)) return "TURN";
+      if(/PAYOFF/.test(a)) return "PAYOFF";
+      return null;
+    }).filter(Boolean));
+    const arcScore = Math.min(100, (arcSet.size / 5) * 100);
+
+    // Score 4: Lock strength
+    const lockScore = ((p.charLock ? 40 : 0) + ((p.envSlots||[]).some(s=>s.lock.trim()) ? 30 : 0) + (p.motRules ? 15 : 0) + (p.neg ? 15 : 0));
+
+    const setBar = (numId, fillId, val) => {
+      const v = Math.round(val);
+      $(numId).textContent = v + "%";
+      $(fillId).style.width = v + "%";
+    };
+    setBar("vs1pct","vs1fill", hookScore);
+    setBar("vs2pct","vs2fill", varietyScore);
+    setBar("vs3pct","vs3fill", arcScore);
+    setBar("vs4pct","vs4fill", lockScore);
+
+    const total = Math.round((hookScore+varietyScore+arcScore+lockScore)/4);
+    const tips = total < 40 ? "🐵 Fill in scenes and load Gappu locks to boost score!"
+      : total < 70 ? "📈 Good start! Add more emotion variety and complete the 5-scene arc."
+      : total < 90 ? "🔥 Strong content! Load default locks for max consistency."
+      : "🚀 Viral-ready! This Gappu story has all the elements.";
+    $("viralTip").textContent = tips;
+  }
+
+  // -------- PROMPT BUILDERS --------
+  function mergedNeg(scene){ return [state.project.neg, scene.negLocal].filter(x=>x&&x.trim()).join("\n").trim(); }
+  function isI2V(){ return state.project.motionMode === "Image-to-Video (Reference Image)"; }
+
+  // Smart outfit resolver — reads per-scene outfit tags from the outfit block
+  // Format in ##OUTFIT## block:
+  //   [SCENE 1-3]: white kurta-pyjama, bare feet, tail uncovered
+  //   [SCENE 4-6]: blue rain jacket, mud boots, tail tucked inside jacket
+  //   [DEFAULT]: plain white kurta-pyjama, tail visible
+  // If no scene tags found, falls back to full outfitLock text (old behavior).
+  function resolveOutfit(scene){
+    const raw = (state.project.outfitLock || "").trim();
+    if(!raw) return "";
+
+    // Check if the block has per-scene tags
+    const tagPattern = /\[SCENE\s+([\d\s,\-]+)\]\s*:\s*([^\[]+)/gi;
+    const defaultPattern = /\[DEFAULT\]\s*:\s*([^\[]+)/i;
+    const matches = [];
+    let m;
+    while((m = tagPattern.exec(raw)) !== null){
+      const rangeStr = m[1].trim(); // e.g. "1-3" or "4" or "4,5,6"
+      const outfitText = m[2].trim();
+      // Parse range/list into scene numbers
+      const sceneNums = [];
+      rangeStr.split(",").forEach(part => {
+        part = part.trim();
+        const rangeParts = part.split("-").map(x => parseInt(x.trim()));
+        if(rangeParts.length === 2 && !isNaN(rangeParts[0]) && !isNaN(rangeParts[1])){
+          for(let i = rangeParts[0]; i <= rangeParts[1]; i++) sceneNums.push(i);
+        } else if(!isNaN(rangeParts[0])){
+          sceneNums.push(rangeParts[0]);
+        }
+      });
+      matches.push({ sceneNums, outfitText });
+    }
+
+    // If no scene tags found — old behavior, return full text
+    if(matches.length === 0) return raw;
+
+    // Find matching tag for this scene number
+    // Use sceneNo if set (from parsed scene: field), else fall back to index+1 via state lookup
+    const sceneNum = Number(scene.sceneNo) || (state.scenes.indexOf(scene) + 1) || 0;
+    const found = matches.find(entry => entry.sceneNums.includes(sceneNum));
+    if(found) return found.outfitText;
+
+    // Fall back to [DEFAULT] tag if present
+    const defM = defaultPattern.exec(raw);
+    if(defM) return defM[1].trim();
+
+    // Last fallback: first tag's outfit
+    return matches[0]?.outfitText || raw;
+  }
+
+  // Smart environment resolver — matches scene location against named env slots
+  // Zero mixing guaranteed — each slot is a separate named location
+  function resolveEnv(scene){
+    const slots = (state.project.envSlots||[]).filter(s => s.name.trim() && s.lock.trim());
+    if(!slots.length){
+      return (state.project.envLock||"").trim() || "Authentic Indian setting, photorealistic";
+    }
+
+    // Manual override on scene
+    if(scene.envOverride && scene.envOverride.trim()) return scene.envOverride.trim();
+
+    // Use auto-detected slot ID if present
+    if(scene.envSlotId){
+      const byId = slots.find(s => s.id === scene.envSlotId);
+      if(byId) return byId.lock.trim();
+    }
+
+    // Keyword fallback — score slot names against scene location + action
+    const searchText = ((scene.location||"") + " " + (scene.action||"")).toLowerCase().slice(0,400);
+    let bestSlot = null, bestScore = 0;
+    for(const slot of slots){
+      const words = slot.name.toLowerCase().replace(/[^a-z0-9\s]/g,"").split(/\s+/).filter(w=>w.length>2);
+      const score = words.filter(w => searchText.includes(w)).length;
+      if(score > bestScore){ bestScore = score; bestSlot = slot; }
+    }
+    if(bestSlot) return bestSlot.lock.trim();
+    return slots[0].lock.trim();
+  }
+  function refHeader(scene){
+    return [
+      `REFERENCE IMAGE MODE (I2V — Gappu character LOCKED):`,
+      scene.refNote?.trim() ? `Reference: ${scene.refNote.trim()}` : `Reference: use provided input image as exact visual truth.`,
+      `PRESERVE: Gappu's face, eyes, fur color, outfit, proportions, tail — identical to reference.`,
+      `PRESERVE: environment, lighting, color grading, background objects.`,
+      `Only animate as described. Do NOT redesign anything.`
+    ].join("\n");
+  }
+
+  function buildImageNano(scene){
+    const p = state.project;
+    const neg = mergedNeg(scene);
+    const setting = p.setting || scene.location || "Indian village";
+
+    // Get active extra characters for this scene
+    // Split into: chars WITH a lock (injected) and chars WITHOUT a lock (warn only)
+    const allSelectedChars = (state.extraChars || []).filter(ch =>
+      (scene.sceneChars||[]).includes(ch.id)
+    );
+    const activeChars = allSelectedChars.filter(ch => ch.lock.trim());
+    const missingLockChars = allSelectedChars.filter(ch => !ch.lock.trim());
+
+    // Build character lock — master lock + per-scene outfit override
+    const masterLock = p.charLock.trim() || "(paste Gappu master lock in Locks tab)";
+    const sceneOutfit = resolveOutfit(scene);
+    const outfitLine = sceneOutfit
+      ? `\n\nOUTFIT THIS SCENE (overrides any outfit in master lock above):\n${sceneOutfit}`
+      : "";
+    const fullCharLock = masterLock + outfitLine;
+
+    // v7: gappu_in_scene: NO → skip anatomy anchor, outfit, emotion entirely
+    const gappuPresent = scene.gappuInScene !== false; // default true for old scenes
+
+    const lines = [
+      `ASPECT: ${p.format}`,
+      `STYLE: Ultra-realistic photorealistic environment anywhere in the world + stylized 3D Gappu (Pixar-style monkey toddler). Roger Rabbit contrast — environment 100% cinematic DSLR realism, Gappu 100% stylized 3D soft render.`,
+    ];
+
+    // Inject character lock ONLY if Gappu is in scene
+    if(gappuPresent){
+      lines.push(`CHARACTER LOCK — DO NOT CHANGE:\n${fullCharLock}`);
+    }
+
+    lines.push(`ENVIRONMENT LOCK — DO NOT CHANGE:\n${resolveEnv(scene)}`);
+
+    // Inject extra character locks — IMAGE ONLY
+    if(activeChars.length > 0){
+      lines.push(activeChars.map(ch =>
+        `ADDITIONAL CHARACTER — ${ch.name.toUpperCase()} (do not change):\n${ch.lock.trim()}`
+      ).join("\n\n"));
+    }
+    // Warn about selected characters that have no lock defined yet
+    if(missingLockChars.length > 0){
+      lines.push(`⚠️ CHARACTER LOCK MISSING — ${missingLockChars.map(ch=>ch.name).join(", ")}:\nThis character is checked for this scene but has NO lock defined in the Locks tab.\nGo to 🔒 Locks tab → Extra Characters → fill in the lock for this character.\nUntil a lock is defined, this character has NO description injected into this prompt.`);
+    }
+
+    if(p.imgRules.trim()) lines.push(`GLOBAL IMAGE RULES:\n${p.imgRules.trim()}`);
+    lines.push(`SCENE: ${scene.title || "—"}`);
+    if(setting) lines.push(`LOCATION: ${setting}`);
+    // Single source of truth for cinematic values — no duplication
+    if(scene.shot) lines.push(`SHOT/ANGLE: ${scene.shot}`);
+    if(scene.lens) lines.push(`LENS/DOF: ${scene.lens}`);
+    if(scene.lighting) lines.push(`LIGHTING: ${scene.lighting}`);
+    if(scene.composition) lines.push(`COMPOSITION: ${scene.composition}`);
+    if(scene.emotion && gappuPresent && !/NOT\s+IN\s+SCENE/i.test(scene.emotion)) lines.push(`GAPPU EMOTION:\n${scene.emotion}\nFace must show this emotion clearly. Eyes carry 80% of emotion — prioritize expressive eyes.`);
+    lines.push(`WHAT WE SEE (single frozen frame — one moment only):\n${(scene.action||"").trim() || "—"}`);
+    // Continuity anchor — tells Nano Banana what to inherit from previous scene
+    if(scene.continuity && scene.continuity.trim() && !/OPENS STORY/i.test(scene.continuity)){
+      lines.push(`VISUAL CONTINUITY (match previous scene):\n${scene.continuity.trim()}\nMaintain these elements exactly — do not change lighting direction, color temperature, or background unless stated above.`);
+    }
+    if(scene.direction?.trim()) lines.push(`DIRECTOR NOTES:\n${scene.direction.trim()}`);
+    if(scene.imgAdd?.trim()) lines.push(`IMAGE-ONLY DETAILS:\n${scene.imgAdd.trim()}`);
+    lines.push(`QUALITY: 8K sharp focus on Gappu face, rich depth-of-field, natural cinematic light, detailed authentic textures. Cinematic color grade. No artificial studio look.`);
+    if(neg) lines.push(`NEGATIVE / AVOID:\n${neg}`);
+    return lines.join("\n\n").trim();
+  }
+
+  function buildImageMeta(scene){
+    const p = state.project;
+    const neg = mergedNeg(scene);
+    const activeChars = (state.extraChars || []).filter(ch =>
+      ch.lock.trim() && (scene.sceneChars||[]).includes(ch.id)
+    );
+    const missingLockCharsMeta = (state.extraChars || []).filter(ch =>
+      !ch.lock.trim() && (scene.sceneChars||[]).includes(ch.id)
+    );
+    const masterLock = p.charLock.trim() || "—";
+    const sceneOutfitMeta = resolveOutfit(scene);
+    const outfitLine = sceneOutfitMeta
+      ? `\n\nOUTFIT THIS SCENE (overrides any outfit in master lock):\n${sceneOutfitMeta}`
+      : "";
+    const lines = [
+      `Create one cinematic still frame. ${p.format}.`,
+      `Character lock:\n${masterLock}${outfitLine}`,
+      `Environment lock:\n${resolveEnv(scene)}`,
+    ];
+    if(activeChars.length > 0){
+      lines.push(activeChars.map(ch =>
+        `Additional character — ${ch.name} (do not change):\n${ch.lock.trim()}`
+      ).join("\n\n"));
+    }
+    if(missingLockCharsMeta.length > 0){
+      lines.push(`⚠️ CHARACTER LOCK MISSING — ${missingLockCharsMeta.map(ch=>ch.name).join(", ")}:\nChecked for this scene but no lock defined in 🔒 Locks tab. No description injected.`);
+    }
+    const core = [];
+    if(scene.location||p.setting) core.push(`Location: ${scene.location||p.setting}`);
+    if(scene.shot) core.push(`Camera: ${scene.shot}`);
+    if(scene.lens) core.push(`Lens: ${scene.lens}`);
+    if(core.length) lines.push(core.join(" | "));
+    if(scene.emotion) lines.push(`Emotion: ${scene.emotion}. Expressive Pixar-style eyes.`);
+    lines.push(`Scene:\n${(scene.action||"").trim() || "—"}`);
+    if(scene.direction?.trim()) lines.push(`Director notes:\n${scene.direction.trim()}`);
+    if(neg) lines.push(`Avoid:\n${neg}`);
+    return lines.join("\n\n").trim();
+  }
+
+  // -------- ORGANIC IMPERFECTION LAYER --------
+  // Returns the imperfection block to inject into Kling motion prompts
+  function getOrganicBlock(arcIdx){
+    if(!state.organic?.enabled) return "";
+    const intensity = state.organic.intensity || "subtle";
+
+    const subtle = [
+      "ORGANIC CAMERA FEEL:",
+      "Handheld camera — very slight natural sway, imperceptible micro-tremor as if held by a human.",
+      "Subtle lens breathing — focal length drifts ±1% across the shot, barely perceptible.",
+      "Film grain — fine natural grain overlay, ISO 800 feel, not digital noise.",
+      "Imperfect rack focus — focus settles slightly slowly, not instantaneous.",
+      "No motion is perfectly smooth — all movement has micro-organic irregularity.",
+    ].join("\n");
+
+    const medium = [
+      "ORGANIC CAMERA FEEL:",
+      "Handheld documentary style — visible but controlled natural camera sway, human breathing rhythm in the movement.",
+      "Lens breathing — subtle focal pull between subjects, as if a cinematographer is making real-time adjustments.",
+      "Film grain — medium grain, Kodak 5219 feel, warm in highlights, cool in shadows.",
+      "Natural motion blur on movement — no crisp digital edges on fast gestures.",
+      "Occasional imperceptible camera reframe — like the operator subconsciously adjusting framing.",
+      "Focus is slightly soft on deep background — shallow DOF with organic falloff.",
+    ].join("\n");
+
+    const heavy = [
+      "ORGANIC CAMERA FEEL:",
+      "Handheld vérité style — pronounced natural camera movement, clearly shot by a human holding the camera.",
+      "Strong lens breathing — focal length shifts are visible, like a news documentary or indie film.",
+      "Heavy film grain — pushed film look, Kodak 5213 pushed 2 stops, grain is character.",
+      "Motion blur on all fast movement — natural cinematic smear, no sharpened AI edges.",
+      "Reframes and micro-corrections visible — camera operator present in every shot.",
+      "Chromatic aberration at frame edges — slight colour fringing on high-contrast edges, lens character.",
+      "Natural vignette — slight darkening at corners, optical not digital.",
+    ].join("\n");
+
+    const blocks = { subtle, medium, heavy };
+    return blocks[intensity] || subtle;
+  }
+
+  function buildMotionKling(scene){
+    const p = state.project;
+    const neg = mergedNeg(scene);
+    const dur = Math.min(20, Math.max(1, Number(scene.duration)||6));
+    const i2v = isI2V();
+
+    const lines = [
+      `FORMAT: ${p.format}`,
+      `DURATION: ${dur}s`,
+      `FPS: ${scene.fps || "24fps cinematic"}`,
+      `PACING: ${scene.pacing || "slow, emotional — let feeling breathe"}`,
+    ];
+
+    if(i2v){
+      // I2V MODE — lean prompt, reference image carries all visual truth
+      lines.push(refHeader(scene));
+      if(p.motRules.trim()) lines.push(`GLOBAL MOTION RULES:\n${p.motRules.trim()}`);
+      lines.push(`SHOT: ${scene.shot || "—"}`);
+      lines.push(`CAMERA MOVE: ${scene.cameraMove || "slow subtle push-in, barely perceptible drift"}`);
+      if(scene.lens) lines.push(`LENS/DOF: ${scene.lens}`);
+      // In I2V, performance is brief — reference image handles appearance
+      // v7: skip entirely if Gappu not in scene
+      const gappuPresentMot = scene.gappuInScene !== false;
+      if(scene.emotion && gappuPresentMot && !/NOT\s+IN\s+SCENE/i.test(scene.emotion)) lines.push(`GAPPU PERFORMANCE:\n${scene.emotion}\nEyes carry the emotion. Subtle micro-expressions. Toddler-physics — slightly clumsy, endearing.`);
+      // Action beats = movement description only (not freeze-frame description)
+      const motionAction = scene.motionAdd?.trim() || extractMovementBeats(scene.action);
+      lines.push(`ACTION BEATS (what physically moves and how):\n${motionAction || "—"}`);
+      lines.push(`CONSTRAINTS: no Gappu redesign, no identity drift, realistic physics, preserve outfit colors exactly, no glitch artifacts.`);
+      // ORGANIC IMPERFECTION LAYER — inject if enabled
+      const organicBlock = getOrganicBlock(0);
+      if(organicBlock) lines.push(organicBlock);
+    } else {
+      // T2V MODE — full description needed
+      if(p.charLock.trim()){
+        const sceneOutfitT2V = resolveOutfit(scene);
+        const outfitLine = sceneOutfitT2V ? `\nOUTFIT THIS SCENE: ${sceneOutfitT2V}` : "";
+        lines.push(`CHARACTER LOCK:\n${p.charLock.trim()}${outfitLine}`);
+      }
+      if(p.envLock.trim()) lines.push(`ENVIRONMENT LOCK:\n${resolveEnv(scene)}`);
+      if(p.motRules.trim()) lines.push(`GLOBAL MOTION RULES:\n${p.motRules.trim()}`);
+      lines.push(`SHOT: ${scene.shot || "—"}`);
+      lines.push(`CAMERA MOVE: ${scene.cameraMove || "stable / minimal"}`);
+      if(scene.lens) lines.push(`LENS/DOF: ${scene.lens}`);
+      if(scene.lighting) lines.push(`LIGHTING: ${scene.lighting}`);
+      if(scene.composition) lines.push(`COMPOSITION: ${scene.composition}`);
+      if(scene.emotion && scene.gappuInScene !== false && !/NOT\s+IN\s+SCENE/i.test(scene.emotion)) lines.push(`GAPPU PERFORMANCE:\n${scene.emotion}\nEyes must carry the emotion. Subtle micro-expressions. Toddler-physics movement — slightly clumsy, endearing.`);
+      lines.push(`ACTION BEATS:\n${(scene.action||"").trim() || "—"}`);
+      if(scene.direction?.trim()) lines.push(`DIRECTOR NOTES:\n${scene.direction.trim()}`);
+      if(scene.motionAdd?.trim()) lines.push(`MOTION-ONLY DETAILS:\n${scene.motionAdd.trim()}`);
+      lines.push(`CONSTRAINTS: no Gappu redesign, no identity drift across frames, realistic physics, preserve outfit colors exactly, no glitch artifacts.`);
+      // ORGANIC IMPERFECTION LAYER — inject if enabled
+      const organicBlockT2V = getOrganicBlock(0);
+      if(organicBlockT2V) lines.push(organicBlockT2V);
+    }
+
+    if(neg) lines.push(`AVOID:\n${neg}`);
+    return lines.join("\n\n").trim();
+  }
+
+  // Extracts movement-relevant sentences from a full scene action description
+  // For I2V — removes static descriptive language, keeps only what physically moves
+  function extractMovementBeats(actionText){
+    if(!actionText) return "";
+    // Split into sentences and keep ones that describe physical movement
+    const movementKeywords = /\b(move|sway|turn|look|walk|run|jump|wave|nod|shake|lift|drop|hold|grip|lean|crouch|stand|sit|tilt|flick|blink|open|close|reach|point|pull|push|step|bounce|wiggle|breathe|inhale|exhale|tremble|shiver|clap|tap|swing|rock|glide|drift|splash|ripple|flutter|spin|slide)\b/i;
+    const lines = actionText.split(/[.\n]/).map(s=>s.trim()).filter(Boolean);
+    const movementLines = lines.filter(l => movementKeywords.test(l));
+    // If no movement lines found, return a condensed version
+    if(movementLines.length === 0) return lines.slice(0,3).join(". ");
+    return movementLines.join("\n- ");
+  }
+
+  function buildMotionVeo(scene){
+    const p = state.project;
+    const neg = mergedNeg(scene);
+    const dur = Math.min(20, Math.max(1, Number(scene.duration)||6));
+    const i2v = isI2V();
+    const lines = [
+      `Cinematic emotional video. ${p.format}. Duration ${dur}s. ${scene.fps || "24fps"}.`
+    ];
+    if(i2v){
+      lines.push(refHeader(scene));
+      if(p.motRules.trim()) lines.push(`Motion rules:\n${p.motRules.trim()}`);
+      lines.push(`Camera: ${scene.shot || "—"} | Move: ${scene.cameraMove || "slow push-in"} ${scene.lens ? "| Lens: "+scene.lens : ""}`);
+      if(scene.emotion && scene.gappuInScene !== false && !/NOT\s+IN\s+SCENE/i.test(scene.emotion)) lines.push(`Performance: ${scene.emotion}. Expressive Gappu eyes, toddler body language, subtle micro-expressions.`);
+      const motionAction = scene.motionAdd?.trim() || extractMovementBeats(scene.action);
+      lines.push(`Movement:\n${motionAction || "—"}`);
+    } else {
+      if(p.motRules.trim()) lines.push(`Motion rules:\n${p.motRules.trim()}`);
+      lines.push(`Camera: ${scene.shot || "—"} | Move: ${scene.cameraMove || "slow push-in"} ${scene.lens ? "| Lens: "+scene.lens : ""}`);
+      if(scene.emotion && scene.gappuInScene !== false && !/NOT\s+IN\s+SCENE/i.test(scene.emotion)) lines.push(`Performance: ${scene.emotion}. Expressive Gappu eyes, toddler body language, subtle micro-expressions.`);
+      lines.push(`Action:\n${(scene.action||"").trim() || "—"}`);
+    }
+    if(neg) lines.push(`Avoid:\n${neg}`);
+    return lines.join("\n\n").trim();
+  }
+
+  function buildMotionSora(scene){
+    const p = state.project;
+    const neg = mergedNeg(scene);
+    const dur = Math.min(20, Math.max(1, Number(scene.duration)||8));
+    const i2v = isI2V();
+    const lines = [
+      `Create emotionally resonant video. ${p.format}. ${dur}s. ${scene.fps || "24fps cinematic"}.`
+    ];
+    if(i2v){
+      lines.push(refHeader(scene));
+      if(p.motRules.trim()) lines.push(`Motion rules:\n${p.motRules.trim()}`);
+      lines.push(`Shot: ${scene.shot || "—"}. Move: ${scene.cameraMove || "minimal."}`);
+      if(scene.emotion && scene.gappuInScene !== false && !/NOT\s+IN\s+SCENE/i.test(scene.emotion)) lines.push(`Performance: ${scene.emotion}. Prioritize readable Gappu eyes + toddler micro-expressions.`);
+      const motionAction = scene.motionAdd?.trim() || extractMovementBeats(scene.action);
+      lines.push(`Movement:\n${motionAction || "—"}`);
+    } else {
+      if(p.motRules.trim()) lines.push(`Motion rules:\n${p.motRules.trim()}`);
+      lines.push(`Shot: ${scene.shot || "—"}. Move: ${scene.cameraMove || "minimal."}`);
+      if(scene.emotion && scene.gappuInScene !== false && !/NOT\s+IN\s+SCENE/i.test(scene.emotion)) lines.push(`Emotion/performance: ${scene.emotion}. Prioritize readable Gappu eyes + toddler micro-expressions.`);
+      lines.push(`What happens:\n${(scene.action||"").trim() || "—"}`);
+    }
+    if(neg) lines.push(`Avoid:\n${neg}`);
+    return lines.join("\n\n").trim();
+  }
+
+  function buildImagePrompt(scene){ return state.project.imageTool === "Meta AI" ? buildImageMeta(scene) : buildImageNano(scene); }
+  function buildMotionPrompt(scene){
+    const t = state.project.motionTool;
+    if(t === "VEO") return buildMotionVeo(scene);
+    if(t === "Sora 2") return buildMotionSora(scene);
+    return buildMotionKling(scene);
+  }
+  function buildCombined(scene){
+    const p = state.project;
+    return `=== IMAGE PROMPT (${p.imageTool}) ===\n${scene.imagePrompt||""}\n\n=== MOTION PROMPT (${p.motionTool}) — ${p.motionMode} ===\n${scene.motionPrompt||""}`;
+  }
+  function regenScene(scene){
+    // Re-run auto detection on every regen (catches slots added after initial parse)
+    autoDetectAndApply(scene);
+    scene.imagePrompt = buildImagePrompt(scene);
+    scene.motionPrompt = buildMotionPrompt(scene);
+    scene.comboPrompt = buildCombined(scene);
+  }
+
+  // Auto-detect characters and env slot for a scene — runs at parse AND regen
+  function autoDetectAndApply(scene){
+    const charsField = ((scene.characters||"")).toLowerCase();
+    const actionText = ((scene.action||"")).toLowerCase();
+    const locationText = ((scene.location||"")).toLowerCase();
+
+    // Common short/generic words that would cause false positives
+    const STOPWORDS = new Set(["man","men","kind","post","the","and","with","from","into","over","back","both","side","this","that","only","just","same","very","also","then","when","char","role"]);
+
+    // Characters — same two-strategy logic as makeScene's autoDetectChars
+    const autoDetected = [];
+    (state.extraChars||[]).forEach(ch => {
+      if(!ch.name.trim()) return;
+      // Strategy 1: CHAR_N label match against characters: field
+      const labelMatch = ch.name.match(/^(CHAR[_\s]?\d+)/i);
+      if(labelMatch){
+        const label = labelMatch[1].toLowerCase().replace(/\s/g,"_");
+        const labelSpace = label.replace(/_/g," ");
+        if(charsField.includes(label) || charsField.includes(labelSpace)){
+          autoDetected.push(ch.id); return;
+        }
+      }
+      // Strategy 2: unique name words (min 5 chars, no stopwords) in characters: field ONLY.
+      // Do NOT search actionText — action descriptions reference characters from other scenes,
+      // causing false positives (e.g. "Rico is absent" in action = Rico wrongly detected).
+      const cleanName = ch.name.replace(/^CHAR[_\s]?\d+\s*[:–-]\s*/i,"").trim();
+      const words = cleanName.toLowerCase()
+        .replace(/[^a-z0-9\s\/]/g," ")
+        .split(/[\s\/]+/)
+        .filter(w => w.length >= 5 && !STOPWORDS.has(w));
+      if(words.length && words.some(w => charsField.includes(w))){
+        autoDetected.push(ch.id);
+      }
+    });
+
+    // Replace scene's sceneChars with fresh auto-detection
+    // Store auto-detected IDs in scene.autoChars
+    // scene.manualChars = chars the user explicitly clicked (preserved across regens)
+    scene.autoChars = autoDetected;
+    if(!scene.manualChars) scene.manualChars = [];
+    // sceneChars = union of auto + manual
+    scene.sceneChars = [...new Set([...autoDetected, ...scene.manualChars])];
+
+    // Environment — only auto-assign if not manually overridden
+    if(!scene.envManual){
+      const slots = (state.project.envSlots||[]).filter(s => s.name.trim() && s.lock.trim());
+      let bestId = null, bestScore = 0;
+      const locText = (locationText + " " + actionText).slice(0,400);
+      for(const slot of slots){
+        const words = slot.name.toLowerCase()
+          .replace(/[^a-z0-9\s]/g,"")
+          .split(/\s+/)
+          .filter(w => w.length > 2);
+        const score = words.filter(w => locText.includes(w)).length;
+        if(score > bestScore){ bestScore = score; bestId = slot.id; }
+      }
+      if(bestId) scene.envSlotId = bestId;
+    }
+  }
+
+  // -------- COPY WRAPPERS --------
+  function buildImgCopy(scene, raw){
+    const p = state.project;
+    let t = (raw||"").trim(); if(!t) return "";
+    const parts = [];
+    const hasChar = /CHARACTER\s*LOCK/i.test(t);
+    const hasEnv  = /ENVIRONMENT\s*LOCK/i.test(t);
+    const hasRules = /GLOBAL\s*IMAGE\s*RULES/i.test(t);
+    if(p.charLock?.trim() && !hasChar) parts.push(`CHARACTER LOCK (do not change):\n${p.charLock.trim()}`);
+    if((p.envSlots||[]).some(s=>s.lock.trim()) && !hasEnv) parts.push(`ENVIRONMENT LOCK (do not change):\n${resolveEnv({location:"", action:"", envSlotId: null})}`);
+    if(p.imgRules?.trim() && !hasRules) parts.push(`GLOBAL IMAGE RULES:\n${p.imgRules.trim()}`);
+    parts.push(t);
+    const neg = mergedNeg(scene);
+    if(neg && !/(^|\n)\s*(AVOID|NEGATIVE)/i.test(t)) parts.push(`AVOID / NEGATIVE:\n${neg}`);
+    return parts.join("\n\n").trim();
+  }
+  function buildMotCopy(scene, raw){
+    const p = state.project;
+    let t = (raw||"").trim(); if(!t) return "";
+    const parts = [];
+    const hasRef = /REFERENCE\s*IMAGE\s*MODE/i.test(t);
+    if(isI2V() && !hasRef) parts.push(refHeader(scene));
+    const hasRules = /GLOBAL\s*MOTION\s*RULES/i.test(t);
+    if(p.motRules?.trim() && !hasRules) parts.push(`GLOBAL MOTION RULES:\n${p.motRules.trim()}`);
+    parts.push(t);
+    const neg = mergedNeg(scene);
+    if(neg && !/(^|\n)\s*(AVOID|NEGATIVE)/i.test(t)) parts.push(`AVOID / NEGATIVE:\n${neg}`);
+    return parts.join("\n\n").trim();
+  }
+
+  // -------- LOCKS PACK AUTO-PARSER --------
+  // Parses Claude's Block 2 output and fills all lock fields automatically
+  function parseLocksPack(raw){
+    const text = (raw||"").replace(/\r/g,"");
+    const result = { outfit:"", envSlots:[], chars:[] };
+
+    // ── OUTFIT ──────────────────────────────────────────────
+    // Marker: ##OUTFIT## ... ##END_OUTFIT##
+    const outfitM = text.match(/##OUTFIT##\s*([\s\S]*?)\s*##END_OUTFIT##/i);
+    if(outfitM) result.outfit = outfitM[1].trim();
+
+    // ── ENVIRONMENT SLOTS ───────────────────────────────────
+    // Marker: ##ENV_SLOT_START## NAME: xxx ##ENV_LOCK## ... ##ENV_SLOT_END##
+    const envRx = /##ENV_SLOT_START##\s*NAME:\s*([^\n#]+)\s*##ENV_LOCK##\s*([\s\S]*?)\s*##ENV_SLOT_END##/gi;
+    let em;
+    while((em = envRx.exec(text)) !== null){
+      result.envSlots.push({ name: em[1].trim(), lock: em[2].trim() });
+    }
+
+    // ── CHARACTER SLOTS ─────────────────────────────────────
+    // Marker: ##CHAR_SLOT_START## SLOT: N NAME: xxx ##CHAR_LOCK## ... ##CHAR_SLOT_END##
+    const charRx = /##CHAR_SLOT_START##\s*SLOT:\s*(\d)\s*NAME:\s*([^\n#]+)\s*##CHAR_LOCK##\s*([\s\S]*?)\s*##CHAR_SLOT_END##/gi;
+    let cm;
+    while((cm = charRx.exec(text)) !== null){
+      result.chars.push({ slot: Number(cm[1])-1, name: cm[2].trim(), lock: cm[3].trim() });
+    }
+
+    return result;
+  }
+
+  function applyLocksPack(parsed){
+    let applied = [];
+
+    // Outfit
+    if(parsed.outfit){
+      state.project.outfitLock = parsed.outfit;
+      const el = $("p_outfitLock"); if(el) el.value = parsed.outfit;
+      applied.push("✅ Outfit");
+    }
+
+    // Env slots — expand dynamically if needed
+    if(parsed.envSlots.length > 0){
+      // Grow envSlots array if needed
+      while(state.project.envSlots.length < parsed.envSlots.length){
+        const i = state.project.envSlots.length;
+        state.project.envSlots.push({
+          id: "ev" + (i+1),
+          name: "",
+          color: ENV_COLORS[i % ENV_COLORS.length],
+          lock: ""
+        });
+      }
+      parsed.envSlots.forEach((ev, i) => {
+        state.project.envSlots[i].name = ev.name;
+        state.project.envSlots[i].lock = ev.lock;
+        applied.push("✅ Env: "+ev.name);
+      });
+    }
+    if(parsed.envSlots.length) renderEnvSlots();
+
+    // Character slots — expand extraChars array dynamically if needed
+    if(parsed.chars.length > 0){
+      // Determine how many slots we need
+      const maxSlot = Math.max(...parsed.chars.map(ch => ch.slot));
+      const needed = maxSlot + 1;
+      // Grow state.extraChars if needed (up to 10)
+      while(state.extraChars.length < Math.min(needed, 10)){
+        const i = state.extraChars.length;
+        state.extraChars.push({
+          id: "ec" + (i+1),
+          name: "",
+          color: CHAR_COLORS[i % CHAR_COLORS.length],
+          lock: ""
+        });
+      }
+      parsed.chars.forEach(ch => {
+        if(ch.slot < 0 || ch.slot >= 10) return;
+        state.extraChars[ch.slot].name = ch.name;
+        state.extraChars[ch.slot].lock = ch.lock;
+        applied.push("✅ Char: "+ch.name);
+      });
+    }
+    if(parsed.chars.length) renderExtraChars();
+
+    saveDebounced();
+    return applied;
+  }
+  function parseScenes(text){
+    const raw = (text||"").replace(/\r/g,"").trim();
+    if(!raw) return [];
+
+    const sceneBlocks = [];
+
+    // PRIMARY: match "scene:   N" — colon immediately after "scene" (structured field format)
+    // This avoids matching free-text like "Scene 1 plant:" or "scene 3's helplessness"
+    const sceneRx = /(?:^|\n)([ \t]*scene[ \t]*:[ \t]*(\d{1,3})[ \t]*(?:\n|$))/gi;
+    const matches = [...raw.matchAll(sceneRx)];
+
+    if(matches.length){
+      matches.forEach((m, i) => {
+        const start = m.index;
+        const end = i < matches.length - 1 ? matches[i+1].index : raw.length;
+        sceneBlocks.push({ num: m[2], block: raw.slice(start, end).trim() });
+      });
+      return sceneBlocks.map(({num, block}) => makeScene(num, block));
+    }
+
+    // FALLBACK: quick-entry "scene N:" format (e.g. "scene 1: HOOK — ...")
+    const sceneRx2 = /(?:^|\n)[ \t]*scene[ \t]+(\d{1,3})[ \t]*:/gi;
+    const matches2 = [...raw.matchAll(sceneRx2)];
+    if(matches2.length){
+      matches2.forEach((m, i) => {
+        const start = m.index;
+        const end = i < matches2.length - 1 ? matches2[i+1].index : raw.length;
+        sceneBlocks.push({ num: m[1], block: raw.slice(start, end).trim() });
+      });
+      return sceneBlocks.map(({num, block}) => makeScene(num, block));
+    }
+
+    // LAST RESORT: split on double newlines
+    return raw.split(/\n{2,}/).map((blk,i)=>makeScene(i+1, blk.trim())).filter(s=>s.action.trim());
+  }
+
+  // Parse a multi-line field block from the master prompt format.
+  // Fields look like:
+  //   fieldname:  value starts here
+  //               continues on next line with leading whitespace
+  //               still continuing...
+  //   nextfield:  next value
+  function parseFieldBlock(text){
+    const fields = {};
+    // Known fields in the master prompt output
+    const knownFields = ['arc','arc_position','action','emotion','location','env_name','characters','shot','lens',
+      'camera_move','duration','lighting','composition','music_energy','cut_to','cin_reason','fps','pacing','gappu_in_scene','continuity'];
+
+    // Build regex that splits on "fieldname:" at start of a line (possibly after whitespace)
+    // We'll parse line by line, tracking current field
+    const lines = text.split('\n');
+    let currentField = null;
+    let currentValue = [];
+
+    const fieldRx = new RegExp(`^\\s*(${knownFields.join('|')})\\s*[:\\-]\\s*(.*)$`, 'i');
+
+    for(const line of lines){
+      const m = line.match(fieldRx);
+      if(m){
+        // Save previous field
+        if(currentField) fields[currentField.toLowerCase()] = currentValue.join(' ').replace(/\s+/g,' ').trim();
+        currentField = m[1].toLowerCase().replace(/[_\-]/g,'_');
+        currentValue = m[2] ? [m[2].trim()] : [];
+      } else if(currentField){
+        // Continuation line — strip leading whitespace and brackets
+        const stripped = line.replace(/^\s+/,'').replace(/^\[.*?\]\s*/,'').trim();
+        if(stripped && !/^─{3,}$/.test(stripped)) currentValue.push(stripped);
+      }
+    }
+    // Save last field
+    if(currentField) fields[currentField] = currentValue.join(' ').replace(/\s+/g,' ').trim();
+
+    return fields;
+  }
+
+  // -------- CINEMATIC INTELLIGENCE ENGINE --------
+  // Given arc position (0-4) + emotion text + action text,
+  // returns the best shot, lens, cameraMove, duration, pacing, lighting, composition
+  function cinematicBrain(arcIdx, emotionText, actionText, sceneNo){
+    const emo = (emotionText||"").toLowerCase();
+    const act = (actionText||"").toLowerCase();
+    const totalScenes = state.scenes.length || 5;
+
+    // ---- ARC POSITION RULES ----
+    // 0=HOOK, 1=PAIN, 2=STRUGGLE, 3=TURN, 4=PAYOFF
+    // Also handle scenes beyond 5
+    const arcPos = arcIdx <= 4 ? arcIdx : 4;
+
+    // ---- EMOTION SIGNAL DETECTION ----
+    const isCrying    = /cry|rona|aansu|tear|sob|weep|udaas|dard|hurt|heartbreak|toot/i.test(emo+act);
+    const isJoy       = /joy|khushi|happ|laugh|smile|jump|celebrate|khel|maza|giggl/i.test(emo+act);
+    const isShock     = /shock|surprise|hairaan|gasp|sudden|freeze|stun|wide.eye|mouth.open/i.test(emo+act);
+    const isDetermined= /determin|pakka|iraada|fight|clenched|fist|strong|brave|himmat|mehnat/i.test(emo+act);
+    const isLonging   = /long|yaad|miss|akela|alone|distant|stare|gaze|nostalgi|dur|melanchol/i.test(emo+act);
+    const isScared    = /scared|dar|bhay|tremble|hide|fear|panic|run|chup/i.test(emo+act);
+    const isTender    = /maa|dadi|hug|gale|touch|hand|haath|roti|pyaar|love|gentle|soft/i.test(emo+act);
+    const isComedy    = /comedy|funny|hasi|mazaak|slip|fall|gira|ulta|silly|clumsy|spill/i.test(emo+act);
+
+    // ---- ACTION SIGNAL DETECTION ----
+    const isRunning   = /run|bhaag|daud|chase|jaldi/i.test(act);
+    const isLookingAt = /look|dekh|watch|peer|peek|jhank|gazing/i.test(act);
+    const isSitting   = /sit|baith|floor|zameen|tree|ped|charpai|corner/i.test(act);
+    const isRevealing = /reveal|dikha|appear|aa jaata|suddenly|tabhi|achanak/i.test(act);
+    const isHandMoment= /haath|hand|touch|cup|chai|roti|give|de|le|hold|pakad/i.test(act);
+    const isFace      = /face|chehra|aankhein|eye|lip|expression|tear|aansu/i.test(act);
+
+    // ---- DERIVE SHOT ----
+    let shot, lens, cameraMove, duration, pacing, lighting, composition, whyReason;
+
+    // HOOK (arcPos 0) — always wide or environmental establish
+    if(arcPos === 0){
+      if(isRunning){
+        shot = "Medium-wide tracking shot — Gappu running toward camera, environment visible around him";
+        lens = "35mm f/2.8 — wider to show energy and setting";
+        cameraMove = "Slow push-in as Gappu runs closer, slight Dutch tilt to add excitement";
+        duration = 6;
+        pacing = "energetic but controlled — let momentum build";
+        lighting = "Bright morning golden hour — high energy feel";
+        composition = "Gappu rule-of-thirds left, destination visible right";
+        whyReason = "Wide establishes world + energy. Running into frame = instant forward momentum.";
+      } else if(isShock){
+        shot = "Medium close-up — Gappu face dead center, reaction shot";
+        lens = "85mm f/1.8 — tight, isolate face, compress background";
+        cameraMove = "FREEZE — static hold, then 1-second very slow push-in";
+        duration = 5;
+        pacing = "abrupt pause — let shock land";
+        lighting = "Neutral natural light, no warmth — emphasize reality of moment";
+        composition = "Face centered, symmetrical — maximizes shock impact";
+        whyReason = "Hook needs to stop scroll. Shocked face center-frame = strongest scroll-stop.";
+      } else {
+        shot = "Wide establishing shot — Gappu small in frame, full environment visible";
+        lens = "28mm f/2.8 — wide, cinematic depth, world feels big";
+        cameraMove = "Very slow push-in from wide to medium over 6 seconds";
+        duration = 6;
+        pacing = "slow, atmospheric — let world breathe";
+        lighting = "Golden hour warm light — nostalgic Indian village feel";
+        composition = "Gappu lower-third, sky/environment top two-thirds — world is the hero initially";
+        whyReason = "Hook should first show the world, then Gappu. Creates curiosity before character.";
+      }
+    }
+
+    // PAIN (arcPos 1) — isolation, close emotion, tight framing
+    else if(arcPos === 1){
+      if(isCrying || isLonging){
+        shot = "Extreme close-up — Gappu eyes filling with tears, face only";
+        lens = "135mm f/1.8 — very tight, bokeh everything, only eyes in focus";
+        cameraMove = "Barely perceptible slow push-in — 0.5cm per second, almost invisible";
+        duration = 7;
+        pacing = "very slow, breath held — silence is the emotion";
+        lighting = "Soft overcast or diffused window light — cold, grey undertone";
+        composition = "Eyes fill upper half of frame. Single tear on cheek. Nothing else matters.";
+        whyReason = "Pain needs extreme close-up on eyes. Gappu's eyes ARE the emotion — show nothing else.";
+      } else if(isSitting){
+        shot = "Wide shot — Gappu tiny and alone in big environment";
+        lens = "50mm f/2.0 — natural perspective, emphasizes smallness";
+        cameraMove = "Slow, almost imperceptible zoom out — Gappu gets smaller as loneliness grows";
+        duration = 8;
+        pacing = "painfully slow — the longer the hold, the more the loneliness registers";
+        lighting = "Flat midday light — harsh, no warmth, no romance";
+        composition = "Gappu center-bottom, massive empty space above and around him";
+        whyReason = "Sitting alone = loneliness. Wide frame makes Gappu small = viewer feels the isolation.";
+      } else {
+        shot = "Medium shot — Gappu full body, reaction to the painful moment";
+        lens = "85mm f/2.0 — standard emotional portrait lens";
+        cameraMove = "Static — no camera movement, stillness amplifies the emotional hit";
+        duration = 6;
+        pacing = "slow, heavy";
+        lighting = "Slightly underexposed, cooler tone — emotional colour language";
+        composition = "Gappu slightly off-center, empty space on the side toward what he lost";
+        whyReason = "Static camera on pain = viewer forced to sit with the feeling, can't escape it.";
+      }
+    }
+
+    // STRUGGLE (arcPos 2) — effort, movement, grit
+    else if(arcPos === 2){
+      if(isDetermined){
+        shot = "Low angle medium shot — looking slightly up at Gappu, hero framing";
+        lens = "35mm f/2.0 — slightly wide, gives determined energy";
+        cameraMove = "Very slow low push-in — camera creeping forward like determination itself";
+        duration = 6;
+        pacing = "building — starts slow, energy accumulates";
+        lighting = "Warm backlight — halo effect, Gappu lit from behind like a fighter";
+        composition = "Gappu slightly below center, sky or open space above — room to rise";
+        whyReason = "Low angle = power. Backlight = hope. These two together = viewer wants to root for Gappu.";
+      } else if(isCrying && isDetermined){
+        shot = "Medium close-up — tear on cheek but jaw set, determined despite pain";
+        lens = "85mm f/1.8 — emotional portrait, bokeh background";
+        cameraMove = "Static — this moment needs no movement";
+        duration = 6;
+        pacing = "tense stillness";
+        lighting = "Side lighting — half face lit, half in shadow — the inner conflict";
+        composition = "Face filling 60% of frame. Tear visible. Eyes looking forward not down.";
+        whyReason = "Crying + determined = most powerful Gappu face. Side light = internal conflict made visual.";
+      } else {
+        shot = "Medium tracking shot — follows Gappu as he tries, moves, persists";
+        lens = "50mm f/2.0";
+        cameraMove = "Handheld feel — slight natural sway, follows action organically";
+        duration = 7;
+        pacing = "restless, effortful";
+        lighting = "Natural ambient — honest, no glamour";
+        composition = "Gappu in motion, environment scrolling behind";
+        whyReason = "Tracking shot = we are with Gappu in his struggle, not watching from outside.";
+      }
+    }
+
+    // TURN (arcPos 3) — something changes, hope enters
+    else if(arcPos === 3){
+      if(isRevealing || isTender){
+        shot = "Over-the-shoulder medium — Gappu's back, we see what he sees appearing";
+        lens = "85mm f/2.0 — subject and reveal both slightly soft";
+        cameraMove = "Slow reveal pan or static with subject entering frame from edge";
+        duration = 6;
+        pacing = "held breath then release";
+        lighting = "Warm light beginning to return — golden tone creeping back in";
+        composition = "Gappu back-left, turning reveal right — classic hope framing";
+        whyReason = "OTS shot puts viewer in Gappu's POV for the turn. We discover hope with him, not before him.";
+      } else if(isHandMoment){
+        shot = "Extreme close-up — hands only. The gesture IS the story.";
+        lens = "100mm macro f/2.8 — hyper-detailed, textures of hands";
+        cameraMove = "Static — hands fill frame, nothing else";
+        duration = 5;
+        pacing = "slow, tender, deliberate";
+        lighting = "Warm soft window light — gentle, hopeful";
+        composition = "Two sets of hands — Gappu's small hands + other character's hands. That's the whole frame.";
+        whyReason = "Hand close-up at TURN = most emotional storytelling device in Indian cinema. No face needed.";
+      } else {
+        shot = "Medium two-shot — Gappu and the turning element in same frame";
+        lens = "50mm f/2.0";
+        cameraMove = "Slow push-in toward both subjects";
+        duration = 6;
+        pacing = "softening — tension releasing";
+        lighting = "Warm golden light returning — colour signals the shift emotionally";
+        composition = "Both subjects centered, warm space between them";
+        whyReason = "Two-shot at TURN shows the relationship that changes everything.";
+      }
+    }
+
+    // PAYOFF (arcPos 4) — emotional release, maximum impact
+    else {
+      if(isJoy && isCrying){
+        shot = "Extreme close-up — Gappu face, crying and smiling simultaneously";
+        lens = "135mm f/1.8 — maximum compression, only face exists";
+        cameraMove = "Absolutely static — do not move. Let this face be the entire universe.";
+        duration = 8;
+        pacing = "suspended — let viewer live here";
+        lighting = "Warm golden backlight + soft front fill — Gappu glowing";
+        composition = "Face centered, tears catching light, eyes catching light. Pure cinema.";
+        whyReason = "Crying + smiling = peak human emotion. This face will make them save the video.";
+      } else if(isJoy){
+        shot = "Wide shot then push to medium — start wide for context, push in for emotion";
+        lens = "35mm f/2.0 start, match-cut to 85mm f/1.8";
+        cameraMove = "Slow push-in from wide to medium over 8 seconds — building joy";
+        duration = 8;
+        pacing = "building then exploding — slow then suddenly free";
+        lighting = "Maximum warm golden hour — this is the reward light";
+        composition = "Gappu with room around him — world feels open now, not confining";
+        whyReason = "Wide → push-in on payoff = classic Bollywood emotional peak. World opens as emotion peaks.";
+      } else if(isTender){
+        shot = "Medium two-shot — Gappu and the character completing the emotional journey";
+        lens = "85mm f/1.8 — both slightly soft, dreamlike quality";
+        cameraMove = "Barely perceptible slow push-in — like a gentle exhale";
+        duration = 8;
+        pacing = "warm, unhurried — let it breathe";
+        lighting = "Warm late afternoon light — golden, long shadows, Indian evening feel";
+        composition = "Both characters close, filling frame with warmth, no empty cold space";
+        whyReason = "Payoff needs warmth and closeness. This shot says: everything is okay now.";
+      } else {
+        shot = "Medium close-up — Gappu face, full emotional resolution";
+        lens = "85mm f/1.8";
+        cameraMove = "Very slow push-in — intimate, final";
+        duration = 8;
+        pacing = "slow exhale — the story is complete";
+        lighting = "Warm golden light — reward tone";
+        composition = "Gappu centered, warm light on face";
+        whyReason = "Payoff always ends on Gappu's face. The journey was his. The face is the reward.";
+      }
+    }
+
+    // ---- OVERRIDE: if user explicitly wrote shot in text ----
+    const explicitShot = (()=>{
+      const m = (actionText||"").match(/(front view|side view|close[- ]?up|wide shot|medium shot|aerial|pov|two.shot|over.the.shoulder)/i);
+      if(!m) return null;
+      return m[0];
+    })();
+
+    return {
+      shot: explicitShot ? explicitShot : shot,
+      lens,
+      cameraMove,
+      duration,
+      pacing,
+      lighting,
+      composition,
+      whyReason,
+      autoDecided: !explicitShot
+    };
+  }
+
+  function makeScene(sceneNo, blk){
+    const clean = (blk||"").trim();
+    const f = parseFieldBlock(clean);
+
+    // Arc — from parsed field, fallback to position
+    const arcRaw = (f.arc||"").replace(/[→\s].*/,"").trim().toUpperCase();
+    const arcPositions = {HOOK:0,PAIN:1,STRUGGLE:2,TURN:3,PAYOFF:4};
+    const arcIdx = arcPositions[arcRaw] ?? Math.min(4, Math.max(0,(Number(sceneNo)||1)-1));
+
+    // Core fields from parsed block
+    const emotion    = f.emotion || "";
+    const action     = f.action  || "";
+    const location   = f.location || "";
+    const characters = f.characters || "";
+    const cinReason  = f.cin_reason || "";
+    const musicEnergy= f.music_energy || "";
+    const cutTo      = f.cut_to || "";
+    const continuity = f.continuity || "";
+    // v7: gappu_in_scene YES/NO — controls anatomy anchor + emotion injection
+    const gappuRaw   = (f.gappu_in_scene || "YES").trim().toUpperCase();
+    const gappuInScene = gappuRaw !== "NO"; // default YES if not specified
+
+    // Cinematic fields — use from parsed block if present, else run cinematicBrain
+    const hasCinFields = f.shot || f.lens || f.camera_move || f.lighting || f.composition;
+    const cin = hasCinFields ? null : cinematicBrain(arcIdx, emotion, action, sceneNo);
+
+    const shot        = f.shot        || cin?.shot        || "";
+    const lens        = f.lens        || cin?.lens        || "";
+    const cameraMove  = f.camera_move || cin?.cameraMove  || "";
+    const pacing      = f.pacing      || cin?.pacing      || "";
+    const lighting    = f.lighting    || cin?.lighting    || "";
+    const composition = f.composition || cin?.composition || "";
+    const whyReason   = cinReason     || cin?.whyReason   || "";
+
+    // Duration — parse number from value like "5 seconds" or "7"
+    const durRaw = f.duration || String(cin?.duration || 6);
+    const duration = Number((durRaw.match(/\d+/)||["6"])[0]) || 6;
+
+    // ── AUTO DETECT CHARACTERS ──────────────────────────────
+    // Match parsed characters: field + action text against named extra char slots
+    function autoDetectChars(){
+      const charsField = characters.toLowerCase();
+      const actionText = action.toLowerCase();
+      const detected = [];
+      // Common short/generic words that would cause false positives — never match on these
+      const STOPWORDS = new Set(["man","men","kind","post","the","and","with","from","into","over","back","both","side","this","that","only","just","same","very","also","then","when","char","role"]);
+      (state.extraChars||[]).forEach(ch => {
+        if(!ch.name.trim()) return;
+        // Strategy 1 (PRIMARY): exact CHAR_N label match in characters: field
+        // e.g. slot name "CHAR_1: Chihuahua Alpha" → look for "char_1" or "char 1" in characters field
+        const labelMatch = ch.name.match(/^(CHAR[_\s]?\d+)/i);
+        if(labelMatch){
+          const label = labelMatch[1].toLowerCase().replace(/\s/g,"_");
+          const labelSpace = label.replace(/_/g," "); // also match "char 1" form
+          if(charsField.includes(label) || charsField.includes(labelSpace)){
+            detected.push(ch.id); return;
+          }
+        }
+        // Strategy 2 (SECONDARY): meaningful unique name words — characters: field ONLY.
+        // IMPORTANT: do NOT search actionText here. The action field often describes what a character
+        // is doing OR what happened in nearby scenes for context — this causes false positives.
+        // Only the explicit characters: field (set by Claude per-scene) is authoritative.
+        // e.g. Scene 2 action may say "Rico is gone" — that must NOT auto-select Rico for Scene 2.
+        const cleanName = ch.name.replace(/^CHAR[_\s]?\d+\s*[:–-]\s*/i,"").trim();
+        const words = cleanName.toLowerCase()
+          .replace(/[^a-z0-9\s\/]/g," ")
+          .split(/[\s\/]+/)
+          .filter(w => w.length >= 5 && !STOPWORDS.has(w));
+        if(words.length && words.some(w => charsField.includes(w))){
+          detected.push(ch.id);
+        }
+      });
+      return detected;
+    }
+
+    // ── AUTO DETECT ENVIRONMENT SLOT ────────────────────────
+    // v7: use parsed env_name: field for exact match first, then keyword fallback
+    function autoDetectEnvSlot(){
+      const envNameExact = (f.env_name || "").trim().toLowerCase();
+      const searchText = (location + " " + action).toLowerCase().slice(0,400);
+      const slots = (state.project.envSlots||[]).filter(s => s.name.trim() && s.lock.trim());
+      // First: exact name match from env_name: field
+      if(envNameExact){
+        const exact = slots.find(s => s.name.trim().toLowerCase() === envNameExact);
+        if(exact) return exact.id;
+        // Partial match on env_name
+        const partial = slots.find(s => s.name.trim().toLowerCase().includes(envNameExact) || envNameExact.includes(s.name.trim().toLowerCase()));
+        if(partial) return partial.id;
+      }
+      // Fallback: keyword scoring on location + action text
+      let bestId = null, bestScore = 0;
+      for(const slot of slots){
+        const words = slot.name.toLowerCase()
+          .replace(/[^a-z0-9\s]/g,"")
+          .split(/\s+/)
+          .filter(w => w.length > 2);
+        const score = words.filter(w => searchText.includes(w)).length;
+        if(score > bestScore){ bestScore = score; bestId = slot.id; }
+      }
+      return bestId; // null means use first slot / fallback
+    }
+
+    const sceneChars = autoDetectChars();
+    const detectedEnvId = autoDetectEnvSlot();    const arcWord = arcRaw || ["HOOK","PAIN","STRUGGLE","TURN","PAYOFF"][arcIdx] || `S${sceneNo}`;
+    const emoShort = emotion.replace(/^eyes?\s+/i,"").split(/[,.\n]/)[0].trim().slice(0,45);
+    const locShort = location.split(/[,.\n]/)[0].trim().slice(0,35);
+    const title = emoShort ? `${arcWord} — ${emoShort}` : locShort ? `${arcWord} — ${locShort}` : `${arcWord} — Scene ${sceneNo}`;
+
+    return {
+      id:uid(), open:false, sceneNo:Number(sceneNo)||null,
+      title, location, shot, lens, cameraMove, duration,
+      fps: f.fps || "24fps cinematic",
+      pacing, lighting, composition,
+      cinReason: whyReason,
+      cinAuto: !hasCinFields,
+      refNote:"",
+      gappuInScene,   // v7: YES/NO — controls anatomy anchor + emotion injection
+      emotion, action,
+      characters, musicEnergy, cutTo,
+      continuity,         // visual continuity from previous scene
+      direction:"", imgAdd:"", motionAdd:"", negLocal:"", envOverride:"",
+      sceneChars,         // auto-detected from characters: field
+      autoChars: sceneChars,  // same on creation — tracks auto vs manual for regen
+      manualChars: [],    // chars manually toggled by user — preserved across regens
+      manualExclude: [],  // chars user explicitly force-unchecked
+      envSlotId: detectedEnvId, // auto-detected env slot
+      imagePrompt:"", motionPrompt:"", comboPrompt:""
+    };
+  }
+
+  // -------- MARKDOWN --------
+  function buildAllMarkdown(){
+    const p = state.project;
+    let md = `# 🐵 ${p.title || "Gappu Prompt Pack"}\n\n`;
+    md += `**Aspect:** ${p.format} | **IMAGE:** ${p.imageTool} | **MOTION:** ${p.motionTool} | **Mode:** ${p.motionMode}\n\n`;
+    if(p.theme) md += `**Emotional Theme:** ${p.theme}\n\n`;
+    md += `## Scenes\n\n`;
+    state.scenes.forEach((s,i)=>{
+      if(!s.imagePrompt||!s.motionPrompt) regenScene(s);
+      s.comboPrompt = buildCombined(s);
+      const num = s.sceneNo??(i+1);
+      md += `### Scene ${num}: ${s.title||"(untitled)"}\n\n`;
+      md += `**Emotion:** ${s.emotion||"—"} | **Shot:** ${s.shot||"—"} | **Duration:** ${s.duration||6}s\n\n`;
+      md += `#### IMAGE PROMPT (${p.imageTool})\n\n\`\`\`\n${(s.imagePrompt||"").trim()}\n\`\`\`\n\n`;
+      md += `#### MOTION PROMPT (${p.motionTool}) — ${p.motionMode}\n\n\`\`\`\n${(s.motionPrompt||"").trim()}\n\`\`\`\n\n---\n\n`;
+    });
+    const out = md.trim();
+    $("allOut").value = out;
+    $("allOut2").value = out;
+    saveDebounced();
+  }
+
+  // -------- SCENE ROW HTML --------
+  function sceneRow(scene, idx){
+    const num = scene.sceneNo??(idx+1);
+    const arcLabels = ["HOOK","PAIN","STRUGGLE","TURN","PAYOFF"];
+    const arcLabel = arcLabels[Math.min(idx, 4)] || `S${num}`;
+
+    // Build a meaningful scene title from arc + emotion + location
+    // Priority: user-set title → arc+emotion combo → fallback
+    function buildSceneHeader(){
+      // If user typed a real title (not the default "Scene N"), use it
+      const t = (scene.title||"").trim();
+      if(t && !/^scene\s*\d+$/i.test(t) && t.length > 4) return t;
+
+      // Parse arc from action text or use index
+      const arcMatch = (scene.action||"").match(/arc\s*[:\-]\s*(\w+)/i);
+      const arcWord = arcMatch ? arcMatch[1].toUpperCase() : arcLabel;
+
+      // Emotion — first 35 chars, clean up
+      const emo = (scene.emotion||"").replace(/^eyes?\s+/i,"").split(/[,.\n]/)[0].trim().slice(0,40);
+
+      // Location — first meaningful segment
+      const locRaw = (scene.location||"").split(/[,.\n]/)[0].trim().slice(0,35);
+
+      if(emo && locRaw) return `${arcWord} — ${emo}`;
+      if(emo) return `${arcWord} — ${emo}`;
+      if(locRaw) return `${arcWord} — ${locRaw}`;
+      return `${arcWord} — Scene ${num}`;
+    }
+
+    const displayTitle = buildSceneHeader();
+    const locDisplay = (scene.location||"").split(/[,.\n]/)[0].trim().slice(0,40);
+    const meta = `${locDisplay ? "📍 "+locDisplay+" • " : ""}${scene.shot ? scene.shot.split("—")[0].trim() : "—"} • ${scene.duration||6}s • ${scene.lens||""}`;
+    const cinBadge = scene.cinAuto ? `<span class="pill" style="border-color:#0c3a52;color:#38bdf8;background:rgba(14,165,233,.08);">🎬 auto-cin</span>` : "";
+    // v7: show NO-GAPPU badge when anatomy anchor is suppressed
+    const noGappuBadge = scene.gappuInScene === false ? `<span class="pill" style="border-color:#5a2d0c;color:#fb923c;background:rgba(251,146,60,.1);" title="gappu_in_scene: NO — anatomy anchor + emotion skipped">🚫 no-anchor</span>` : "";
+
+    // Char badge for summary
+    const activeChars = (state.extraChars||[]).filter(ch => ch.name.trim() && (scene.sceneChars||[]).includes(ch.id));
+    const charBadge = activeChars.length ? `<span class="pill char-badge" style="background:rgba(99,102,241,0.15);border-color:#6366f1;color:#a5b4fc;gap:4px;display:inline-flex;align-items:center;">
+      ${activeChars.map(ch=>`<span style="width:7px;height:7px;border-radius:50%;background:${ch.color};display:inline-block;" title="${escH(ch.name)}"></span>`).join("")} 👥 ${activeChars.length}</span>` : "";
+
+    // Env badge for summary
+    const filledEnvSlots = (state.project.envSlots||[]).filter(s=>s.name.trim()&&s.lock.trim());
+    const activeEnvSlot = scene.envSlotId ? filledEnvSlots.find(s=>s.id===scene.envSlotId) : null;
+    const envBadge = activeEnvSlot ? `<span class="pill" style="border-color:${activeEnvSlot.color};color:${activeEnvSlot.color};font-size:9px;background:${activeEnvSlot.color}18;">🏞️ ${escH(activeEnvSlot.name.slice(0,14))}</span>` : "";
+
+    return `
+      <details data-id="${scene.id}" ${scene.open?"open":""} draggable="true">
+        <summary>
+          <div class="drag-handle" title="Drag to reorder">⠿</div>
+          <div style="flex:1;min-width:0;">
+            <div class="sum-title">#${num} — ${escH(displayTitle)}</div>
+            <div class="sum-meta">${escH(meta)}</div>
+          </div>
+          <div class="sum-right">
+            <span class="pill viral">${arcLabel}</span>
+            ${cinBadge}
+            ${noGappuBadge}
+            ${scene.emotion && !/NOT\s+IN\s+SCENE/i.test(scene.emotion)?`<span class="pill emo">😊 emo</span>`:""}
+            ${charBadge}
+            ${envBadge}
+            <span class="pill">Scene</span>
+          </div>
+        </summary>
+        <div class="scene-body">
+          <div class="grid-2">
+            <div>
+              <label>Scene Title</label>
+              <input type="text" data-k="title" value="${escA(scene.title||"")}"/>
+            </div>
+            <div>
+              <label>Gappu Emotion (key to virality)</label>
+              <input type="text" data-k="emotion" value="${escA(scene.emotion||"")}" placeholder="crying silently, big teary eyes, trembling lip..."/>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div>
+              <label>Shot / Angle</label>
+              <input type="text" data-k="shot" value="${escA(scene.shot||"")}" placeholder="Close-up / Wide shot / POV..."/>
+            </div>
+            <div>
+              <label>Duration (sec)</label>
+              <input type="number" min="1" max="20" data-k="duration" value="${escA(scene.duration||6)}"/>
+            </div>
+            <div>
+              <label>Reference Image Note</label>
+              <input type="text" data-k="refNote" value="${escA(scene.refNote||"")}" placeholder="scene1_locked.png"/>
+            </div>
+          </div>
+
+          ${scene.cinReason ? `
+          <div style="margin:8px 0; padding:10px 12px; border-radius:10px; border:1px solid #1e3a52; background:rgba(14,165,233,0.06); font-size:11px; color:#7dd3fc; line-height:1.5;">
+            <span style="font-weight:800; color:#38bdf8;">🎬 Cinematic Logic:</span> ${escH(scene.cinReason)}
+            ${scene.cinAuto ? '<span style="margin-left:6px; font-size:10px; color:#0ea5e9; opacity:0.7;">(auto — override below)</span>' : ''}
+          </div>` : ''}
+
+          <div class="grid-3">
+            <div>
+              <label>Lens / DOF</label>
+              <input type="text" data-k="lens" value="${escA(scene.lens||"")}" placeholder="85mm f/1.8..."/>
+            </div>
+            <div>
+              <label>Camera Move</label>
+              <input type="text" data-k="cameraMove" value="${escA(scene.cameraMove||"")}" placeholder="slow push-in..."/>
+            </div>
+            <div>
+              <label>Pacing</label>
+              <input type="text" data-k="pacing" value="${escA(scene.pacing||"")}" placeholder="slow, emotional..."/>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label>Lighting</label>
+              <input type="text" data-k="lighting" value="${escA(scene.lighting||"")}" placeholder="Golden hour warm backlight..."/>
+            </div>
+            <div>
+              <label>Composition</label>
+              <input type="text" data-k="composition" value="${escA(scene.composition||"")}" placeholder="Gappu rule-of-thirds left..."/>
+            </div>
+          </div>
+
+          ${(()=>{
+            const filled = (state.project.envSlots||[]).filter(s=>s.name.trim()&&s.lock.trim());
+            if(!filled.length) return `<div class="hint" style="margin:8px 0;font-size:10px;">Define location locks in the <b>🔒 Locks</b> tab to enable per-scene environment selection.</div>`;
+            return `<div style="background:rgba(99,162,50,0.06);border:1px solid rgba(99,162,50,0.2);border-radius:10px;padding:10px 12px;margin:8px 0;">
+              <div style="font-size:10px;font-weight:700;color:#86efac;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">
+                🏞️ Environment for this scene
+                <span style="font-weight:400;text-transform:none;color:var(--muted);margin-left:6px;">click to switch location lock</span>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                ${filled.map(s=>{
+                  const isActive = scene.envSlotId === s.id;
+                  return `<label class="char-check-label ${isActive?'checked':''}" data-env-toggle="${s.id}" style="${isActive?`border-color:${s.color};background:${s.color}18;color:${s.color};`:''}">
+                    <input type="checkbox" style="display:none"/>
+                    <div class="char-dot" style="background:${s.color}"></div>
+                    <span>${escH(s.name)}</span>
+                  </label>`;
+                }).join("")}
+              </div>
+            </div>`;
+          })()}
+
+          ${(()=>{
+            const hasAny = state.extraChars.some(ch => ch.name.trim() || ch.lock.trim());
+            if(!hasAny) return `<div class="hint" style="margin:8px 0;font-size:10px;">Define extra characters in the <b>🔒 Locks</b> tab to enable per-scene character selection.</div>`;
+            const sceneChars = scene.sceneChars || [];
+            const checkboxes = state.extraChars.map((ch, i) => {
+              if(!ch.name.trim() && !ch.lock.trim()) return "";
+              const checked = sceneChars.includes(ch.id);
+              const hasLock = !!ch.lock.trim();
+              const noLockStyle = (!hasLock && checked) ? 'border-color:#ef4444;background:rgba(239,68,68,0.08);' : '';
+              return `<label class="char-check-label ${checked ? 'checked' : ''}" data-char-toggle="${ch.id}" style="${noLockStyle}">
+                <input type="checkbox" style="display:none"/>
+                <div class="char-dot" style="background:${ch.color}"></div>
+                <span class="char-name-span" data-char-slot="${i}">${escH(ch.name||"Char "+(i+1))}</span>
+                ${!hasLock ? '<span style="font-size:9px;color:#f87171;margin-left:3px;font-weight:700;" title="⚠️ No lock defined in Locks tab — character will NOT be injected into prompt until you add a lock description">⚠️ NO LOCK</span>' : ''}
+              </label>`;
+            }).join("");
+            return `<div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:10px 12px;margin:8px 0;">
+              <div style="font-size:10px;font-weight:700;color:#a5b4fc;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">
+                👥 Characters in this scene
+                <span style="font-weight:400;text-transform:none;color:var(--muted);margin-left:6px;">☑ = lock injected into Image Prompt</span>
+              </div>
+              <div class="scene-chars-row">${checkboxes}</div>
+              ${(()=>{
+                const noLock = state.extraChars.filter(ch => (scene.sceneChars||[]).includes(ch.id) && !ch.lock.trim());
+                if(!noLock.length) return "";
+                return `<div style="margin-top:8px;padding:7px 10px;border-radius:7px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);font-size:10px;color:#f87171;line-height:1.5;">
+                  ⚠️ <strong>${noLock.map(c=>c.name).join(", ")}</strong> — checked but <strong>NO LOCK defined</strong>. Go to 🔒 Locks tab → Extra Characters → paste the character description. Until then, this character will NOT appear in the image prompt.
+                </div>`;
+              })()}
+            </div>`;
+          })()}
+
+          <label>Action (ONE frozen frame — what the camera sees right now. Single moment, prompt-fragment style. Include one movement verb for motion extract.)</label>
+          <textarea data-k="action" class="mono">${escH(scene.action||"")}</textarea>
+          <label>Motion Beats <span style="color:var(--emotion);font-size:10px;font-weight:400;text-transform:none;">I2V only — what physically MOVES (overrides auto-extract)</span></label>
+          <textarea data-k="motionAdd" class="mono" style="min-height:60px;" placeholder="Optional. Describe only physical movements for the video:&#10;- Gappu's thumbs flick the joysticks in tiny excited adjustments&#10;- Body sways left-right tracking the boat&#10;- Tail makes one happy flick&#10;Leave empty — tool auto-extracts movement from action above.">${escH(scene.motionAdd||"")}</textarea>
+          <label>Director Notes (optional)</label>
+          <textarea data-k="direction" class="mono">${escH(scene.direction||"")}</textarea>
+          <label>Local Negative (optional)</label>
+          <textarea data-k="negLocal" class="mono" style="min-height:50px;">${escH(scene.negLocal||"")}</textarea>
+          <div class="btnbar">
+            <button class="btn-primary btn-sm" data-act="regen">↻ Regen</button>
+            <button class="btn-sm" data-act="copyImage">📋 Copy Image</button>
+            <button class="btn-sm" data-act="copyMotion">🎞 Copy Motion</button>
+            <button class="btn-sm" data-act="copyBoth">📦 Copy Both</button>
+            <button class="btn-ghost btn-sm" data-act="dup">Duplicate</button>
+            <button class="btn-danger btn-sm" data-act="del">Delete</button>
+          </div>
+          <div class="grid-2" style="margin-top:12px;">
+            <div>
+              <label>Image Prompt — editable</label>
+              <textarea data-k="imagePrompt" class="mono">${escH(scene.imagePrompt||"")}</textarea>
+            </div>
+            <div>
+              <label>Motion Prompt — editable</label>
+              <textarea data-k="motionPrompt" class="mono">${escH(scene.motionPrompt||"")}</textarea>
+            </div>
+          </div>
+        </div>
+      </details>
+    `;
+  }
+
+  function render(){
+    $("p_title").value = state.project.title||"";
+    $("p_theme").value = state.project.theme||"";
+    $("p_format").value = state.project.format||"Vertical 9:16 (1080×1920)";
+    $("p_imageTool").value = state.project.imageTool||"Nano Banana";
+    $("p_motionTool").value = state.project.motionTool||"Kling";
+    $("p_motionMode").value = state.project.motionMode||"Image-to-Video (Reference Image)";
+    $("p_setting").value = state.project.setting||"";
+    $("p_charLock").value = state.project.charLock||"";
+    $("p_outfitLock").value = state.project.outfitLock||"";
+    $("p_imgRules").value = state.project.imgRules||"";
+    $("p_motRules").value = state.project.motRules||"";
+    $("p_neg").value      = state.project.neg||"";
+    $("sceneCount").textContent = state.scenes.length;
+    $("sceneList").innerHTML = state.scenes.map((s,i)=>sceneRow(s,i)).join("");
+    document.querySelectorAll("details[data-id]").forEach(det=>{
+      const id=det.getAttribute("data-id");
+      const scene=state.scenes.find(x=>x.id===id);
+      det.addEventListener("toggle", ()=>{ scene.open=det.open; saveDebounced(); });
+    });
+    buildAllMarkdown();
+    updateViralScore();
+    renderExtraChars();
+    renderEnvSlots();
+  }
+
+  function findScene(el){
+    const det=el.closest("details[data-id]"); if(!det) return null;
+    const id=det.getAttribute("data-id");
+    return { det, scene:state.scenes.find(s=>s.id===id), id };
+  }
+
+  async function copyText(text){
+    try{ await navigator.clipboard.writeText(text); }
+    catch{
+      const ta=document.createElement("textarea"); ta.value=text;
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove();
+    }
+    // Flash feedback
+    const fb = document.createElement("div");
+    fb.textContent = "✓ Copied!";
+    Object.assign(fb.style, {
+      position:"fixed", bottom:"24px", right:"24px", background:"var(--ok)", color:"#000",
+      padding:"10px 18px", borderRadius:"12px", fontWeight:"700", fontSize:"13px",
+      zIndex:"9999", animation:"none", opacity:"1", transition:"opacity .3s"
+    });
+    document.body.appendChild(fb);
+    setTimeout(()=>{ fb.style.opacity="0"; setTimeout(()=>fb.remove(), 300); }, 1500);
+  }
+
+  function downloadText(filename, text){
+    const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
+  // -------- PROJECT BINDS --------
+  ["p_title","p_theme","p_format","p_imageTool","p_motionTool","p_motionMode","p_setting"].forEach(id=>{
+    const el=$(id); if(!el) return;
+    const key = id.replace("p_","");
+    el.addEventListener("change",()=>{ state.project[key]=el.value; saveDebounced(); buildAllMarkdown(); updateViralScore(); });
+    el.addEventListener("input",()=>{ state.project[key]=el.value; saveDebounced(); mdDebounced(); });
+  });
+  ["p_charLock","p_outfitLock","p_imgRules","p_motRules","p_neg"].forEach(id=>{
+    const el=$(id); if(!el) return;
+    const key = id.replace("p_","");
+    el.addEventListener("input",()=>{ state.project[key]=el.value; saveDebounced(); updateViralScore(); });
+  });
+
+  // -------- SCENE INPUTS --------
+  $("sceneList").addEventListener("input", e=>{
+    const el=e.target;
+    if(!el.hasAttribute("data-k")) return;
+    const pack=findScene(el); if(!pack) return;
+    const { scene }=pack;
+    const key=el.getAttribute("data-k");
+    if(key==="duration") scene[key]=Math.max(1,Math.min(20,Number(el.value||6)));
+    else scene[key]=el.value;
+    // If user manually edits cinematic fields, mark as no longer auto
+    if(["shot","lens","cameraMove","pacing","lighting","composition"].includes(key)){
+      scene.cinAuto = false;
+    }
+    if(key==="imagePrompt"||key==="motionPrompt"){
+      scene.comboPrompt=buildCombined(scene);
+    }
+    saveDebounced(); mdDebounced();
+  });
+  $("sceneList").addEventListener("change", e=>{
+    const el=e.target; if(!el.hasAttribute("data-k")) return;
+    const pack=findScene(el); if(!pack) return;
+    const { scene }=pack;
+    scene[el.getAttribute("data-k")]=el.value;
+    saveDebounced(); mdDebounced();
+  });
+
+  // -------- SCENE ACTIONS --------
+  $("sceneList").addEventListener("click", async e=>{
+    const btn=e.target.closest("[data-act]");
+
+    // Handle env-toggle clicks (environment slot selector)
+    const envToggle = e.target.closest("[data-env-toggle]");
+    if(envToggle){
+      const pack = findScene(envToggle); if(!pack) return;
+      const { scene, det } = pack;
+      const slotId = envToggle.getAttribute("data-env-toggle");
+      // Toggle — clicking active slot deselects it
+      scene.envSlotId = scene.envSlotId === slotId ? null : slotId;
+      scene.envManual = true; // mark as manual so regen won't override
+      // Update pill visuals
+      det.querySelectorAll("[data-env-toggle]").forEach(el => {
+        const sid = el.getAttribute("data-env-toggle");
+        const isActive = scene.envSlotId === sid;
+        const slot = (state.project.envSlots||[]).find(s=>s.id===sid);
+        el.classList.toggle("checked", isActive);
+        if(slot){
+          el.style.borderColor = isActive ? slot.color : "";
+          el.style.background = isActive ? slot.color+"18" : "";
+          el.style.color = isActive ? slot.color : "";
+        }
+      });
+      // Regen image prompt with new env
+      scene.imagePrompt = buildImagePrompt(scene);
+      scene.comboPrompt = buildCombined(scene);
+      const ip = det.querySelector('[data-k="imagePrompt"]');
+      if(ip) ip.value = scene.imagePrompt || "";
+      // Update env badge in summary
+      const sumRight = det.querySelector(".sum-right");
+      if(sumRight){
+        const oldBadge = sumRight.querySelector(".env-badge");
+        if(oldBadge) oldBadge.remove();
+        if(scene.envSlotId){
+          const slot = (state.project.envSlots||[]).find(s=>s.id===scene.envSlotId);
+          if(slot){
+            const badge = document.createElement("span");
+            badge.className = "pill env-badge";
+            badge.style.cssText = `border-color:${slot.color};color:${slot.color};font-size:9px;background:${slot.color}18;`;
+            badge.textContent = `🏞️ ${slot.name.slice(0,14)}`;
+            sumRight.insertBefore(badge, sumRight.querySelector(".pill:last-child"));
+          }
+        }
+      }
+      saveDebounced(); return;
+    }
+
+    // Handle char-toggle clicks (character checkboxes in scene)
+    const charToggle = e.target.closest("[data-char-toggle]");
+    if(charToggle){
+      const pack = findScene(charToggle); if(!pack) return;
+      const { scene, det } = pack;
+      const charId = charToggle.getAttribute("data-char-toggle");
+      if(!scene.manualChars) scene.manualChars = [];
+      if(!scene.autoChars) scene.autoChars = [];
+      const wasInManual = scene.manualChars.includes(charId);
+      const wasInAuto = scene.autoChars.includes(charId);
+      if(!scene.sceneChars) scene.sceneChars = [];
+      const isCurrentlyChecked = scene.sceneChars.includes(charId);
+      if(isCurrentlyChecked){
+        // Uncheck: remove from manual; auto-detected chars cannot be manually unchecked
+        // (they are controlled by the scene content — to remove, edit the characters: field)
+        if(!wasInAuto){
+          scene.manualChars = scene.manualChars.filter(id => id !== charId);
+        } else {
+          // It's auto-detected — clicking it again just re-confirms, no-op for auto
+          // Allow user to force-remove by double intent: add to a "manualExclude" set
+          if(!scene.manualExclude) scene.manualExclude = [];
+          if(scene.manualExclude.includes(charId)){
+            scene.manualExclude = scene.manualExclude.filter(id => id !== charId); // toggle back
+          } else {
+            scene.manualExclude.push(charId);
+          }
+        }
+      } else {
+        // Check: add to manualChars
+        if(!scene.manualChars.includes(charId)) scene.manualChars.push(charId);
+        // Also remove from exclude if it was there
+        if(scene.manualExclude) scene.manualExclude = scene.manualExclude.filter(id => id !== charId);
+      }
+      // Recompute sceneChars = (auto ∪ manual) − exclude
+      const exclude = scene.manualExclude || [];
+      scene.sceneChars = [...new Set([...scene.autoChars, ...scene.manualChars])].filter(id => !exclude.includes(id));
+      const isChecked = scene.sceneChars.includes(charId);
+      charToggle.classList.toggle("checked", isChecked);
+      // Regen image prompt only to reflect new char selection
+      scene.imagePrompt = buildImagePrompt(scene);
+      scene.comboPrompt = buildCombined(scene);
+      const ip = det.querySelector('[data-k="imagePrompt"]');
+      if(ip) ip.value = scene.imagePrompt || "";
+      // Update summary badge — re-render just the sum-right section
+      const sumRight = det.querySelector(".sum-right");
+      if(sumRight){
+        const active = (state.extraChars||[]).filter(ch => ch.name.trim() && (scene.sceneChars||[]).includes(ch.id));
+        const existing = sumRight.querySelector(".char-badge");
+        if(existing) existing.remove();
+        if(active.length){
+          const badge = document.createElement("span");
+          badge.className = "pill char-badge";
+          badge.style.cssText = "background:rgba(99,102,241,0.15);border-color:#6366f1;color:#a5b4fc;gap:4px;display:inline-flex;align-items:center;";
+          badge.innerHTML = active.map(ch=>`<span style="width:7px;height:7px;border-radius:50%;background:${ch.color};display:inline-block;"></span>`).join("")+` 👥 ${active.length}`;
+          sumRight.insertBefore(badge, sumRight.querySelector(".pill:last-child"));
+        }
+      }
+      saveDebounced(); buildAllMarkdown(); return;
+    }
+
+    if(!btn) return;
+    e.preventDefault();
+    const pack=findScene(btn); if(!pack) return;
+    const { scene, det, id }=pack;
+    const idx=state.scenes.findIndex(s=>s.id===id);
+    const act=btn.getAttribute("data-act");
+
+    if(act==="regen"){
+      regenScene(scene);
+      det.querySelector('[data-k="imagePrompt"]').value=scene.imagePrompt||"";
+      det.querySelector('[data-k="motionPrompt"]').value=scene.motionPrompt||"";
+      saveDebounced(); buildAllMarkdown(); updateViralScore(); return;
+    }
+    if(act==="copyImage"){
+      if(!scene.imagePrompt) regenScene(scene);
+      await copyText(buildImgCopy(scene, scene.imagePrompt)); return;
+    }
+    if(act==="copyMotion"){
+      if(!scene.motionPrompt) regenScene(scene);
+      await copyText(buildMotCopy(scene, scene.motionPrompt)); return;
+    }
+    if(act==="copyBoth"){
+      if(!scene.imagePrompt||!scene.motionPrompt) regenScene(scene);
+      const p=state.project;
+      const num=scene.sceneNo??(idx+1);
+      await copyText([
+        `SCENE ${num}: ${scene.title||""}`.trim(), "",
+        `=== IMAGE PROMPT (${p.imageTool}) ===`, buildImgCopy(scene, scene.imagePrompt), "",
+        `=== MOTION PROMPT (${p.motionTool}) — ${p.motionMode} ===`, buildMotCopy(scene, scene.motionPrompt)
+      ].join("\n").trim()); return;
+    }
+    if(act==="dup"){
+      const clone=JSON.parse(JSON.stringify(scene)); clone.id=uid(); clone.open=true;
+      state.scenes.splice(idx+1,0,clone); saveDebounced(); render(); return;
+    }
+    if(act==="del"){
+      state.scenes.splice(idx,1); saveDebounced(); render(); return;
+    }
+  });
+
+  // -------- TOP BUTTONS --------
+  $("parseBtn").addEventListener("click",()=>{
+    const t=$("bulk").value.trim();
+    if(!t) return alert("Paste scenes first.");
+    state.scenes=parseScenes(t);
+    if(!state.scenes.length) return alert("No scenes found. Use format: scene 1: ...\nscene 2: ...");
+    state.scenes.forEach(s=>regenScene(s));
+    saveDebounced(); render();
+  });
+  $("regenAllBtn").addEventListener("click",()=>{
+    state.scenes.forEach(s=>regenScene(s)); saveDebounced();
+    document.querySelectorAll("details[data-id]").forEach(det=>{
+      const id=det.getAttribute("data-id"); const scene=state.scenes.find(x=>x.id===id); if(!scene) return;
+      const ip=det.querySelector('[data-k="imagePrompt"]'); if(ip) ip.value=scene.imagePrompt||"";
+      const mp=det.querySelector('[data-k="motionPrompt"]'); if(mp) mp.value=scene.motionPrompt||"";
+    }); buildAllMarkdown(); updateViralScore();
+  });
+  $("expandAllBtn").addEventListener("click",()=>{
+    document.querySelectorAll("details[data-id]").forEach(d=>{
+      d.open=true; const s=state.scenes.find(x=>x.id===d.getAttribute("data-id")); if(s) s.open=true;
+    }); saveDebounced();
+  });
+  $("collapseAllBtn").addEventListener("click",()=>{
+    document.querySelectorAll("details[data-id]").forEach(d=>{
+      d.open=false; const s=state.scenes.find(x=>x.id===d.getAttribute("data-id")); if(s) s.open=false;
+    }); saveDebounced();
+  });
+  $("clearBtn").addEventListener("click",()=>{
+    if(confirm("Clear all scenes?")){ state.scenes=[]; $("bulk").value=""; saveDebounced(); render(); }
+  });
+  ["","2"].forEach(suf=>{
+    $("copyAllMdBtn"+suf)?.addEventListener("click", async ()=>{ buildAllMarkdown(); await copyText($("allOut").value); });
+    $("downloadMdBtn"+suf)?.addEventListener("click",()=>{
+      buildAllMarkdown();
+      const name=(state.project.title||"gappu_prompts").replace(/[^\w\-]+/g,"_").slice(0,60);
+      downloadText(name+".md",$("allOut").value);
+    });
+    $("downloadJsonBtn"+suf)?.addEventListener("click",()=>{
+      const name=(state.project.title||"gappu_prompts").replace(/[^\w\-]+/g,"_").slice(0,60);
+      downloadText(name+".json", JSON.stringify(state,null,2));
+    });
+  });
+
+  // -------- COPY HISTORY --------
+  let copyHistory = JSON.parse(localStorage.getItem("gappu_copy_history")||"[]");
+
+  function saveHistory(){ localStorage.setItem("gappu_copy_history", JSON.stringify(copyHistory.slice(0,50))); }
+
+  function addHistory(type, scene, idx){
+    const num = scene.sceneNo ?? (idx+1);
+    const preview = (type==="img" ? scene.imagePrompt : type==="mot" ? scene.motionPrompt : scene.imagePrompt) || "";
+    copyHistory.unshift({
+      type, // img | mot | both
+      sceneNum: num,
+      sceneTitle: scene.title || "",
+      preview: preview.slice(0, 90),
+      time: Date.now()
+    });
+    copyHistory = copyHistory.slice(0, 50);
+    saveHistory();
+    renderHistory();
+  }
+
+  function renderHistory(){
+    const list = $("historyList");
+    const empty = $("historyEmpty");
+    if(!copyHistory.length){
+      list.innerHTML = `<div class="history-empty" id="historyEmpty">Nothing copied yet — use Copy Image / Copy Motion buttons above</div>`;
+      return;
+    }
+    empty && empty.remove();
+    list.innerHTML = copyHistory.map((h,i)=>{
+      const typeLabel = h.type==="img" ? "📋 Image" : h.type==="mot" ? "🎞 Motion" : "📦 Both";
+      const typeCls = h.type==="img" ? "hi-img" : h.type==="mot" ? "hi-mot" : "hi-both";
+      const mins = Math.round((Date.now()-h.time)/60000);
+      const timeStr = mins<1 ? "just now" : mins<60 ? `${mins}m ago` : `${Math.round(mins/60)}h ago`;
+      return `<div class="history-item" data-hi="${i}" title="Click to re-copy">
+        <span class="hi-type ${typeCls}">${typeLabel}</span>
+        <span class="hi-scene">Scene ${h.sceneNum}</span>
+        <span class="hi-preview">${escH(h.preview)}</span>
+        <span class="hi-time">${timeStr}</span>
+      </div>`;
+    }).join("");
+    list.querySelectorAll(".history-item").forEach(el=>{
+      el.addEventListener("click", async ()=>{
+        const h = copyHistory[+el.getAttribute("data-hi")];
+        if(!h) return;
+        // Find the scene and re-copy
+        const scene = state.scenes.find(s=>(s.sceneNo ?? (state.scenes.indexOf(s)+1)) === h.sceneNum);
+        if(scene){
+          if(h.type==="img") await copyText(buildImgCopy(scene, scene.imagePrompt));
+          else if(h.type==="mot") await copyText(buildMotCopy(scene, scene.motionPrompt));
+          else await copyText([buildImgCopy(scene,scene.imagePrompt),"",buildMotCopy(scene,scene.motionPrompt)].join("\n"));
+        } else {
+          await copyText(h.preview); // fallback: copy preview text
+        }
+      });
+    });
+  }
+
+  $("clearHistoryBtn").addEventListener("click",()=>{ copyHistory=[]; saveHistory(); renderHistory(); });
+
+  // Patch copyText calls for copy buttons to also log history
+  const _origCopyText = copyText;
+  // We intercept at the data-act handler level instead — see patch below
+
+  // -------- DRAG TO REORDER --------
+  let dragSrcId = null;
+
+  function initDrag(){
+    document.querySelectorAll("details[data-id]").forEach(det=>{
+      det.addEventListener("dragstart", e=>{
+        // Only start drag from the handle
+        if(!e.target.classList.contains("drag-handle") && !e.target.closest(".drag-handle")) {
+          e.preventDefault(); return;
+        }
+        dragSrcId = det.getAttribute("data-id");
+        det.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+      });
+      det.addEventListener("dragend", ()=>{
+        det.classList.remove("dragging");
+        document.querySelectorAll("details[data-id]").forEach(d=>d.classList.remove("drag-over"));
+      });
+      det.addEventListener("dragover", e=>{
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        document.querySelectorAll("details[data-id]").forEach(d=>d.classList.remove("drag-over"));
+        if(det.getAttribute("data-id") !== dragSrcId) det.classList.add("drag-over");
+      });
+      det.addEventListener("dragleave", ()=>det.classList.remove("drag-over"));
+      det.addEventListener("drop", e=>{
+        e.preventDefault();
+        det.classList.remove("drag-over");
+        const targetId = det.getAttribute("data-id");
+        if(!dragSrcId || dragSrcId === targetId) return;
+        const srcIdx = state.scenes.findIndex(s=>s.id===dragSrcId);
+        const tgtIdx = state.scenes.findIndex(s=>s.id===targetId);
+        if(srcIdx<0||tgtIdx<0) return;
+        const [moved] = state.scenes.splice(srcIdx,1);
+        state.scenes.splice(tgtIdx,0,moved);
+        dragSrcId = null;
+        saveDebounced(); render(); initDrag();
+      });
+    });
+  }
+
+  // Patch the data-act handler to also record history
+  // We do this by wrapping the copy actions
+  const _sceneListEl = $("sceneList");
+  _sceneListEl.addEventListener("click", async e=>{
+    const btn = e.target.closest("[data-act]"); if(!btn) return;
+    const act = btn.getAttribute("data-act");
+    if(!["copyImage","copyMotion","copyBoth"].includes(act)) return;
+    const pack = findScene(btn); if(!pack) return;
+    const { scene, id } = pack;
+    const idx = state.scenes.findIndex(s=>s.id===id);
+    if(act==="copyImage") addHistory("img", scene, idx);
+    else if(act==="copyMotion") addHistory("mot", scene, idx);
+    else if(act==="copyBoth") addHistory("both", scene, idx);
+  }, true); // capture phase so it runs before the main handler
+
+  // -------- QUICK SCENE PICKER --------
+  function buildQuickPicker(){
+    const sel = $("quickSceneSel");
+    const picker = $("quickPicker");
+    if(!state.scenes.length){ picker.style.display="none"; return; }
+    picker.style.display="block";
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">— pick a scene —</option>` +
+      state.scenes.map((s,i)=>{
+        const num = s.sceneNo ?? (i+1);
+        const arc = ["HOOK","PAIN","STRUGGLE","TURN","PAYOFF"][i] || `S${num}`;
+        const title = (s.title||"").trim().replace(/^scene\s*\d+\s*[-—:]?\s*/i,"").slice(0,35) || arc;
+        return `<option value="${i}">#${num} — ${arc} — ${title}</option>`;
+      }).join("");
+    // Restore selection if still valid
+    if(cur !== "" && state.scenes[+cur]) sel.value = cur;
+    loadQuickScene();
+  }
+
+  function loadQuickScene(){
+    const sel = $("quickSceneSel");
+    const content = $("quickContent");
+    const empty = $("quickEmpty");
+    const idx = sel.value === "" ? -1 : +sel.value;
+    if(idx < 0 || !state.scenes[idx]){
+      content.style.display="none"; empty.style.display="block"; return;
+    }
+    const scene = state.scenes[idx];
+    if(!scene.imagePrompt || !scene.motionPrompt) regenScene(scene);
+    $("quickImgBox").value = scene.imagePrompt || "";
+    $("quickMotBox").value = scene.motionPrompt || "";
+    content.style.display="block"; empty.style.display="none";
+  }
+
+  $("quickSceneSel").addEventListener("change", loadQuickScene);
+
+  $("quickPrevBtn").addEventListener("click",()=>{
+    const sel=$("quickSceneSel");
+    const idx = sel.value===""?0:Math.max(0,+sel.value-1);
+    sel.value=idx; loadQuickScene();
+  });
+  $("quickNextBtn").addEventListener("click",()=>{
+    const sel=$("quickSceneSel");
+    const max=state.scenes.length-1;
+    const idx = sel.value===""?0:Math.min(max,+sel.value+1);
+    sel.value=idx; loadQuickScene();
+  });
+
+  $("quickCopyImg").addEventListener("click", async()=>{
+    const sel=$("quickSceneSel"); if(sel.value==="") return;
+    const idx=+sel.value; const scene=state.scenes[idx]; if(!scene) return;
+    if(!scene.imagePrompt) regenScene(scene);
+    await copyText(buildImgCopy(scene, scene.imagePrompt));
+    addHistory("img", scene, idx);
+  });
+  $("quickCopyMot").addEventListener("click", async()=>{
+    const sel=$("quickSceneSel"); if(sel.value==="") return;
+    const idx=+sel.value; const scene=state.scenes[idx]; if(!scene) return;
+    if(!scene.motionPrompt) regenScene(scene);
+    await copyText(buildMotCopy(scene, scene.motionPrompt));
+    addHistory("mot", scene, idx);
+  });
+  $("quickCopyBoth").addEventListener("click", async()=>{
+    const sel=$("quickSceneSel"); if(sel.value==="") return;
+    const idx=+sel.value; const scene=state.scenes[idx]; if(!scene) return;
+    if(!scene.imagePrompt||!scene.motionPrompt) regenScene(scene);
+    const p=state.project; const num=scene.sceneNo??(idx+1);
+    await copyText([
+      `SCENE ${num}: ${scene.title||""}`.trim(),"",
+      `=== IMAGE PROMPT (${p.imageTool||"Nano Banana"}) ===`, buildImgCopy(scene,scene.imagePrompt),"",
+      `=== MOTION PROMPT (${p.motionTool||"Kling"}) ===`, buildMotCopy(scene,scene.motionPrompt)
+    ].join("\n").trim());
+    addHistory("both", scene, idx);
+  });
+
+  // Override render to also init drag and render history after
+  const _origRender = render;
+  render = function(){
+    _origRender();
+    initDrag();
+    renderHistory();
+    buildQuickPicker();
+  };
+
+  render();
+} catch(err) {
+  console.error("Gappu tool init error:", err);
+  document.body.innerHTML = `<div style="padding:40px;color:#f87171;font-family:monospace;background:#0a0f1a;min-height:100vh;">
+    <h2 style="color:#fca5a5;">🐵 Tool crashed on load</h2>
+    <p><b>Error:</b> ${err.message}</p>
+    <pre style="color:#94a3b8;font-size:11px;margin-top:12px;">${err.stack||""}</pre>
+    <button onclick="localStorage.removeItem('gappu_viral_builder_v1');localStorage.removeItem('gappu_viral_builder_v2');location.reload();"
+      style="margin-top:20px;padding:10px 20px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">
+      🗑️ Clear Data &amp; Reload
+    </button>
+  </div>`;
+}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scene Prompt Builder (Image + Motion)</title>
+  <style>
+    :root{
+      --bg:#0b0f17; --card:#121a26; --card2:#0f1622; --text:#e7eefc; --muted:#a7b4cc;
+      --line:#233148; --accent:#6aa3ff; --danger:#ff5c7a; --ok:#42d392;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, #17233a 0%, var(--bg) 45%) fixed;
+      color:var(--text);
+    }
+    header{
+      padding:22px 18px 10px;
+      max-width:1200px; margin:0 auto;
+    }
+    h1{margin:0; font-size:20px; font-weight:700; letter-spacing:.2px}
+    .sub{margin-top:6px; color:var(--muted); font-size:13px}
+    .wrap{max-width:1200px; margin:0 auto; padding:12px 18px 28px; display:grid; gap:14px}
+    .grid{display:grid; grid-template-columns: 1.05fr .95fr; gap:14px}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:12px 14px;
+      background: rgba(255,255,255,.02);
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .card .hd b{font-size:14px}
+    .card .bd{padding:14px}
+    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 6px}
+    input[type="text"], textarea, select{
+      width:100%;
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 10px;
+      outline:none;
+    }
+    textarea{min-height: 88px; resize: vertical; line-height:1.3}
+    input[type="file"]{width:100%; color:var(--muted)}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width: 700px){ .row{grid-template-columns:1fr} }
+    .btns{display:flex; flex-wrap:wrap; gap:10px}
+    button{
+      appearance:none; border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      font-weight:600; font-size:13px;
+    }
+    button:hover{background: rgba(255,255,255,.06); border-color:#2f4366}
+    button:active{transform: translateY(1px)}
+    .primary{border-color: rgba(106,163,255,.45); background: rgba(106,163,255,.13)}
+    .primary:hover{background: rgba(106,163,255,.18)}
+    .danger{border-color: rgba(255,92,122,.4); background: rgba(255,92,122,.12)}
+    .danger:hover{background: rgba(255,92,122,.16)}
+    .ok{border-color: rgba(66,211,146,.35); background: rgba(66,211,146,.10)}
+    .ok:hover{background: rgba(66,211,146,.14)}
+    .muted{color:var(--muted); font-size:12px}
+    .pill{
+      font-size:12px; color:var(--muted);
+      padding:6px 10px; border:1px solid var(--line); border-radius:999px;
+      background: rgba(255,255,255,.02);
+      white-space:nowrap;
+    }
+    .scenes{display:flex; flex-direction:column; gap:10px}
+    details.scene{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.02);
+      overflow:hidden;
+    }
+    details.scene[open]{background: rgba(255,255,255,.03)}
+    summary{
+      cursor:pointer;
+      list-style:none;
+      padding:12px 12px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      user-select:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    .sceneTitle{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .badge{
+      width:28px; height:28px; border-radius:10px;
+      display:grid; place-items:center;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      font-weight:800;
+      flex: 0 0 auto;
+    }
+    .titleText{min-width:0}
+    .titleText .name{font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 380px}
+    .titleText .meta{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 520px}
+    .sceneControls{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .sceneBody{padding:12px; border-top:1px solid var(--line)}
+    .thumb{
+      margin-top:8px;
+      border:1px dashed #2d3a52;
+      border-radius: 12px;
+      padding:10px;
+      display:flex; gap:10px; align-items:center;
+      background: rgba(0,0,0,.14);
+    }
+    .thumb img{
+      width:86px; height:86px; object-fit:cover; border-radius:12px; border:1px solid var(--line);
+      background:#0a0f18;
+    }
+    .thumb .info{min-width:0}
+    .thumb .info b{display:block; font-size:12px}
+    .thumb .info div{font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:420px}
+    .tabs{display:flex; gap:8px; flex-wrap:wrap}
+    .tab{padding:8px 10px; border-radius:999px; border:1px solid var(--line); background: rgba(255,255,255,.02); cursor:pointer; font-weight:700; font-size:12px; color:var(--muted)}
+    .tab.active{color:var(--text); border-color: rgba(106,163,255,.45); background: rgba(106,163,255,.13)}
+    pre{
+      margin:10px 0 0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      background: rgba(0,0,0,.22);
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding:12px;
+      min-height: 260px;
+      max-height: 520px;
+      overflow:auto;
+      font-size:12px;
+      line-height:1.35;
+    }
+    .tiny{font-size:11px; color:var(--muted)}
+    .checkrow{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:6px}
+    .checkrow label{margin:0; display:flex; gap:8px; align-items:center; cursor:pointer}
+    .checkrow input{transform: translateY(1px)}
+    .split2{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    @media (max-width: 800px){ .split2{grid-template-columns:1fr} }
+    .footerRow{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Scene Prompt Builder</h1>
+  <div class="sub">Add Image Prompt + Motion Prompt for each scene, attach a reference image if you want, then download output as TXT or JSON.</div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <!-- LEFT: Builder -->
+    <section class="card">
+      <div class="hd">
+        <b>Project Setup</b>
+        <span class="pill" id="autosavePill">Autosave: ON</span>
+      </div>
+      <div class="bd">
+        <label>Project Title</label>
+        <input id="projectTitle" type="text" placeholder="e.g., Gappu – Car Showroom Escape" />
+
+        <div class="split2">
+          <div>
+            <label>Global Character Lock (optional)</label>
+            <textarea id="charLock" placeholder="Paste your Character Lock here..."></textarea>
+          </div>
+          <div>
+            <label>Global Environment Lock (optional)</label>
+            <textarea id="envLock" placeholder="Paste your Environment Lock here..."></textarea>
+          </div>
+        </div>
+
+        <div class="split2">
+          <div>
+            <label>Global Negative Prompt (optional)</label>
+            <textarea id="globalNegative" placeholder="e.g., cartoon flat style, photoreal monkey, redesign..."></textarea>
+          </div>
+          <div>
+            <label>Output Template Notes (optional)</label>
+            <textarea id="templateNotes" placeholder="e.g., Nano Banana / Meta for image, Kling for motion, vertical 9:16, cinematic DSLR background..."></textarea>
+          </div>
+        </div>
+
+        <div class="checkrow">
+          <label><input id="includeLocks" type="checkbox" checked />Include global locks in every scene output</label>
+          <label><input id="includeNegative" type="checkbox" checked />Include global negative in every scene output</label>
+          <label><input id="includeImageMeta" type="checkbox" checked />Include per-scene image filename in output</label>
+          <label title="This makes JSON portable but can be large."><input id="includeImageData" type="checkbox" />Embed image data in JSON export</label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:14px 0">
+
+        <div class="footerRow">
+          <div class="btns">
+            <button class="primary" id="addSceneBtn">+ Add Scene</button>
+            <button id="collapseAllBtn">Collapse All</button>
+            <button id="expandAllBtn">Expand All</button>
+          </div>
+          <div class="btns">
+            <button class="ok" id="importBtn">Import JSON</button>
+            <button class="danger" id="resetBtn">Reset</button>
+          </div>
+        </div>
+
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+
+        <div style="margin-top:14px">
+          <div class="muted">Scenes</div>
+          <div class="scenes" id="scenes"></div>
+          <div class="tiny" style="margin-top:10px">
+            Tip: You can keep “Reference Image” empty most of the time. It’s only there when you want to attach a shot reference.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Output -->
+    <section class="card">
+      <div class="hd">
+        <b>Output</b>
+        <span class="pill" id="sceneCountPill">0 scenes</span>
+      </div>
+      <div class="bd">
+        <div class="tabs">
+          <div class="tab active" data-tab="combined">Combined</div>
+          <div class="tab" data-tab="image">Image Only</div>
+          <div class="tab" data-tab="motion">Motion Only</div>
+          <div class="tab" data-tab="json">JSON Preview</div>
+        </div>
+
+        <div class="btns" style="margin-top:10px">
+          <button class="primary" id="generateBtn">Generate Output</button>
+          <button id="copyBtn">Copy</button>
+          <button class="ok" id="downloadTxtBtn">Download TXT</button>
+          <button class="ok" id="downloadJsonBtn">Download JSON</button>
+        </div>
+
+        <pre id="outputPre">(Click “Generate Output”)</pre>
+        <div class="tiny" style="margin-top:8px">
+          Output is generated from your current fields. Autosave stores everything locally in your browser.
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // --------- State ---------
+  const STORAGE_KEY = "scenePromptBuilder_v1";
+  let state = {
+    projectTitle: "",
+    charLock: "",
+    envLock: "",
+    globalNegative: "",
+    templateNotes: "",
+    includeLocks: true,
+    includeNegative: true,
+    includeImageMeta: true,
+    includeImageData: false,
+    scenes: []
+  };
+
+  // Scene object schema:
+  // {
+  //   id, name, camera, emotion,
+  //   imagePrompt, motionPrompt,
+  //   refImageName, refImageDataUrl
+  // }
+
+  // --------- Helpers ---------
+  const $ = (id) => document.getElementById(id);
+  const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
+
+  function safeText(x){ return (x ?? "").toString().trim(); }
+
+  function downloadFile(filename, content, mime="text/plain;charset=utf-8"){
+    const blob = new Blob([content], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 500);
+  }
+
+  function autosize(textarea){
+    // Soft autosize without jitter
+    textarea.style.height = "auto";
+    textarea.style.height = Math.min(textarea.scrollHeight + 2, 520) + "px";
+  }
+
+  function setTabs(active){
+    document.querySelectorAll(".tab").forEach(t=>{
+      t.classList.toggle("active", t.dataset.tab === active);
+    });
+  }
+
+  // --------- Rendering ---------
+  function render(){
+    // Project fields
+    $("projectTitle").value = state.projectTitle;
+    $("charLock").value = state.charLock;
+    $("envLock").value = state.envLock;
+    $("globalNegative").value = state.globalNegative;
+    $("templateNotes").value = state.templateNotes;
+
+    $("includeLocks").checked = state.includeLocks;
+    $("includeNegative").checked = state.includeNegative;
+    $("includeImageMeta").checked = state.includeImageMeta;
+    $("includeImageData").checked = state.includeImageData;
+
+    // Autosize big textareas
+    ["charLock","envLock","globalNegative","templateNotes"].forEach(id => autosize($(id)));
+
+    // Scene list
+    const wrap = $("scenes");
+    wrap.innerHTML = "";
+
+    state.scenes.forEach((sc, idx) => {
+      const d = document.createElement("details");
+      d.className = "scene";
+      d.open = (idx === state.scenes.length - 1); // open newest
+
+      const title = safeText(sc.name) || `Scene ${idx+1}`;
+      const meta = [
+        safeText(sc.camera) ? `Camera: ${safeText(sc.camera)}` : "",
+        safeText(sc.emotion) ? `Emotion: ${safeText(sc.emotion)}` : ""
+      ].filter(Boolean).join(" • ");
+
+      const sum = document.createElement("summary");
+      sum.innerHTML = `
+        <div class="sceneTitle">
+          <div class="badge">${idx+1}</div>
+          <div class="titleText">
+            <div class="name">${escapeHtml(title)}</div>
+            <div class="meta">${escapeHtml(meta || "No camera/emotion yet")}</div>
+          </div>
+        </div>
+        <div class="sceneControls">
+          <button type="button" data-act="copyImage" data-id="${sc.id}">Copy Image</button>
+          <button type="button" data-act="copyMotion" data-id="${sc.id}">Copy Motion</button>
+          <button type="button" data-act="dup" data-id="${sc.id}">Duplicate</button>
+          <button type="button" data-act="up" data-id="${sc.id}">↑</button>
+          <button type="button" data-act="down" data-id="${sc.id}">↓</button>
+          <button type="button" class="danger" data-act="del" data-id="${sc.id}">Delete</button>
+        </div>
+      `;
+      d.appendChild(sum);
+
+      const body = document.createElement("div");
+      body.className = "sceneBody";
+      body.innerHTML = `
+        <div class="row">
+          <div>
+            <label>Scene Name (optional)</label>
+            <input type="text" data-k="name" data-id="${sc.id}" placeholder="e.g., Front view: Gappu at car showroom gate" value="${escapeAttr(sc.name||"")}">
+          </div>
+          <div>
+            <label>Camera / Angle (optional)</label>
+            <input type="text" data-k="camera" data-id="${sc.id}" placeholder="e.g., Front view, 35mm, shallow DOF, vertical 9:16" value="${escapeAttr(sc.camera||"")}">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Emotion / Acting Notes (optional)</label>
+            <input type="text" data-k="emotion" data-id="${sc.id}" placeholder="e.g., sudden fear → widened eyes, stiff body, small mouth open" value="${escapeAttr(sc.emotion||"")}">
+          </div>
+          <div>
+            <label>Reference Image (optional)</label>
+            <input type="file" accept="image/*" data-act="img" data-id="${sc.id}">
+            <div class="thumb" style="${sc.refImageDataUrl ? "" : "display:none"}" data-thumb="${sc.id}">
+              <img src="${sc.refImageDataUrl || ""}" alt="ref">
+              <div class="info">
+                <b>${escapeHtml(sc.refImageName || "reference")}</b>
+                <div>${escapeHtml(sc.refImageName ? "Attached as optional shot reference." : "")}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Image Prompt (Nano Banana / Meta AI style)</label>
+            <textarea data-k="imagePrompt" data-id="${sc.id}" placeholder="Write the still image prompt for this scene...">${escapeHtml(sc.imagePrompt||"")}</textarea>
+          </div>
+          <div>
+            <label>Motion Prompt (Kling / VEO / Sora style)</label>
+            <textarea data-k="motionPrompt" data-id="${sc.id}" placeholder="Write the motion prompt for this scene...">${escapeHtml(sc.motionPrompt||"")}</textarea>
+          </div>
+        </div>
+      `;
+      d.appendChild(body);
+      wrap.appendChild(d);
+
+      // Autosize per-scene textareas after insertion
+      body.querySelectorAll("textarea").forEach(ta => autosize(ta));
+    });
+
+    $("sceneCountPill").textContent = `${state.scenes.length} scene${state.scenes.length===1?"":"s"}`;
+    saveLocal();
+  }
+
+  function escapeHtml(str){
+    return (str ?? "").toString()
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function escapeAttr(str){ return escapeHtml(str).replaceAll("\n"," "); }
+
+  function saveLocal(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }catch(e){
+      console.warn("Autosave failed:", e);
+      $("autosavePill").textContent = "Autosave: OFF";
+    }
+  }
+
+  function loadLocal(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    try{
+      const parsed = JSON.parse(raw);
+      if(parsed && typeof parsed === "object"){
+        state = {
+          ...state,
+          ...parsed,
+          scenes: Array.isArray(parsed.scenes) ? parsed.scenes : []
+        };
+      }
+    }catch(e){
+      console.warn("Load failed:", e);
+    }
+  }
+
+  // --------- Output Builders ---------
+  function buildSceneHeader(i, sc){
+    const name = safeText(sc.name) ? safeText(sc.name) : `Scene ${i+1}`;
+    const camera = safeText(sc.camera);
+    const emotion = safeText(sc.emotion);
+    const parts = [];
+    if(camera) parts.push(`Camera: ${camera}`);
+    if(emotion) parts.push(`Emotion/Acting: ${emotion}`);
+    if(state.includeImageMeta && safeText(sc.refImageName)) parts.push(`Ref Image: ${safeText(sc.refImageName)}`);
+    return `### Scene ${i+1} — ${name}\n${parts.length ? parts.map(p=>`- ${p}`).join("\n")+"\n" : ""}`;
+  }
+
+  function buildLocksBlock(){
+    const blocks = [];
+    if(state.includeLocks){
+      if(safeText(state.charLock)) blocks.push(`CHARACTER LOCK:\n${safeText(state.charLock)}`);
+      if(safeText(state.envLock)) blocks.push(`ENVIRONMENT LOCK:\n${safeText(state.envLock)}`);
+      if(safeText(state.templateNotes)) blocks.push(`STYLE NOTES:\n${safeText(state.templateNotes)}`);
+    }
+    return blocks.length ? blocks.join("\n\n") + "\n\n" : "";
+  }
+
+  function buildNegativeBlock(){
+    if(!state.includeNegative) return "";
+    const neg = safeText(state.globalNegative);
+    if(!neg) return "";
+    return `NEGATIVE (GLOBAL):\n${neg}\n\n`;
+  }
+
+  function buildImageOutput(){
+    const title = safeText(state.projectTitle) ? `# ${safeText(state.projectTitle)}\n\n` : "";
+    let out = title + "## IMAGE PROMPTS\n\n";
+    const locks = buildLocksBlock();
+    const neg = buildNegativeBlock();
+
+    state.scenes.forEach((sc, i)=>{
+      out += buildSceneHeader(i, sc);
+      out += "\n";
+      out += locks;
+      out += `IMAGE PROMPT:\n${safeText(sc.imagePrompt) || "(empty)"}\n\n`;
+      out += neg;
+      out += "— — —\n\n";
+    });
+    return out.trim() + "\n";
+  }
+
+  function buildMotionOutput(){
+    const title = safeText(state.projectTitle) ? `# ${safeText(state.projectTitle)}\n\n` : "";
+    let out = title + "## MOTION PROMPTS\n\n";
+    const locks = buildLocksBlock();
+
+    state.scenes.forEach((sc, i)=>{
+      out += buildSceneHeader(i, sc);
+      out += "\n";
+      out += locks;
+      out += `MOTION PROMPT:\n${safeText(sc.motionPrompt) || "(empty)"}\n\n`;
+      out += "— — —\n\n";
+    });
+    return out.trim() + "\n";
+  }
+
+  function buildCombinedOutput(){
+    const title = safeText(state.projectTitle) ? `# ${safeText(state.projectTitle)}\n\n` : "";
+    let out = title + "## COMBINED (IMAGE + MOTION)\n\n";
+    const locks = buildLocksBlock();
+    const neg = buildNegativeBlock();
+
+    state.scenes.forEach((sc, i)=>{
+      out += buildSceneHeader(i, sc);
+      out += "\n";
+      out += locks;
+      out += `IMAGE PROMPT:\n${safeText(sc.imagePrompt) || "(empty)"}\n\n`;
+      out += neg;
+      out += `MOTION PROMPT:\n${safeText(sc.motionPrompt) || "(empty)"}\n\n`;
+      out += "— — —\n\n";
+    });
+    return out.trim() + "\n";
+  }
+
+  function buildJsonExport(embedImages){
+    const copy = JSON.parse(JSON.stringify(state));
+    if(!embedImages){
+      copy.scenes = copy.scenes.map(s => ({
+        ...s,
+        refImageDataUrl: "" // strip
+      }));
+    }
+    return JSON.stringify(copy, null, 2);
+  }
+
+  function buildSceneImageText(scIndex){
+    const sc = state.scenes[scIndex];
+    const locks = buildLocksBlock();
+    const neg = buildNegativeBlock();
+    return (
+      buildSceneHeader(scIndex, sc) + "\n\n" +
+      locks +
+      `IMAGE PROMPT:\n${safeText(sc.imagePrompt) || "(empty)"}\n\n` +
+      neg
+    ).trim() + "\n";
+  }
+
+  function buildSceneMotionText(scIndex){
+    const sc = state.scenes[scIndex];
+    const locks = buildLocksBlock();
+    return (
+      buildSceneHeader(scIndex, sc) + "\n\n" +
+      locks +
+      `MOTION PROMPT:\n${safeText(sc.motionPrompt) || "(empty)"}\n\n`
+    ).trim() + "\n";
+  }
+
+  // --------- Events (Project fields) ---------
+  ["projectTitle","charLock","envLock","globalNegative","templateNotes"].forEach(id=>{
+    $(id).addEventListener("input", e=>{
+      state[id] = e.target.value;
+      autosize(e.target);
+      saveLocal();
+    });
+  });
+
+  ["includeLocks","includeNegative","includeImageMeta","includeImageData"].forEach(id=>{
+    $(id).addEventListener("change", e=>{
+      state[id] = e.target.checked;
+      saveLocal();
+    });
+  });
+
+  // --------- Scene actions ---------
+  function addScene(prefill = {}){
+    state.scenes.push({
+      id: uid(),
+      name: prefill.name || "",
+      camera: prefill.camera || "",
+      emotion: prefill.emotion || "",
+      imagePrompt: prefill.imagePrompt || "",
+      motionPrompt: prefill.motionPrompt || "",
+      refImageName: prefill.refImageName || "",
+      refImageDataUrl: prefill.refImageDataUrl || ""
+    });
+    render();
+  }
+
+  function deleteScene(sceneId){
+    state.scenes = state.scenes.filter(s=>s.id !== sceneId);
+    render();
+  }
+
+  function moveScene(sceneId, dir){
+    const i = state.scenes.findIndex(s=>s.id === sceneId);
+    if(i < 0) return;
+    const j = i + dir;
+    if(j < 0 || j >= state.scenes.length) return;
+    const tmp = state.scenes[i];
+    state.scenes[i] = state.scenes[j];
+    state.scenes[j] = tmp;
+    render();
+  }
+
+  function duplicateScene(sceneId){
+    const sc = state.scenes.find(s=>s.id === sceneId);
+    if(!sc) return;
+    addScene({
+      ...sc,
+      name: sc.name ? sc.name + " (copy)" : "",
+      refImageName: sc.refImageName,
+      refImageDataUrl: sc.refImageDataUrl
+    });
+  }
+
+  $("addSceneBtn").addEventListener("click", ()=> addScene());
+
+  $("collapseAllBtn").addEventListener("click", ()=>{
+    document.querySelectorAll("details.scene").forEach(d=> d.open = false);
+  });
+  $("expandAllBtn").addEventListener("click", ()=>{
+    document.querySelectorAll("details.scene").forEach(d=> d.open = true);
+  });
+
+  $("resetBtn").addEventListener("click", ()=>{
+    if(!confirm("Reset everything? This clears saved data in this browser.")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    state = {
+      projectTitle:"", charLock:"", envLock:"", globalNegative:"", templateNotes:"",
+      includeLocks:true, includeNegative:true, includeImageMeta:true, includeImageData:false,
+      scenes:[]
+    };
+    $("outputPre").textContent = "(Click “Generate Output”)";
+    render();
+  });
+
+  // Delegate input changes inside scenes
+  document.addEventListener("input", (e)=>{
+    const el = e.target;
+    if(!el.dataset || !el.dataset.k || !el.dataset.id) return;
+    const sc = state.scenes.find(s=>s.id === el.dataset.id);
+    if(!sc) return;
+    sc[el.dataset.k] = el.value;
+    if(el.tagName === "TEXTAREA") autosize(el);
+    saveLocal();
+  });
+
+  // Delegate scene control buttons + image upload
+  document.addEventListener("click", async (e)=>{
+    const btn = e.target.closest("button");
+    if(!btn || !btn.dataset || !btn.dataset.act) return;
+
+    const act = btn.dataset.act;
+    const sceneId = btn.dataset.id;
+    if(!sceneId) return;
+
+    const idx = state.scenes.findIndex(s=>s.id === sceneId);
+    if(idx < 0) return;
+
+    if(act === "del") deleteScene(sceneId);
+    if(act === "up") moveScene(sceneId, -1);
+    if(act === "down") moveScene(sceneId, +1);
+    if(act === "dup") duplicateScene(sceneId);
+
+    if(act === "copyImage"){
+      const text = buildSceneImageText(idx);
+      await navigator.clipboard.writeText(text);
+      btn.textContent = "Copied!";
+      setTimeout(()=>btn.textContent="Copy Image", 700);
+    }
+    if(act === "copyMotion"){
+      const text = buildSceneMotionText(idx);
+      await navigator.clipboard.writeText(text);
+      btn.textContent = "Copied!";
+      setTimeout(()=>btn.textContent="Copy Motion", 700);
+    }
+  });
+
+  document.addEventListener("change", (e)=>{
+    const el = e.target;
+    if(!el.dataset || el.dataset.act !== "img" || !el.dataset.id) return;
+    const sceneId = el.dataset.id;
+    const sc = state.scenes.find(s=>s.id === sceneId);
+    if(!sc) return;
+
+    const file = el.files && el.files[0];
+    if(!file) return;
+
+    sc.refImageName = file.name;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      sc.refImageDataUrl = reader.result || "";
+      render();
+      // Keep the same scene expanded after re-render: try to re-open it
+      // (render opens last scene by default; that's OK)
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // --------- Tabs & Generate ---------
+  let activeTab = "combined";
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.addEventListener("click", ()=>{
+      activeTab = t.dataset.tab;
+      setTabs(activeTab);
+      // Update preview immediately if already generated
+      updateOutputPreview();
+    });
+  });
+
+  function updateOutputPreview(){
+    if(activeTab === "image") $("outputPre").textContent = buildImageOutput();
+    if(activeTab === "motion") $("outputPre").textContent = buildMotionOutput();
+    if(activeTab === "combined") $("outputPre").textContent = buildCombinedOutput();
+    if(activeTab === "json") $("outputPre").textContent = buildJsonExport(state.includeImageData);
+  }
+
+  $("generateBtn").addEventListener("click", ()=>{
+    updateOutputPreview();
+  });
+
+  $("copyBtn").addEventListener("click", async ()=>{
+    const text = $("outputPre").textContent || "";
+    await navigator.clipboard.writeText(text);
+    $("copyBtn").textContent = "Copied!";
+    setTimeout(()=>$("copyBtn").textContent="Copy", 700);
+  });
+
+  $("downloadTxtBtn").addEventListener("click", ()=>{
+    const base = safeText(state.projectTitle) ? safeText(state.projectTitle).replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"_") : "prompts";
+    const text =
+      activeTab === "image" ? buildImageOutput() :
+      activeTab === "motion" ? buildMotionOutput() :
+      activeTab === "json" ? buildJsonExport(state.includeImageData) :
+      buildCombinedOutput();
+
+    const ext = (activeTab === "json") ? "json" : "txt";
+    downloadFile(`${base}.${ext}`, text, activeTab === "json" ? "application/json;charset=utf-8" : "text/plain;charset=utf-8");
+  });
+
+  $("downloadJsonBtn").addEventListener("click", ()=>{
+    const base = safeText(state.projectTitle) ? safeText(state.projectTitle).replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"_") : "project";
+    const json = buildJsonExport(state.includeImageData);
+    downloadFile(`${base}.json`, json, "application/json;charset=utf-8");
+  });
+
+  // --------- Import JSON ---------
+  $("importBtn").addEventListener("click", ()=> $("importFile").click());
+  $("importFile").addEventListener("change", (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const parsed = JSON.parse(reader.result);
+        if(!parsed || typeof parsed !== "object") throw new Error("Invalid JSON");
+        // Basic merge + guard
+        state = {
+          ...state,
+          ...parsed,
+          scenes: Array.isArray(parsed.scenes) ? parsed.scenes : []
+        };
+        // Ensure each scene has id
+        state.scenes = state.scenes.map(s => ({ id: s.id || uid(), ...s }));
+        render();
+        $("outputPre").textContent = "(Imported. Click “Generate Output”)";
+      }catch(err){
+        alert("Import failed: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  // --------- Init ---------
+  loadLocal();
+  if(state.scenes.length === 0){
+    // Start with 2 scenes as default
+    addScene({ name:"Scene 1", camera:"Front view, vertical 9:16", emotion:"", imagePrompt:"", motionPrompt:"" });
+    addScene({ name:"Scene 2", camera:"", emotion:"", imagePrompt:"", motionPrompt:"" });
+  }else{
+    render();
+  }
+
+  // small: keep output in sync if user edits while on JSON tab
+  const syncPreviewIds = ["projectTitle","charLock","envLock","globalNegative","templateNotes","includeLocks","includeNegative","includeImageMeta","includeImageData"];
+  syncPreviewIds.forEach(id=>{
+    $(id).addEventListener("input", ()=>{ if($("outputPre").textContent.includes("##") || activeTab==="json") updateOutputPreview(); });
+    $(id).addEventListener("change", ()=>{ if($("outputPre").textContent.includes("##") || activeTab==="json") updateOutputPreview(); });
+  });
+
+</script>
+</body>
+</html>

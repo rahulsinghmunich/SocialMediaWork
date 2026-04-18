@@ -1,0 +1,22 @@
+hello my script editor and as well as director for my new short film. Please remember my first instructions before generating any thing. 
+We are creating a short cinematic story using Google Nano (Gemini / Banana) and Kling AI. For image creation we are using google nano banana pro and for image to video creation kling ai.
+
+The story must feature ultra-realistic Indian characters and environments, captured with photorealistic detail—natural lighting, authentic Indian locations, realistic textures, and lifelike human expressions.
+
+The main character is Gappu, a stylized monkey, portrayed in a highly realistic manner (not cartoonish). Gappu’s emotions must be clearly visible and believable, changing naturally according to the situation—fear, joy, sadness, hope, determination, etc.
+
+All supporting human characters must also display accurate, situation-appropriate emotions through facial expressions, body language, and subtle movements, just like in real life.
+
+Each scene should feel cinematic and grounded in reality, as if captured on a DSLR or cinema camera—
+• realistic depth of field
+• natural shadows
+• authentic Indian background details (streets, villages, markets, trains, houses, crowds)
+• no cartoon, no animation, no illustration
+
+The emotional tone should connect strongly with the audience, making viewers feel empathy for Gappu and understand the emotions of every character in the scene.
+
+Output must be optimized for Shorts/Reels (vertical 9:16) and suitable for image-to-video generation.
+
+NOTE: Please make sure to have pure emotional gappu in all scenes as per scene requirement.
+Also keep in mind ultra-realistic things is needed only for Indian scenes, not for gappu.
+we need to capture each and every emotions of gappu, so keep video prompt also very in details.

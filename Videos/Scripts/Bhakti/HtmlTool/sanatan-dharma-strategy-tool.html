@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanatan Dharma — YouTube Strategy Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Hind:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0800;
+    --surface: #130f00;
+    --surface2: #1c1700;
+    --surface3: #242000;
+    --border: rgba(255,200,50,0.07);
+    --border-glow: rgba(255,200,50,0.25);
+    --saffron: #ff6f00;
+    --gold: #ffc107;
+    --gold2: #ffe082;
+    --deep-red: #b71c1c;
+    --maroon: #7b1fa2;
+    --lotus: #f48fb1;
+    --sky: #81d4fa;
+    --text: #fff8e1;
+    --muted: rgba(255,248,225,0.45);
+    --muted2: rgba(255,248,225,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hind', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Sacred geometry background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,193,7,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 20% 80%, rgba(255,111,0,0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 80% 60%, rgba(123,31,162,0.05) 0%, transparent 40%);
+    pointer-events: none; z-index: 0;
+    animation: aurabreathe 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes aurabreathe {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+  }
+
+  /* Mandala dots pattern */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,193,7,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 50px 0 36px;
+    text-align: center;
+    position: relative;
+  }
+
+  .om-symbol {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 10px;
+    animation: glow 3s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 12px rgba(255,193,7,0.5));
+  }
+
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 8px rgba(255,193,7,0.4)); }
+    to { filter: drop-shadow(0 0 20px rgba(255,111,0,0.7)); }
+  }
+
+  .header-eyebrow {
+    display: inline-flex;
+    align-items: center; gap: 8px;
+    background: rgba(255,193,7,0.08);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 40px;
+    padding: 5px 16px;
+    font-size: 11px; font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(26px, 6vw, 50px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: 1px;
+  }
+
+  .h1-top {
+    background: linear-gradient(135deg, var(--gold2), var(--gold), var(--saffron));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+  }
+
+  .h1-bot {
+    color: rgba(255,248,225,0.7);
+    font-size: 0.55em;
+    letter-spacing: 4px;
+    display: block;
+    margin-top: 4px;
+  }
+
+  .header-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 12px;
+    line-height: 1.7;
+  }
+
+  .million-banner {
+    display: inline-flex;
+    align-items: center; gap: 8px;
+    background: linear-gradient(135deg, rgba(255,111,0,0.15), rgba(255,193,7,0.08));
+    border: 1px solid rgba(255,111,0,0.3);
+    border-radius: 30px;
+    padding: 7px 18px;
+    font-size: 12px; font-weight: 600;
+    color: var(--saffron);
+    margin-top: 14px;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 6px 0 14px;
+    opacity: 0.3;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .divider span { color: var(--gold); font-size: 14px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 26px;
+    margin-bottom: 14px;
+    transition: border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover { border-color: rgba(255,193,7,0.15); }
+  .card:hover::before { opacity: 1; }
+
+  .card-hd {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .card-ico {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: rgba(255,193,7,0.1);
+    border: 1px solid rgba(255,193,7,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+
+  .card-ttl {
+    font-family: 'Cinzel', serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--gold);
+  }
+
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── FORM ── */
+  .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width:560px){ .fgrid { grid-template-columns: 1fr; } }
+  .fg { display: flex; flex-direction: column; gap: 6px; }
+  .fg.full { grid-column: 1/-1; }
+
+  label {
+    font-size: 10px; font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    font-family: 'Cinzel', serif;
+  }
+
+  input[type="text"], textarea, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'Hind', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(255,193,7,0.08);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: #1c1700; }
+
+  /* ── PILL SELECTORS ── */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 7px 14px;
+    color: var(--muted);
+    font-family: 'Hind', sans-serif;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .pill:hover { border-color: rgba(255,193,7,0.3); color: var(--text); }
+  .pill.active { background: rgba(255,193,7,0.1); border-color: var(--gold); color: var(--gold); }
+  .pill.saffron.active { background: rgba(255,111,0,0.1); border-color: var(--saffron); color: var(--saffron); }
+
+  /* ── VIDEO TYPE TOGGLE ── */
+  .vid-type-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+
+  .vid-type-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .vid-type-btn.active {
+    background: rgba(255,193,7,0.08);
+    border-color: var(--gold);
+  }
+
+  .vid-type-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  .vid-type-label { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; color: var(--gold); }
+  .vid-type-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── OPTIONAL TAG ── */
+  .opt-tag {
+    display: inline-block;
+    background: rgba(255,193,7,0.08);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 10px; font-weight: 600;
+    color: var(--gold); letter-spacing: 1px;
+    text-transform: uppercase; margin-left: 8px;
+    vertical-align: middle;
+    font-family: 'Hind', sans-serif;
+  }
+
+  /* ── VIDEO UPLOAD ── */
+  .upload-zone {
+    border: 2px dashed rgba(255,193,7,0.25);
+    border-radius: 14px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: rgba(255,193,7,0.02);
+  }
+
+  .upload-zone:hover, .upload-zone.drag {
+    border-color: var(--gold);
+    background: rgba(255,193,7,0.05);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+    border: none; padding: 0; background: none;
+  }
+
+  .upload-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+  .upload-label { color: var(--gold); font-weight: 600; font-size: 14px; font-family: 'Cinzel', serif; }
+  .upload-hint { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+  /* Video player */
+  .video-panel {
+    display: none;
+    margin-top: 16px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,193,7,0.2);
+    background: #000;
+  }
+
+  .video-panel video {
+    width: 100%;
+    max-height: 340px;
+    display: block;
+    object-fit: contain;
+    background: #000;
+    cursor: pointer;
+  }
+
+  .vid-controls {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .vid-play {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--saffron));
+    border: none; color: #000;
+    font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+
+  .vid-play:hover { transform: scale(1.1); }
+
+  .vid-prog {
+    flex: 1; height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px; cursor: pointer;
+    position: relative; min-width: 80px;
+  }
+
+  .vid-prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--saffron));
+    border-radius: 4px; width: 0%;
+    pointer-events: none;
+  }
+
+  .vid-time {
+    font-size: 11px; color: var(--muted);
+    white-space: nowrap; flex-shrink: 0;
+    font-family: 'Cinzel', serif;
+  }
+
+  .vid-vol { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .vid-vol-ico { font-size: 14px; cursor: pointer; }
+  .vid-vol input { width: 60px; accent-color: var(--gold); cursor: pointer; border: none; padding: 0; background: none; height: 3px; }
+
+  .vid-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px;
+    background: var(--surface);
+    flex-wrap: wrap; gap: 8px;
+  }
+
+  .vid-fname { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+
+  .vid-acts { display: flex; gap: 8px; }
+
+  .vbtn {
+    background: rgba(255,193,7,0.1);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 8px; padding: 5px 12px;
+    color: var(--gold); font-size: 11px; font-weight: 600;
+    cursor: pointer; font-family: 'Hind', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .vbtn:hover { background: rgba(255,193,7,0.18); }
+  .vbtn.red { color: var(--saffron); border-color: rgba(255,111,0,0.25); background: rgba(255,111,0,0.07); }
+  .vbtn.red:hover { background: rgba(255,111,0,0.15); }
+
+  .frames-strip {
+    display: none; padding: 12px 14px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    gap: 8px; overflow-x: auto;
+  }
+
+  .frames-strip.show { display: flex; }
+
+  .frame-th {
+    flex-shrink: 0; position: relative;
+    cursor: pointer; border-radius: 8px; overflow: hidden;
+    border: 2px solid transparent; transition: border-color 0.15s;
+  }
+
+  .frame-th:hover { border-color: rgba(255,193,7,0.4); }
+  .frame-th.best { border-color: var(--gold); }
+
+  .frame-th img { width: 100px; height: 56px; object-fit: cover; display: block; }
+
+  .frame-th-lbl {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.65);
+    font-size: 9px; font-weight: 700; color: #fff;
+    text-align: center; padding: 2px 4px;
+  }
+
+  .frame-th.best .frame-th-lbl { background: rgba(255,193,7,0.85); color: #000; }
+
+  /* ── GENERATE BTN ── */
+  .gen-btn {
+    width: 100%; padding: 17px;
+    background: linear-gradient(135deg, var(--saffron), var(--gold), var(--saffron));
+    background-size: 200% 100%;
+    border: none; border-radius: 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 17px; font-weight: 700;
+    color: #1a0a00; cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 30px rgba(255,111,0,0.25);
+    transition: all 0.3s;
+    margin-bottom: 14px;
+    animation: shimmer 3s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(255,111,0,0.35); }
+  .gen-btn:active { transform: translateY(0); }
+  .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; animation: none; }
+
+  /* ── LOADING ── */
+  .loading { text-align: center; padding: 50px 20px; display: none; }
+
+  .loading-flame {
+    font-size: 48px; display: block;
+    animation: flicker 0.8s ease-in-out infinite alternate;
+    margin-bottom: 14px;
+  }
+
+  @keyframes flicker {
+    from { transform: scale(1) rotate(-2deg); filter: brightness(1); }
+    to { transform: scale(1.1) rotate(2deg); filter: brightness(1.3); }
+  }
+
+  .loading-step { color: var(--gold); font-weight: 700; font-size: 15px; font-family: 'Cinzel', serif; margin-bottom: 4px; }
+  .loading p { color: var(--muted); font-size: 13px; }
+
+  /* ── ERROR ── */
+  .err-box {
+    background: rgba(183,28,28,0.1);
+    border: 1px solid rgba(183,28,28,0.3);
+    border-radius: 12px; padding: 16px;
+    color: #ef9a9a; text-align: center; font-size: 14px;
+    display: none; margin-bottom: 14px;
+  }
+
+  /* ── RESULTS ── */
+  .results { display: none; }
+
+  /* Virality banner */
+  .viral-banner {
+    background: linear-gradient(135deg, rgba(255,193,7,0.1), rgba(255,111,0,0.07));
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 20px; padding: 24px;
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 14px;
+    position: relative; overflow: hidden;
+  }
+
+  .viral-banner::before {
+    content: '🕉';
+    position: absolute; right: 20px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 60px; opacity: 0.06;
+  }
+
+  .score-ring {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--saffron));
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 30px rgba(255,193,7,0.3);
+  }
+
+  .score-num {
+    font-family: 'Cinzel', serif;
+    font-size: 28px; font-weight: 900; color: #1a0a00;
+  }
+
+  .score-info h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--gold); margin-bottom: 6px;
+  }
+
+  .score-info p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+  /* Meta grid */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+
+  .meta-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+  }
+
+  .meta-lbl {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted); margin-bottom: 5px;
+    font-family: 'Cinzel', serif;
+  }
+
+  .meta-val {
+    font-size: 13px; font-weight: 600;
+    color: var(--gold2); line-height: 1.4;
+  }
+
+  /* Platform tabs */
+  .ptabs {
+    display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+
+  .ptab {
+    padding: 9px 18px; border-radius: 30px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'Cinzel', serif;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .ptab:hover { border-color: rgba(255,193,7,0.3); color: var(--text); }
+  .ptab.active { background: rgba(255,193,7,0.1); border-color: var(--gold); color: var(--gold); }
+
+  .ptab-content { display: none; }
+  .ptab-content.active { display: block; }
+
+  /* Result sections */
+  .rsec {
+    background: var(--surface2);
+    border-radius: 14px; padding: 16px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--gold);
+  }
+
+  .rsec.saffron { border-left-color: var(--saffron); }
+  .rsec.lotus { border-left-color: var(--lotus); }
+  .rsec.sky { border-left-color: var(--sky); }
+  .rsec.red { border-left-color: var(--deep-red); }
+
+  .rsec-hd {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px; flex-wrap: wrap; gap: 6px;
+  }
+
+  .rsec-lbl {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--gold); font-family: 'Cinzel', serif;
+  }
+
+  .rsec.saffron .rsec-lbl { color: var(--saffron); }
+  .rsec.lotus .rsec-lbl { color: var(--lotus); }
+  .rsec.sky .rsec-lbl { color: var(--sky); }
+
+  .rsec-body {
+    color: rgba(255,248,225,0.85);
+    font-size: 14px; line-height: 1.75;
+    white-space: pre-wrap;
+  }
+
+  /* Tags */
+  .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+  .tag-pill {
+    background: rgba(255,193,7,0.08);
+    border: 1px solid rgba(255,193,7,0.18);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px; font-weight: 600;
+    color: var(--gold); cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .tag-pill:hover { background: rgba(255,193,7,0.16); }
+
+  /* Copy btn */
+  .cbtn {
+    background: rgba(255,193,7,0.08);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 8px; padding: 5px 12px;
+    color: var(--gold); font-size: 11px; font-weight: 600;
+    cursor: pointer; font-family: 'Hind', sans-serif;
+    transition: background 0.15s; white-space: nowrap;
+  }
+
+  .cbtn:hover { background: rgba(255,193,7,0.16); }
+
+  /* Video analysis card */
+  .vid-analysis { display: none; margin-bottom: 14px; }
+
+  /* Growth tips */
+  .growth-tip {
+    display: flex; gap: 14px; padding: 14px;
+    background: rgba(255,193,7,0.04);
+    border: 1px solid rgba(255,193,7,0.1);
+    border-radius: 12px; margin-bottom: 10px;
+    align-items: flex-start;
+  }
+
+  .tip-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .tip-body { font-size: 13px; line-height: 1.7; color: rgba(255,248,225,0.8); }
+  .tip-body strong { color: var(--gold); font-family: 'Cinzel', serif; font-size: 12px; display: block; margin-bottom: 3px; }
+
+  footer {
+    text-align: center; padding: 30px;
+    color: rgba(255,193,7,0.2);
+    font-size: 12px; position: relative; z-index: 1;
+    font-family: 'Cinzel', serif; letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <span class="om-symbol">🕉️</span>
+    <div class="header-eyebrow">✨ YouTube Shorts · Long Form · Bhakti Growth</div>
+    <h1>
+      <span class="h1-top">Sanatan Dharma</span>
+      <span class="h1-bot">YouTube Strategy Tool</span>
+    </h1>
+    <p class="header-sub">Cinematic mythology · Devotional stories · Spiritual wisdom<br>Optimised for YouTube algorithm and bhakti audience</p>
+    <div class="million-banner">🎯 1 Million Subscribers — Jai Shri Ram 🙏</div>
+  </header>
+
+  <div class="divider"><span>✦</span></div>
+
+  <!-- VIDEO DETAILS CARD -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-ico">🎬</div>
+      <div>
+        <div class="card-ttl">Video Details</div>
+        <div class="card-sub">Tell us about your devotional content</div>
+      </div>
+    </div>
+
+    <div class="fgrid">
+
+      <div class="fg full">
+        <label>Video Type</label>
+        <div class="vid-type-row">
+          <div class="vid-type-btn active" id="typeShort" onclick="setVideoType('short', this)">
+            <span class="vid-type-icon">⚡</span>
+            <div class="vid-type-label">YouTube Short</div>
+            <div class="vid-type-sub">15 – 60 seconds · 9:16</div>
+          </div>
+          <div class="vid-type-btn" id="typeLong" onclick="setVideoType('long', this)">
+            <span class="vid-type-icon">🎞️</span>
+            <div class="vid-type-label">Long Form</div>
+            <div class="vid-type-sub">1 – 3 minutes · 16:9 or 9:16</div>
+          </div>
+        </div>
+        <input type="hidden" id="videoType" value="short">
+      </div>
+
+      <div class="fg">
+        <label>Deity / Main Subject</label>
+        <input type="text" id="deity" placeholder="e.g. Shri Krishna, Lord Shiva, Maa Durga">
+      </div>
+
+      <div class="fg">
+        <label>Story / Episode Title</label>
+        <input type="text" id="title" placeholder="e.g. Govardhan Parvat, Neelkanth, Mahishasur Vadh">
+      </div>
+
+      <div class="fg full">
+        <label>Content Type</label>
+        <div class="pill-row">
+          <button class="pill active" onclick="setContent(this,'Animated Mythology Story')">🎭 Animated Story</button>
+          <button class="pill" onclick="setContent(this,'Devotional Cinematic')">🎥 Cinematic</button>
+          <button class="pill" onclick="setContent(this,'Spiritual Facts & Knowledge')">📿 Spiritual Facts</button>
+          <button class="pill" onclick="setContent(this,'Bhajan / Katha')">🎵 Bhajan/Katha</button>
+        </div>
+        <input type="hidden" id="contentType" value="Animated Mythology Story">
+      </div>
+
+      <div class="fg full">
+        <label>Mood / Energy</label>
+        <div class="pill-row">
+          <button class="pill active" onclick="setMood(this,'Devotional & Peaceful')">🪔 Devotional</button>
+          <button class="pill" onclick="setMood(this,'Cinematic Epic')">⚔️ Epic</button>
+          <button class="pill" onclick="setMood(this,'Powerful & Fierce')">🔱 Powerful</button>
+          <button class="pill" onclick="setMood(this,'Emotional & Moving')">💛 Emotional</button>
+          <button class="pill" onclick="setMood(this,'Mystical & Divine')">✨ Mystical</button>
+        </div>
+        <input type="hidden" id="mood" value="Devotional & Peaceful">
+      </div>
+
+      <div class="fg full">
+        <label>Key Spiritual Message / Shloka (optional)</label>
+        <textarea id="message" placeholder="e.g. यदा यदा हि धर्मस्य — share the shloka or spiritual message this video carries"></textarea>
+      </div>
+
+      <div class="fg full">
+        <label>Story Summary (paste from your script tool)</label>
+        <textarea id="summary" placeholder="Briefly describe what happens in this video — key scenes, emotions, climax..."></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VIDEO UPLOAD CARD -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-ico">🎥</div>
+      <div>
+        <div class="card-ttl">Upload & Watch Your Video <span class="opt-tag">Optional</span></div>
+        <div class="card-sub">Watch, extract frames and get visual analysis to enrich your strategy</div>
+      </div>
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="vidFile" accept="video/*" onchange="handleUpload(event)">
+      <span class="upload-icon">🕉️</span>
+      <div class="upload-label">Drop your video or click to browse</div>
+      <div class="upload-hint">MP4 · MOV · WEBM — Max 100MB</div>
+    </div>
+
+    <div class="video-panel" id="videoPanel">
+      <video id="vidEl" preload="metadata" onclick="togglePlay()"></video>
+      <div class="vid-controls">
+        <button class="vid-play" id="playBtn" onclick="togglePlay()">▶</button>
+        <div class="vid-prog" id="progBar" onclick="seekVid(event)">
+          <div class="vid-prog-fill" id="progFill"></div>
+        </div>
+        <div class="vid-time" id="vidTime">0:00 / 0:00</div>
+        <div class="vid-vol">
+          <span class="vid-vol-ico" onclick="toggleMute()">🔊</span>
+          <input type="range" id="volSlider" min="0" max="1" step="0.05" value="1" oninput="setVol(this.value)">
+        </div>
+      </div>
+      <div class="vid-bar">
+        <div class="vid-fname" id="vidFname">—</div>
+        <div class="vid-acts">
+          <button class="vbtn" onclick="extractFrames()">🖼️ Extract Frames</button>
+          <button class="vbtn red" onclick="removeVid()">✕ Remove</button>
+        </div>
+      </div>
+      <div class="frames-strip" id="framesStrip"></div>
+    </div>
+
+    <canvas id="fCanvas" style="display:none"></canvas>
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="generate()">
+    🕉️ Generate YouTube Strategy — 1M Subscriber Goal
+  </button>
+
+  <div class="loading" id="loading">
+    <span class="loading-flame">🔥</span>
+    <div class="loading-step" id="loadStep">Channelling divine strategy...</div>
+    <p>Building SEO · Analysing algorithm · Writing growth path</p>
+  </div>
+
+  <div class="err-box" id="errBox">⚠️ Something went wrong. Please try again. 🙏</div>
+
+  <!-- VIDEO ANALYSIS -->
+  <div class="vid-analysis card" id="vidAnalCard">
+    <div class="card-hd">
+      <div class="card-ico">🔬</div>
+      <div><div class="card-ttl">Visual Analysis from Your Video</div></div>
+    </div>
+    <div id="vidAnalBody"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <div class="viral-banner">
+      <div class="score-ring">
+        <span class="score-num" id="scoreNum">--</span>
+      </div>
+      <div class="score-info">
+        <h3 id="scoreLabel">Growth Potential</h3>
+        <p id="scoreReason"></p>
+      </div>
+    </div>
+
+    <!-- Metadata -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-ico">🧬</div>
+        <div><div class="card-ttl">Viral Metadata & SEO Signals</div></div>
+      </div>
+      <div class="meta-grid" id="metaGrid"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card">
+      <div class="ptabs">
+        <button class="ptab active" onclick="switchTab('short',this)">⚡ YouTube Short</button>
+        <button class="ptab" onclick="switchTab('long',this)">🎞️ Long Form</button>
+        <button class="ptab" onclick="switchTab('seo',this)">🔍 SEO Deep Dive</button>
+        <button class="ptab" onclick="switchTab('growth',this)">📈 1M Growth Path</button>
+      </div>
+
+      <div class="ptab-content active" id="tab-short"></div>
+      <div class="ptab-content" id="tab-long"></div>
+      <div class="ptab-content" id="tab-seo"></div>
+      <div class="ptab-content" id="tab-growth"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>🕉️ Sanatan Dharma YouTube Strategy Tool — Built for Rahul · Jai Shri Ram 🙏</footer>
+
+<script>
+  // ── STATE ──
+  let videoType = 'short';
+  let contentType = 'Animated Mythology Story';
+  let mood = 'Devotional & Peaceful';
+  let vidFrames = [];
+  let vidLoaded = false;
+
+  // ── PILL SETTERS ──
+  function setVideoType(val, btn) {
+    document.querySelectorAll('.vid-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    videoType = val;
+    document.getElementById('videoType').value = val;
+  }
+
+  function setContent(btn, val) {
+    btn.closest('.pill-row').querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    contentType = val;
+  }
+
+  function setMood(btn, val) {
+    btn.closest('.pill-row').querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    mood = val;
+  }
+
+  // ── VIDEO PLAYER ──
+  function handleUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 100 * 1024 * 1024) { alert('Video too large. Please use under 100MB.'); return; }
+
+    const url = URL.createObjectURL(file);
+    const vid = document.getElementById('vidEl');
+    vid.src = url; vid.load();
+    document.getElementById('vidFname').textContent = file.name;
+    document.getElementById('videoPanel').style.display = 'block';
+    document.getElementById('uploadZone').style.display = 'none';
+
+    vid.addEventListener('loadedmetadata', () => {
+      document.getElementById('vidTime').textContent = `0:00 / ${fmt(vid.duration)}`;
+    }, { once: true });
+
+    vid.addEventListener('timeupdate', updateProg);
+    vid.addEventListener('ended', () => document.getElementById('playBtn').textContent = '▶');
+
+    vidLoaded = true; vidFrames = [];
+  }
+
+  function togglePlay() {
+    const vid = document.getElementById('vidEl');
+    const btn = document.getElementById('playBtn');
+    if (vid.paused) { vid.play(); btn.textContent = '⏸'; }
+    else { vid.pause(); btn.textContent = '▶'; }
+  }
+
+  function updateProg() {
+    const vid = document.getElementById('vidEl');
+    if (!vid.duration) return;
+    document.getElementById('progFill').style.width = (vid.currentTime / vid.duration * 100) + '%';
+    document.getElementById('vidTime').textContent = `${fmt(vid.currentTime)} / ${fmt(vid.duration)}`;
+  }
+
+  function seekVid(e) {
+    const vid = document.getElementById('vidEl');
+    const bar = document.getElementById('progBar');
+    const pct = Math.max(0, Math.min(1, (e.clientX - bar.getBoundingClientRect().left) / bar.offsetWidth));
+    vid.currentTime = pct * vid.duration;
+  }
+
+  function setVol(v) { document.getElementById('vidEl').volume = parseFloat(v); }
+  function toggleMute() {
+    const vid = document.getElementById('vidEl');
+    vid.muted = !vid.muted;
+    document.querySelector('.vid-vol-ico').textContent = vid.muted ? '🔇' : '🔊';
+  }
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    return `${m}:${Math.floor(s % 60).toString().padStart(2,'0')}`;
+  }
+
+  function removeVid() {
+    const vid = document.getElementById('vidEl');
+    vid.pause(); vid.src = '';
+    document.getElementById('vidFile').value = '';
+    document.getElementById('videoPanel').style.display = 'none';
+    document.getElementById('uploadZone').style.display = 'block';
+    document.getElementById('framesStrip').innerHTML = '';
+    document.getElementById('framesStrip').classList.remove('show');
+    vidFrames = []; vidLoaded = false;
+  }
+
+  function extractFrames() {
+    const vid = document.getElementById('vidEl');
+    const canvas = document.getElementById('fCanvas');
+    const ctx = canvas.getContext('2d');
+    const dur = vid.duration;
+    if (!dur) { alert('Video not ready.'); return; }
+
+    canvas.width = 320; canvas.height = 180;
+    vidFrames = [];
+
+    const times = [0.04, 0.2, 0.4, 0.6, 0.8, 0.96].map(p => p * dur);
+    let idx = 0;
+
+    const strip = document.getElementById('framesStrip');
+    strip.innerHTML = '<span style="color:var(--muted);font-size:12px;align-self:center">Extracting frames...</span>';
+    strip.classList.add('show');
+
+    vid.addEventListener('seeked', function onSeek() {
+      ctx.drawImage(vid, 0, 0, 320, 180);
+      vidFrames.push(canvas.toDataURL('image/jpeg', 0.75).split(',')[1]);
+      idx++;
+      if (idx < times.length) vid.currentTime = times[idx];
+      else { vid.removeEventListener('seeked', onSeek); renderStrip(-1); }
+    });
+
+    vid.currentTime = times[0];
+  }
+
+  function renderStrip(bestIdx) {
+    const strip = document.getElementById('framesStrip');
+    const labels = ['5%','20%','40%','60%','80%','96%'];
+    strip.innerHTML = '';
+    vidFrames.forEach((f, i) => {
+      const best = i === bestIdx;
+      const div = document.createElement('div');
+      div.className = 'frame-th' + (best ? ' best' : '');
+      div.onclick = () => {
+        const vid = document.getElementById('vidEl');
+        vid.currentTime = (parseInt(labels[i]) / 100) * vid.duration;
+      };
+      div.innerHTML = `<img src="data:image/jpeg;base64,${f}"><div class="frame-th-lbl">${best ? '⭐ Best' : labels[i]}</div>`;
+      strip.appendChild(div);
+    });
+    strip.classList.add('show');
+  }
+
+  // Drag drop
+  const uz = document.getElementById('uploadZone');
+  uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag'); });
+  uz.addEventListener('dragleave', () => uz.classList.remove('drag'));
+  uz.addEventListener('drop', e => {
+    e.preventDefault(); uz.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('video/')) {
+      const dt = new DataTransfer(); dt.items.add(f);
+      document.getElementById('vidFile').files = dt.files;
+      handleUpload({ target: { files: [f] } });
+    }
+  });
+
+  // ── HELPERS ──
+  function copy(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const o = btn.textContent; btn.textContent = '✅ Done!';
+      setTimeout(() => btn.textContent = o, 2000);
+    });
+  }
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.ptab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  function sec(label, content, cls='', copyable=false) {
+    const id = 's' + Math.random().toString(36).slice(2);
+    const cb = copyable ? `<button class="cbtn" onclick="copy(document.getElementById('${id}').textContent,this)">📋 Copy</button>` : '';
+    return `<div class="rsec ${cls}"><div class="rsec-hd"><span class="rsec-lbl">${label}</span>${cb}</div><div class="rsec-body" id="${id}">${content}</div></div>`;
+  }
+
+  function tags(tagStr) {
+    const pills = String(tagStr).split(/[,\s]+/).filter(t => t.startsWith('#')).map(t =>
+      `<span class="tag-pill" onclick="copy('${t}',this)">${t}</span>`).join('');
+    const cb = `<button class="cbtn" onclick="copy('${tagStr.replace(/'/g,"\\'")}',this)">📋 Copy All</button>`;
+    return `<div class="rsec"><div class="rsec-hd"><span class="rsec-lbl">🏷️ Tags / Hashtags</span>${cb}</div><div class="tag-cloud">${pills || tagStr}</div></div>`;
+  }
+
+  // ── MAIN GENERATE ──
+  async function generate() {
+    const deity = document.getElementById('deity').value.trim();
+    const title = document.getElementById('title').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const summary = document.getElementById('summary').value.trim();
+
+    if (!deity || !title) { alert('Please fill in Deity and Story Title!'); return; }
+
+    document.getElementById('genBtn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('errBox').style.display = 'none';
+    document.getElementById('vidAnalCard').style.display = 'none';
+
+    const steps = ['Channelling divine strategy...','Building SEO signals...','Mapping bhakti audience...','Calculating growth potential...','Writing 1M subscriber path...'];
+    let si = 0;
+    const timer = setInterval(() => {
+      si = (si + 1) % steps.length;
+      document.getElementById('loadStep').textContent = steps[si];
+    }, 1100);
+
+    try {
+      let videoCtx = '';
+      if (vidLoaded && vidFrames.length > 0) {
+        document.getElementById('loadStep').textContent = '🎬 Analysing video frames...';
+        const va = await analyseFrames();
+        videoCtx = buildVideoCtx(va);
+        renderVidAnalysis(va);
+      }
+
+      document.getElementById('loadStep').textContent = '🕉️ Building divine strategy...';
+      await generateStrategy(deity, title, message, summary, videoCtx);
+
+    } catch(err) {
+      console.error(err);
+      document.getElementById('errBox').style.display = 'block';
+    } finally {
+      clearInterval(timer);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('genBtn').disabled = false;
+    }
+  }
+
+  async function analyseFrames() {
+    const imgs = vidFrames.map((f, i) => ([
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: f } },
+      { type: 'text', text: `Frame ${i+1}` }
+    ])).flat();
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514", max_tokens: 1000,
+        messages: [{ role: "user", content: [...imgs, { type: "text", text: `Analyse these frames from a Sanatan Dharma / Hindu mythology animated devotional video. Return JSON ONLY:
+{
+  "visual_mood": "<3 words>",
+  "color_palette": "<dominant colors — e.g. saffron, gold, blue>",
+  "cinematic_quality": "<Rough | Average | Good | Cinematic | Divine Quality>",
+  "deity_presence": "<clear / partially visible / absent>",
+  "best_thumbnail_frame": <1-6>,
+  "thumbnail_reason": "<why>",
+  "thumbnail_text_overlay": "<powerful Hindi/Sanskrit/English text to overlay>",
+  "hook_strength": "<Weak | Moderate | Strong | Very Strong>",
+  "hook_notes": "<what works or doesn't in first frame>",
+  "devotional_authenticity": "<Low | Medium | High | Very High — how authentic and sacred does it look>",
+  "visual_emotion": "<dominant spiritual emotion — e.g. Bhakti, Veer Rasa, Shanta Rasa>",
+  "scene_descriptions": ["<frame 1>","<frame 2>","<frame 3>","<frame 4>","<frame 5>","<frame 6>"],
+  "improvement_tip": "<one specific visual improvement for more divine quality>"
+}` }] }]
+      })
+    });
+    const data = await res.json();
+    return JSON.parse(data.content.map(i => i.text||'').join('').replace(/```json|```/g,'').trim());
+  }
+
+  function buildVideoCtx(va) {
+    return `
+VIDEO VISUAL ANALYSIS:
+- Visual Mood: ${va.visual_mood}
+- Color Palette: ${va.color_palette}
+- Cinematic Quality: ${va.cinematic_quality}
+- Deity Presence: ${va.deity_presence}
+- Devotional Authenticity: ${va.devotional_authenticity}
+- Hook Strength: ${va.hook_strength} — ${va.hook_notes}
+- Best Thumbnail Frame: Frame ${va.best_thumbnail_frame} — ${va.thumbnail_reason}
+- Thumbnail Text Overlay: ${va.thumbnail_text_overlay}
+- Visual Emotion/Rasa: ${va.visual_emotion}
+`;
+  }
+
+  function renderVidAnalysis(va) {
+    const bestIdx = (va.best_thumbnail_frame || 1) - 1;
+    renderStrip(bestIdx);
+    document.getElementById('vidAnalBody').innerHTML =
+      sec('⭐ Best Thumbnail Frame', `Frame ${va.best_thumbnail_frame} — ${va.thumbnail_reason}`, 'saffron') +
+      sec('✏️ Thumbnail Text Overlay', va.thumbnail_text_overlay, '', true) +
+      sec('🎨 Visual Mood & Colors', `${va.visual_mood} · ${va.color_palette}`, '') +
+      sec('🕉️ Cinematic Quality', va.cinematic_quality, '') +
+      sec('🙏 Devotional Authenticity', va.devotional_authenticity, '') +
+      sec('⚡ Hook Strength', `${va.hook_strength} — ${va.hook_notes}`, va.hook_strength.includes('Strong') ? '' : 'red') +
+      sec('🎭 Visual Rasa / Emotion', va.visual_emotion, 'lotus') +
+      sec('💡 Improvement Tip', va.improvement_tip, 'saffron');
+    document.getElementById('vidAnalCard').style.display = 'block';
+  }
+
+  async function generateStrategy(deity, title, message, summary, videoCtx) {
+    const prompt = `You are a YouTube growth expert specialising in Sanatan Dharma, Hindu mythology and devotional content for Hindi-speaking Indian and global audiences.
+
+CHANNEL: Sanatan Dharma (working title)
+FORMAT: Animated Hindu mythology stories, devotional cinematic videos, spiritual facts, bhajan/katha
+LANGUAGE: Hindi narration, Sanskrit shlokas, Hindi+English descriptions
+NICHE: Sanatan Dharma · Hindu mythology · Bhakti · Spiritual wisdom
+TARGET AUDIENCE: Hindu devotees aged 18-60, spiritually inclined, deeply connected to Indian culture and mythology. Global Indian diaspora. People seeking meaning through Dharma.
+CREATOR LOCATION: Germany (content for global Hindi-speaking audience)
+PLATFORM: YouTube (Shorts + Long Form)
+GOAL: 1 MILLION subscribers in 12 months
+
+VIDEO DETAILS:
+Deity / Subject: ${deity}
+Story / Title: ${title}
+Video Type: ${videoType === 'short' ? 'YouTube Short (15-60 seconds, 9:16)' : 'Long Form (1-3 minutes, 16:9 or 9:16)'}
+Content Type: ${contentType}
+Mood / Energy: ${mood}
+Spiritual Message / Shloka: ${message || 'not specified'}
+Story Summary: ${summary || 'not provided'}
+${videoCtx}
+
+Generate a complete YouTube strategy in JSON ONLY — no extra text:
+
+{
+  "growth_score": <1-100>,
+  "growth_label": <"Building" | "Good" | "Strong" | "Viral Potential" | "Divine Reach">,
+  "growth_reason": <2 powerful sentences on this video's subscriber growth potential>,
+  "metadata": {
+    "primary_keyword": <most powerful YouTube search keyword>,
+    "secondary_keywords": <5 keywords comma separated>,
+    "search_intent": <what devotees search for that leads to this video>,
+    "rasa": <dominant rasa/emotion — e.g. Bhakti, Veer, Karuna, Shanta>,
+    "content_pillar": <which content pillar this belongs to — e.g. "Leela Stories" / "Puranik Gyan" / "Bhakti Darshan">,
+    "audience_signal": <one sentence describing exactly who will watch and share this>,
+    "best_upload_window": <specific day + IST time e.g. "Friday 7AM IST — auspicious day for Lakshmi content">,
+    "trending_angle": <what trending topic or search this aligns with>
+  },
+  "youtube_short": {
+    "title": <SEO title max 60 chars — powerful, search-optimised, Hindi or English>,
+    "title_hindi": <same title in Hindi Devanagari>,
+    "description": <full short description 80 words — keywords rich, ends with subscribe CTA>,
+    "tags": <20 YouTube tags comma separated — mix of Sanskrit, Hindi, English keywords>,
+    "hook_second": <what must appear in first 1-2 seconds to stop scroll>,
+    "thumbnail_concept": <detailed thumbnail description — deity expression, colors, text overlay>,
+    "end_screen": <what to show in last 2-3 seconds>,
+    "upload_time": <best day and IST time for Shorts with reason>,
+    "hashtags": <8 hashtags for description — space separated>
+  },
+  "youtube_long": {
+    "title": <SEO title max 70 chars — compelling, searchable>,
+    "title_hindi": <same in Hindi>,
+    "description": <full YouTube description 200 words — story summary, keywords, timestamps placeholder, subscribe CTA, social links placeholder>,
+    "tags": <25 YouTube tags comma separated>,
+    "thumbnail_concept": <cinematic thumbnail description — wide format 16:9>,
+    "chapter_suggestions": <3-4 chapter/timestamp titles for long form>,
+    "playlist_name": <which playlist this belongs to>,
+    "end_screen_cta": <end screen cards strategy>,
+    "upload_time": <best day and IST time for long form with reason>,
+    "hashtags": <10 hashtags space separated>
+  },
+  "seo_deep": {
+    "search_volume_keywords": <5 high-search Hindi+English keywords for this deity/topic>,
+    "competitor_gap": <what most channels miss that this video can own>,
+    "title_formula": <the pattern that works for this type of content>,
+    "description_keywords": <10 keywords to naturally weave into description>,
+    "community_post_idea": <a YouTube Community post to publish before or after this video>,
+    "suggested_series": <a 5-video series this video could anchor>
+  },
+  "growth_tips": [
+    {"icon": <emoji>, "title": <tip title>, "tip": <2-3 sentences — specific for Sanatan Dharma 1M goal>}
+  ]
+}
+
+growth_tips must have exactly 7 tips — specific to devotional/mythology YouTube growth. Include tips on: posting on auspicious days, thumbnail psychology for bhakti audience, building a series around deities, collab with pravachankars, YouTube Shorts + Long form funnel, comment engagement strategy for devotees, and one tip on diaspora targeting.`;
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514", max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content.map(i => i.text||'').join('');
+    const r = JSON.parse(text.replace(/```json|```/g,'').trim());
+    render(r);
+  }
+
+  function render(r) {
+    // Score
+    document.getElementById('scoreNum').textContent = r.growth_score;
+    document.getElementById('scoreLabel').textContent = `🔱 ${r.growth_label}`;
+    document.getElementById('scoreReason').textContent = r.growth_reason;
+
+    const ring = document.querySelector('.score-ring');
+    if (r.growth_score >= 80) ring.style.background = 'linear-gradient(135deg, #ffd54f, #ff6f00)';
+    else if (r.growth_score >= 60) ring.style.background = 'linear-gradient(135deg, #ffc107, #ff8f00)';
+    else ring.style.background = 'linear-gradient(135deg, #757575, #424242)';
+
+    // Metadata
+    const m = r.metadata;
+    document.getElementById('metaGrid').innerHTML = `
+      <div class="meta-chip"><div class="meta-lbl">Primary Keyword</div><div class="meta-val">${m.primary_keyword}</div></div>
+      <div class="meta-chip"><div class="meta-lbl">Rasa / Emotion</div><div class="meta-val">${m.rasa}</div></div>
+      <div class="meta-chip"><div class="meta-lbl">Content Pillar</div><div class="meta-val">${m.content_pillar}</div></div>
+      <div class="meta-chip"><div class="meta-lbl">Best Upload Window</div><div class="meta-val">${m.best_upload_window}</div></div>
+      <div class="meta-chip" style="grid-column:1/-1"><div class="meta-lbl">Search Intent</div><div class="meta-val">${m.search_intent}</div></div>
+      <div class="meta-chip" style="grid-column:1/-1"><div class="meta-lbl">Secondary Keywords</div><div class="meta-val">${m.secondary_keywords}</div></div>
+      <div class="meta-chip" style="grid-column:1/-1"><div class="meta-lbl">🎯 Audience Signal</div><div class="meta-val" style="color:var(--lotus)">${m.audience_signal}</div></div>
+      <div class="meta-chip" style="grid-column:1/-1"><div class="meta-lbl">📈 Trending Angle</div><div class="meta-val" style="color:var(--sky)">${m.trending_angle}</div></div>
+    `;
+
+    // Shorts tab
+    const s = r.youtube_short;
+    document.getElementById('tab-short').innerHTML =
+      sec('📝 YouTube Title (English)', s.title, 'saffron', true) +
+      sec('📝 YouTube Title (Hindi)', s.title_hindi, '', true) +
+      sec('📄 Description', s.description, '', true) +
+      tags(s.hashtags) +
+      sec('🏷️ YouTube Tags', s.tags, 'sky', true) +
+      sec('🕐 Best Upload Time', s.upload_time, 'saffron') +
+      sec('⚡ Hook — First 2 Seconds', s.hook_second, 'lotus') +
+      sec('🖼️ Thumbnail Concept', s.thumbnail_concept, '') +
+      sec('🎬 End Screen Strategy', s.end_screen, '');
+
+    // Long form tab
+    const l = r.youtube_long;
+    document.getElementById('tab-long').innerHTML =
+      sec('📝 YouTube Title (English)', l.title, 'saffron', true) +
+      sec('📝 YouTube Title (Hindi)', l.title_hindi, '', true) +
+      sec('📄 Full Description', l.description, '', true) +
+      sec('🏷️ YouTube Tags', l.tags, 'sky', true) +
+      tags(l.hashtags) +
+      sec('🕐 Best Upload Time', l.upload_time, 'saffron') +
+      sec('🖼️ Thumbnail Concept (16:9)', l.thumbnail_concept, '') +
+      sec('📑 Chapter Suggestions', l.chapter_suggestions, 'lotus') +
+      sec('📂 Playlist', l.playlist_name, '') +
+      sec('🎬 End Screen CTA', l.end_screen_cta, '');
+
+    // SEO tab
+    const seo = r.seo_deep;
+    document.getElementById('tab-seo').innerHTML =
+      sec('🔍 High Search Volume Keywords', seo.search_volume_keywords, 'saffron') +
+      sec('💡 Competitor Gap — What You Can Own', seo.competitor_gap, 'lotus') +
+      sec('📐 Title Formula for This Niche', seo.title_formula, '') +
+      sec('🔑 Description Keywords to Weave In', seo.description_keywords, 'sky', true) +
+      sec('📢 Community Post Idea', seo.community_post_idea, '', true) +
+      sec('🎞️ Suggested Video Series', seo.suggested_series, 'saffron');
+
+    // Growth tips tab
+    document.getElementById('tab-growth').innerHTML = (r.growth_tips || []).map(t => `
+      <div class="growth-tip">
+        <div class="tip-icon">${t.icon}</div>
+        <div class="tip-body"><strong>${t.title}</strong>${t.tip}</div>
+      </div>`).join('');
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

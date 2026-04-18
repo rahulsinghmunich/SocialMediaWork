@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Gappu Tool V3.1 — Motion Optimized</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121923; --muted:#8aa0b8; --text:#e8eef5; --line:#223043;
+      --ok:#34d399; --bad:#fb7185; --accent:#3b82f6; --gold:#f59e0b;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:linear-gradient(180deg,#070a0f,#0b0f14); color:var(--text); }
+    header{ padding:16px; border-bottom:1px solid var(--line); position:sticky; top:0;
+      background:rgba(11,15,20,.95); backdrop-filter: blur(8px); z-index:10; }
+    header h1{ margin:0; font-size:15px; display:flex; align-items:center; gap:10px; }
+    .badge{ background:var(--accent); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; }
+    header .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.4; }
+
+    main{ max-width:1240px; margin:0 auto; padding:14px; display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width: 980px){ main{ grid-template-columns:1fr; } }
+
+    .card{ background:rgba(18,25,35,.9); border:1px solid var(--line); border-radius:16px; padding:12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+    label{ display:block; font-size:11px; color:var(--muted); margin:8px 0 4px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+    input[type="text"], input[type="number"], textarea, select{
+      width:100%; padding:10px; border-radius:8px; border:1px solid var(--line);
+      background:#0c121b; color:var(--text); outline:none; transition:border-color 0.2s; font-size:13px;
+    }
+    input:focus, textarea:focus, select:focus{ border-color:var(--accent); }
+    textarea{ min-height:80px; resize:vertical; line-height:1.4; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .row > *{ flex:1; min-width:210px; }
+
+    .btnbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+    button{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,#121923,#0f1620);
+      color:var(--text); padding:8px 12px; border-radius:8px; cursor:pointer;
+      font-weight:700; font-size:12px; transition:all 0.2s;
+    }
+    button:hover{ border-color:#4b5563; transform:translateY(-1px); }
+    .primary{ border-color:#1e3a8a; background:linear-gradient(180deg,#1e3a8a,#172554); color:#dbeafe; }
+    .primary:hover{ border-color:#3b82f6; }
+    .ghost{ background:transparent; border-color:transparent; }
+    .ghost:hover{ background:rgba(255,255,255,0.05); }
+    .danger{ border-color:#7f1d1d; background:linear-gradient(180deg,#450a0a,#450a0a); color:#fca5a5; }
+
+    .asset-row { display: grid; grid-template-columns: 100px 1fr; gap: 8px; margin-bottom: 12px; padding:8px; border:1px dashed var(--line); border-radius:8px; }
+    .asset-meta { display:flex; flex-direction:column; gap:8px; }
+
+    details{ border:1px solid var(--line); border-radius:12px; overflow:hidden; background:rgba(12,18,27,.65); transition:background 0.2s; }
+    details[open]{ background:rgba(12,18,27,0.9); border-color:var(--accent); }
+    details + details{ margin-top:10px; }
+    summary{ list-style:none; cursor:pointer; padding:12px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    summary::-webkit-details-marker{ display:none; }
+    .sumTitle{ font-weight:800; font-size:13px; }
+    .sumMeta{ color:var(--muted); font-size:12px; margin-top:2px; }
+    .pill{ font-size:10px; padding:2px 6px; border-radius:4px; border:1px solid var(--line);
+      color:var(--muted); background:rgba(0,0,0,.3); white-space:nowrap; }
+    .sceneBody{ padding:12px; border-top:1px solid var(--line); }
+
+    .two{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .three{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    
+    .hintBox{ border:1px dashed #2b3b52; border-radius:14px; padding:10px; background:rgba(0,0,0,.2);
+      color:var(--muted); font-size:12px; }
+    .stickyRight{ position:sticky; top:86px; }
+    .smallBtn{ padding:6px 10px; font-size:11px; }
+    
+    .magic-text { color: #60a5fa; font-size: 11px; margin-top: 4px; font-style: italic;}
+    .triggered-tag { color: var(--gold); font-size:11px; font-weight:bold; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Gappu Tool V3.1 <span class="badge">Motion Optimized</span></h1>
+  <div class="sub">
+    ✅ <b>Smart Triggers:</b> Assets (Papa, Hut) injected into IMAGE Prompt.<br>
+    ✨ <b>Clean Motion:</b> Video Prompts now EXCLUDE heavy locks to rely on the Reference Image.
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="row">
+      <div>
+        <label>Project Title</label>
+        <input id="p_title" type="text" placeholder="Gappu Project"/>
+      </div>
+      <div>
+        <label>Aspect Ratio</label>
+        <select id="p_format">
+          <option>Vertical 9:16 (1080×1920)</option>
+          <option>Horizontal 16:9 (1920×1080)</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:20px; margin-bottom:10px; border-bottom:1px solid var(--line); padding-bottom:5px;">
+        <label style="color:var(--accent);">GLOBAL RULES (Always Active)</label>
+    </div>
+    
+    <label>Main Character (Always Active in Image)</label>
+    <textarea id="p_charLock" class="mono" placeholder="Gappu description..."></textarea>
+    
+    <div class="row">
+        <div>
+            <label>Global Style Rules</label>
+            <textarea id="p_imgRules" class="mono" placeholder="Roger Rabbit effect, cinematic lighting..."></textarea>
+        </div>
+        <div>
+            <label>Global Motion Rules</label>
+            <textarea id="p_motRules" class="mono" placeholder="Realistic physics, 24fps..."></textarea>
+        </div>
+    </div>
+    <label>Negative Prompt</label>
+    <input type="text" id="p_neg" placeholder="cartoon, text, watermark..."/>
+
+
+    <div style="margin-top:30px; margin-bottom:10px; border-bottom:1px solid var(--line); padding-bottom:5px;">
+        <label style="color:var(--gold);">SMART ASSET LIBRARY (Image Only)</label>
+        <div style="font-size:11px; color:var(--muted);">These visual details will be added to the IMAGE prompt but <b>excluded</b> from Motion prompts.</div>
+    </div>
+
+    <div id="assetContainer">
+        </div>
+
+    <div class="hintBox" style="margin-top:20px;">
+      <b>Instructions:</b> Paste script below. <br>
+      <i>Scene 1: Title</i> / <i>Shot: ...</i> / <i>Env: ...</i> / <i>Char: ...</i> / <i>Action: ...</i>
+    </div>
+
+    <label style="margin-top:10px;">Paste Raw Script</label>
+    <textarea id="bulk" class="mono" placeholder="Scene 1: ..."></textarea>
+
+    <div class="btnbar">
+      <button class="primary" id="parseBtn">⚡ Create Scenes & Auto-Trigger</button>
+      <button class="ghost" id="clearBtn">Clear All</button>
+      <span class="tag">Scenes: <strong id="sceneCount">0</strong></span>
+    </div>
+  </section>
+
+  <aside class="card stickyRight">
+    <div class="btnbar">
+      <button class="primary" id="copyAllMdBtn">Copy All (Markdown)</button>
+      <button id="downloadJsonBtn">Save Project</button>
+      <button class="ghost" id="regenAllBtn">↻ Re-Generate All</button>
+    </div>
+
+    <label>Full Output Preview</label>
+    <textarea id="allOut" class="mono"></textarea>
+    <div style="margin-top:12px;" id="sceneList"></div>
+  </aside>
+</main>
+
+<script>
+(() => {
+  const LS_KEY = "gappu_tool_v3.1";
+  const $ = (id)=>document.getElementById(id);
+
+  // --- EMOTION ENGINE ---
+  const EMOTION_MAP = {
+    "sad": "glossy eyes, heavy eyelids, quivering lip, subtle downward gaze, micro-tremors in facial muscles.",
+    "happy": "bright sparkling eyes, raised cheeks, soft smile, relaxed ears, warm glowing expression.",
+    "shock": "wide dilated eyes, mouth slightly agape, ears pulled back, frozen posture.",
+    "fear": "trembling, eyes wide with white showing, ears pinned flat, cowering posture.",
+    "anger": "furrowed brows, intense piercing stare, bared teeth, tensed jaw.",
+    "love": "soft affectionate gaze, slow blinking, gentle smile, head tilted.",
+    "hope": "eyes looking upward, slight smile, ears perked up, longing expression.",
+    "urgency": "intense focus, rapid movement blur, sweat beads, forward leaning posture."
+  };
+
+  function getEmotionDetails(keyword) {
+    if (!keyword) return "";
+    const k = keyword.toLowerCase().trim();
+    const match = Object.keys(EMOTION_MAP).find(key => k.includes(key));
+    return match ? EMOTION_MAP[match] : "";
+  }
+
+  // --- DEFAULT STATE ---
+  const defaultProject = {
+    title: "Gappu Project",
+    format: "Vertical 9:16 (1080×1920)",
+    charLock: "CHARACTER LOCK [GAPPU]: Stylized 3D monkey, toddler size (2.5ft), white kurta & dhoti. Neotenous features.",
+    imgRules: "CONTRAST STYLE LOCK: 'Roger Rabbit effect' -> Environment 100% Realistic, Character 100% Stylized.",
+    motRules: "Realistic physics, cinematic camera movement, 24fps.",
+    neg: "cartoon, illustration, text, watermark.",
+    // SMART ASSETS (8 Slots)
+    assets: [
+        { name: "Papa Monkey", triggers: "papa, father, dad", content: "CHARACTER LOCK [PAPA]: Older, larger, graying muzzle. Worn beige kurta, red gamcha. Expression: Kind, tired." },
+        { name: "Bus Conductor", triggers: "conductor, bus driver", content: "CHARACTER LOCK [CONDUCTOR]: Angry human male, khaki uniform, sweating, aggressive expression." },
+        { name: "Night Scene", triggers: "night, dark, evening", content: "SCENARIO LOCK [NIGHT]: Dark blue ambient lighting, moonlight, high contrast shadows, cinematic noir feel." },
+        { name: "Busy Station", triggers: "station, railway, train", content: "ENVIRONMENT LOCK [STATION]: Crowded Indian railway platform, steam, dust, chaotic movement, vendors in background." },
+        { name: "The Hut", triggers: "hut, cot, home", content: "ENVIRONMENT LOCK [HUT]: Interior poor mud hut, dim ambient lighting, woven charpai (cot)." },
+        { name: "The Bus", triggers: "bus", content: "ENVIRONMENT LOCK [BUS]: Inside a moving Indian city bus, rattling metal textures, crowded with human passengers." },
+        { name: "", triggers: "", content: "" },
+        { name: "", triggers: "", content: "" }
+    ]
+  };
+
+  let state = loadState() || { project: defaultProject, scenes: [] };
+
+  function uid(){ return Math.random().toString(16).slice(2); }
+  function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||""); }catch{ return null; } }
+  function saveDebounced(){ setTimeout(()=> localStorage.setItem(LS_KEY, JSON.stringify(state)), 250); }
+  
+  // --- ASSET UI BUILDER ---
+  function renderAssets() {
+    const container = $("assetContainer");
+    container.innerHTML = state.project.assets.map((a, i) => `
+        <div class="asset-row">
+            <div class="asset-meta">
+                <input type="text" placeholder="Name (e.g. Papa)" value="${a.name}" oninput="updateAsset(${i}, 'name', this.value)">
+                <input type="text" placeholder="Triggers" value="${a.triggers}" oninput="updateAsset(${i}, 'triggers', this.value)" style="color:var(--gold); font-weight:bold;">
+            </div>
+            <textarea placeholder="Description (Image Only)..." oninput="updateAsset(${i}, 'content', this.value)">${a.content}</textarea>
+        </div>
+    `).join("");
+  }
+  window.updateAsset = (i, key, val) => { state.project.assets[i][key] = val; saveDebounced(); };
+
+  // --- BUILDERS ---
+  function getTriggeredAssets(sceneText) {
+    const hits = [];
+    const lowerText = sceneText.toLowerCase();
+    state.project.assets.forEach(a => {
+        if(!a.triggers || !a.content) return;
+        const trigs = a.triggers.split(",").map(t=>t.trim().toLowerCase()).filter(Boolean);
+        if(trigs.some(t => lowerText.includes(t))) {
+            hits.push(a.content);
+        }
+    });
+    return hits;
+  }
+
+  function buildImagePrompt(scene){
+    const p = state.project;
+    const emoDetail = getEmotionDetails(scene.emotion);
+    const emotionString = scene.emotion + (emoDetail ? ` (${emoDetail})` : "");
+
+    // 1. Image gets EVERYTHING (Assets + Local Context)
+    const fullText = `${scene.title} ${scene.action} ${scene.charLocal} ${scene.envLocal}`;
+    const triggeredContent = getTriggeredAssets(fullText).join("\n");
+
+    const dynamicContext = [scene.charLocal, scene.envLocal, triggeredContent].filter(Boolean).join("\n\n");
+
+    return [
+      `ASPECT: ${p.format}`,
+      `SUBJECT (ALWAYS ACTIVE): ${p.charLock}`,
+      `SCENE CONTEXT & ASSETS: ${dynamicContext}`,
+      `SCENE TITLE: ${scene.title}`,
+      `ACTION: ${scene.action}`,
+      `EMOTION: ${emotionString}`,
+      `CAMERA: ${scene.shot}`,
+      `STYLE RULES: ${p.imgRules}`, 
+      `NEGATIVE: ${p.neg}`
+    ].join("\n\n");
+  }
+
+  function buildMotionPrompt(scene){
+    const p = state.project;
+    const emoDetail = getEmotionDetails(scene.emotion);
+    const performance = scene.emotion ? `Emotion: ${scene.emotion}. Acting: ${emoDetail}` : "";
+    
+    // 2. Motion gets ONLY Local Context (Env/Char details), NOT the heavy Asset Locks
+    // We intentionally DO NOT call getTriggeredAssets here.
+    
+    const contextLines = [scene.title, scene.envLocal, scene.charLocal].filter(Boolean).join(". ");
+
+    return [
+      `VIDEO PROMPT: ${p.format}, 5s, 24fps.`,
+      `CONTEXT: ${contextLines}`, // No "Character Lock" blocks here!
+      `REFERENCE IMAGE: Start frame. Maintain consistency.`,
+      `ACTION: ${scene.action}`,
+      `${performance}`,
+      `CAMERA: ${scene.shot}`,
+      `PHYSICS: ${p.motRules}`,
+      `NEGATIVE: ${p.neg}`
+    ].join("\n\n");
+  }
+
+  function regenerateScene(s){
+    s.imagePrompt = buildImagePrompt(s);
+    s.motionPrompt = buildMotionPrompt(s);
+  }
+
+  // --- PARSER ---
+  function parseScenes(text){
+    const rawScenes = text.match(/Scene\s*\d+[\s\S]*?(?=Scene\s*\d+|$)/gi) || [];
+    return rawScenes.map((block, i) => {
+      const getVal = (tags) => {
+        const tagList = Array.isArray(tags) ? tags : [tags];
+        for(let t of tagList) {
+            const m = block.match(new RegExp(t + "\\s*[:\\-]\\s*([^\\n]+)", "i"));
+            if(m) return m[1].trim();
+        } return "";
+      };
+
+      let titleLine = block.match(/Scene\s*\d+[:\-](.+)/i);
+      let title = titleLine ? titleLine[1].trim() : `Scene ${i+1}`;
+      let action = block.replace(/Scene.*|Shot.*|Emotion.*|Env.*|Char.*|Outfit.*/gi, "").trim();
+      
+      return {
+        id: uid(),
+        open: false,
+        sceneNo: i+1,
+        title: title,
+        shot: getVal("Shot"),
+        emotion: getVal("Emotion"),
+        action: action,
+        charLocal: getVal(["Scene Char", "Char"]),
+        envLocal: getVal(["Scene Env", "Env"]),
+        imagePrompt: "",
+        motionPrompt: ""
+      };
+    });
+  }
+
+  // --- UI RENDERING ---
+  function render(){
+    $("p_title").value = state.project.title;
+    $("p_charLock").value = state.project.charLock;
+    $("p_imgRules").value = state.project.imgRules;
+    $("p_motRules").value = state.project.motRules;
+    $("p_neg").value = state.project.neg;
+    
+    renderAssets();
+
+    $("sceneCount").innerText = state.scenes.length;
+    $("sceneList").innerHTML = state.scenes.map((s, i) => {
+        // Trigger calc for preview tag
+        const fullText = `${s.title} ${s.action} ${s.charLocal} ${s.envLocal}`;
+        const hits = [];
+        state.project.assets.forEach(a => {
+            if(a.triggers && a.triggers.split(",").some(t=>fullText.toLowerCase().includes(t.trim().toLowerCase()))) hits.push(a.name);
+        });
+        const hitTag = hits.length ? `<span class="triggered-tag">✨ Image Assets: ${hits.join(", ")}</span>` : "";
+
+        return `
+      <details data-id="${s.id}" ${s.open ? "open" : ""}>
+        <summary>
+          <div>
+            <span class="sumTitle">#${s.sceneNo} ${s.title}</span>
+            <div class="sumMeta">${hitTag}</div>
+          </div>
+          <button class="smallBtn ghost" data-act="del">×</button>
+        </summary>
+        <div class="sceneBody">
+          <div class="two">
+            <div><label>Title</label><input type="text" data-k="title" value="${s.title||""}"></div>
+            <div><label>Emotion</label><input type="text" data-k="emotion" value="${s.emotion||""}"></div>
+          </div>
+          <label>Action</label><textarea data-k="action" style="min-height:50px">${s.action||""}</textarea>
+          
+           <div class="extra-panel">
+            <div class="two">
+                <div><label>Scene Char (Added to Motion)</label><input type="text" data-k="charLocal" value="${s.charLocal||""}"></div>
+                <div><label>Scene Env (Added to Motion)</label><input type="text" data-k="envLocal" value="${s.envLocal||""}"></div>
+            </div>
+          </div>
+
+          <div class="btnbar">
+             <button class="smallBtn primary" data-act="regen">↻ Update</button>
+             <button class="smallBtn" data-act="cpImg">Copy Img</button>
+             <button class="smallBtn" data-act="cpMot">Copy Mot</button>
+          </div>
+          <div class="two" style="margin-top:10px;">
+            <div><textarea class="mono" readonly>${s.imagePrompt}</textarea></div>
+            <div><textarea class="mono" readonly>${s.motionPrompt}</textarea></div>
+          </div>
+        </div>
+      </details>
+    `}).join("");
+
+    let md = `# ${state.project.title}\n\n`;
+    state.scenes.forEach(s => {
+      md += `### Scene ${s.sceneNo}\n\`\`\`\n${s.imagePrompt}\n\`\`\`\n\`\`\`\n${s.motionPrompt}\n\`\`\`\n\n`;
+    });
+    $("allOut").value = md;
+    
+    document.querySelectorAll("input, textarea, select").forEach(el => {
+        if(el.parentElement.className.includes("asset")) return;
+        el.oninput = (e) => {
+            const id = e.target.closest("details")?.dataset.id;
+            if(id) { state.scenes.find(x=>x.id===id)[e.target.dataset.k] = e.target.value; } 
+            else if (e.target.id.startsWith("p_")) { state.project[e.target.id.replace("p_", "")] = e.target.value; }
+            saveDebounced();
+        };
+    });
+  }
+
+  $("parseBtn").onclick = () => {
+    const txt = $("bulk").value;
+    if(!txt) return alert("Paste script first!");
+    const newScenes = parseScenes(txt);
+    newScenes.forEach(s => regenerateScene(s));
+    state.scenes = newScenes;
+    render();
+    saveDebounced();
+  };
+
+  $("sceneList").onclick = (e) => {
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    const id = e.target.closest("details").dataset.id;
+    const s = state.scenes.find(x => x.id === id);
+    if(btn.dataset.act === "del") state.scenes = state.scenes.filter(x => x.id !== id);
+    else if (btn.dataset.act === "regen") regenerateScene(s);
+    else if (btn.dataset.act === "cpImg") navigator.clipboard.writeText(s.imagePrompt);
+    else if (btn.dataset.act === "cpMot") navigator.clipboard.writeText(s.motionPrompt);
+    render(); saveDebounced();
+  };
+
+  $("clearBtn").onclick = () => { state.scenes = []; render(); };
+  $("copyAllMdBtn").onclick = () => navigator.clipboard.writeText($("allOut").value);
+  $("regenAllBtn").onclick = () => { state.scenes.forEach(regenerateScene); render(); };
+
+  render();
+})();
+</script>
+</body>
+</html>

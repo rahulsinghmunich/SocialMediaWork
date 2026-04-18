@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kidney VEO Prompt Selector</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080A0F;
+  --sf: #0E1117;
+  --cd: #151921;
+  --bd: #1E2530;
+  --fire: #FF4D1A;
+  --fg: rgba(255,77,26,.12);
+  --fd: #CC3300;
+  --em: #FF8C42;
+  --gold: #FFD166;
+  --gr: #10B981;
+  --tx: #E8ECF1;
+  --mu: #6B7A8D;
+  --ui: 'Space Grotesk', sans-serif;
+  --mo: 'JetBrains Mono', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--tx);
+  font-family: var(--ui);
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 600px 400px at 20% 10%, rgba(255,77,26,.04), transparent),
+              radial-gradient(ellipse 400px 300px at 80% 90%, rgba(34,211,238,.03), transparent);
+  pointer-events: none;
+}
+.w {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 24px 100px;
+}
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--fg);
+  border: 1px solid var(--fire);
+  border-radius: 100px;
+  padding: 6px 18px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  color: var(--fire);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+  background: linear-gradient(135deg, #fff 40%, var(--fire));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.sub {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--mu);
+}
+.sub b { color: var(--fire); }
+
+/* Scene Selector */
+.scene-selector {
+  background: var(--cd);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.selector-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  color: var(--fire);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.scene-btn {
+  background: var(--sf);
+  border: 2px solid var(--bd);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+.scene-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--fire), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.scene-btn:hover {
+  border-color: var(--fire);
+  background: var(--fg);
+}
+.scene-btn:hover::before { opacity: 1; }
+.scene-btn.active {
+  border-color: var(--fire);
+  background: var(--fg);
+}
+.scene-btn.active::before { opacity: 1; }
+.scene-num {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--mu);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  margin-bottom: 6px;
+}
+.scene-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tx);
+  line-height: 1.3;
+}
+.scene-meta {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--mu);
+}
+
+/* Prompt Display */
+.prompt-card {
+  background: var(--cd);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 24px;
+  display: none;
+}
+.prompt-card.on { display: block; }
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gr);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dp {
+  width: 7px;
+  height: 7px;
+  background: var(--gr);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--fire);
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-family: var(--ui);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.copy-btn:hover {
+  background: var(--fd);
+  transform: translateY(-1px);
+}
+.copy-btn:active { transform: translateY(0); }
+.copy-btn.copied {
+  background: var(--gr);
+  color: #000;
+}
+.prompt-box {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 20px;
+  font-family: var(--mo);
+  font-size: 12px;
+  line-height: 1.8;
+  color: #D4D4D4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.prompt-box::-webkit-scrollbar { width: 5px; }
+.prompt-box::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 3px; }
+
+/* Scene Info */
+.scene-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--bd);
+}
+.info-item {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 12px;
+}
+.info-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--mu);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.info-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tx);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--mu);
+}
+.empty-state p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--gr);
+  color: #000;
+  font-family: var(--ui);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 22px;
+  border-radius: 100px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1000;
+}
+.toast.on {
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 600px) {
+  .w { padding: 20px 14px 80px; }
+  .scene-grid { grid-template-columns: 1fr; }
+  .card-header { flex-direction: column; align-items: flex-start; }
+  .copy-btn { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+<div class="w">
+  <header>
+    <div class="badge">🎬 VEO Prompt Tool</div>
+    <h1>VEO Prompt Selector</h1>
+    <p class="sub">Select a JSON file to load scenes, then click to copy <b>final_compact_prompt_for_veo</b></p>
+  </header>
+
+  <!-- FILE UPLOAD -->
+  <div class="scene-selector">
+    <label class="selector-label">📂 Step 1: Load JSON File</label>
+    <div class="imgup" style="border-color:var(--fire);background:var(--fg)">
+      <div class="txt">Click to <b>select VEO prompts JSON file</b></div>
+      <input type="file" id="jsonFile" accept=".json" onchange="loadJsonFile(event)"/>
+    </div>
+    <div id="fileStatus" style="margin-top:12px;font-size:12px;color:var(--mu);display:none">
+      <span style="color:var(--gr)">✅</span> Loaded: <b id="fileName" style="color:var(--tx)"></b>
+    </div>
+  </div>
+
+  <!-- SCENE SELECTOR -->
+  <div class="scene-selector" id="sceneSelector" style="display:none">
+    <label class="selector-label">🎬 Step 2: Select Scene</label>
+    <div class="scene-grid" id="sceneGrid"></div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <p>👆 Select a scene from above to view its VEO prompt</p>
+  </div>
+
+  <div class="prompt-card" id="promptCard">
+    <div class="card-header">
+      <div class="card-title">
+        <span class="dp"></span>
+        <span id="promptTitle">Scene Title</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="copy-btn" id="copyFullBtn" onclick="copyFullScene()" style="background:var(--gold);color:#000">
+          📋 Copy Full Scene JSON
+        </button>
+        <button class="copy-btn" id="copyPromptBtn" onclick="copyPrompt()">
+          📋 Copy Prompt Only
+        </button>
+      </div>
+    </div>
+    <div class="prompt-box" id="promptBox"></div>
+    
+    <div class="scene-info" id="sceneInfo"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Copied to clipboard!</div>
+
+<script>
+let scenes = [];
+let currentScene = null;
+
+// Load JSON file from file input
+function loadJsonFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      
+      // Check if it has scenes array
+      if (!data.scenes || !Array.isArray(data.scenes)) {
+        alert('❌ Invalid JSON format. File must have a "scenes" array.');
+        return;
+      }
+
+      scenes = data.scenes;
+      
+      // Update file status
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileStatus').style.display = 'block';
+      
+      // Show scene selector
+      document.getElementById('sceneSelector').style.display = 'block';
+      
+      // Render scenes
+      renderSceneGrid();
+      
+      // Hide empty state
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('promptCard').classList.remove('on');
+      
+    } catch (err) {
+      console.error('Error parsing JSON:', err);
+      alert('❌ Error parsing JSON file. Please check the file format.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function renderSceneGrid() {
+  const grid = document.getElementById('sceneGrid');
+  grid.innerHTML = scenes.map(scene => `
+    <div class="scene-btn" onclick="selectScene(${scene.scene - 1})">
+      <div class="scene-num">Scene ${scene.scene}</div>
+      <div class="scene-title">${scene.title}</div>
+      <div class="scene-meta">
+        ${scene.duration_seconds}s • ${scene.aspect_ratio} • ${scene.style.split(',')[0]}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectScene(index) {
+  currentScene = scenes[index];
+  
+  // Update active state
+  document.querySelectorAll('.scene-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === index);
+  });
+  
+  // Hide empty state, show prompt card
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('promptCard').classList.add('on');
+  
+  // Update title
+  document.getElementById('promptTitle').textContent = `${currentScene.title} (Scene ${currentScene.scene})`;
+  
+  // Update prompt box
+  document.getElementById('promptBox').textContent = currentScene.final_compact_prompt_for_veo;
+  
+  // Update scene info
+  document.getElementById('sceneInfo').innerHTML = `
+    <div class="info-item">
+      <div class="info-label">Duration</div>
+      <div class="info-value">${currentScene.duration_seconds} seconds</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Aspect Ratio</div>
+      <div class="info-value">${currentScene.aspect_ratio}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Word Count</div>
+      <div class="info-value">${currentScene.density_check.total_words} words</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Speech Pace</div>
+      <div class="info-value">${currentScene.density_check.status}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Model</div>
+      <div class="info-value">${currentScene.model_target}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Generation Mode</div>
+      <div class="info-value">${currentScene.generation_mode}</div>
+    </div>
+  `;
+  
+  // Reset copy button
+  const copyBtn = document.getElementById('copyBtn');
+  copyBtn.classList.remove('copied');
+  copyBtn.innerHTML = '📋 Copy Prompt';
+}
+
+function copyFullScene() {
+  if (!currentScene) return;
+  
+  const fullSceneJson = JSON.stringify(currentScene, null, 2);
+  
+  navigator.clipboard.writeText(fullSceneJson).then(() => {
+    const copyBtn = document.getElementById('copyFullBtn');
+    copyBtn.classList.add('copied');
+    copyBtn.innerHTML = '✅ Copied Full Scene!';
+    
+    // Show toast
+    const toast = document.getElementById('toast');
+    toast.classList.add('on');
+    setTimeout(() => toast.classList.remove('on'), 2000);
+    
+    // Reset button after 2 seconds
+    setTimeout(() => {
+      copyBtn.classList.remove('copied');
+      copyBtn.innerHTML = '📋 Copy Full Scene JSON';
+    }, 2000);
+  }).catch(err => {
+    console.error('Copy failed:', err);
+    alert('Failed to copy to clipboard. Please select and copy manually.');
+  });
+}
+
+function copyPrompt() {
+  if (!currentScene) return;
+  
+  navigator.clipboard.writeText(currentScene.final_compact_prompt_for_veo).then(() => {
+    const copyBtn = document.getElementById('copyPromptBtn');
+    copyBtn.classList.add('copied');
+    copyBtn.innerHTML = '✅ Copied!';
+    
+    // Show toast
+    const toast = document.getElementById('toast');
+    toast.classList.add('on');
+    setTimeout(() => toast.classList.remove('on'), 2000);
+    
+    // Reset button after 2 seconds
+    setTimeout(() => {
+      copyBtn.classList.remove('copied');
+      copyBtn.innerHTML = '📋 Copy Prompt Only';
+    }, 2000);
+  }).catch(err => {
+    console.error('Copy failed:', err);
+    alert('Failed to copy to clipboard. Please select and copy manually.');
+  });
+}
+
+// Initialize
+loadScenes();
+</script>
+</body>
+</html>

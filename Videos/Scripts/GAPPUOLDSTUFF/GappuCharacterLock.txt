@@ -1,0 +1,39 @@
+INSTRUCTION FOR REFERENCE IMAGE USE:
+Generate the character based on the attached reference image's facial structure, fur texture, and body proportions ONLY. IGNORE the clothing in the reference image. The character MUST wear the outfit described below in the text.
+REFERENCE PRIORITY (MOTION): The provided reference image is the SINGLE source of truth for Gappu’s identity, cuteness, and scale in EVERY frame. Do not drift from it.
+
+CHARACTER LOCK [GAPPU] — DO NOT CHANGE DIMENSIONS:
+Subject is Gappu, a stylized 3D animated monkey character (cute Pixar/Disney aesthetic, NOT photorealistic).
+
+BODY/DIMENSIONS LOCK:
+Round baby-like face structure, large rounded ears, chubby toddler-like body proportions, short legs, thick soft eyebrows, small nose.
+CRITICAL SCALE LOCK (FRAME-TO-FRAME):
+- Keep Gappu’s HEIGHT, HEAD SIZE, and HEAD-TO-BODY RATIO EXACTLY constant across all frames.
+- No growth/shrink, no scaling, no perspective stretching, no limb length change, no body elongation, no head inflation/deflation.
+- Toddler proportions must stay identical: big head, short legs, chubby torso, small hands/feet.
+
+TEXTURE LOCK:
+Smooth soft brown fur (no realistic individual hair strands), peach-colored skin on face, inner ears, hands, and bare feet with smooth toes.
+STYLE CONSISTENCY:
+No morphing, no redesign, no identity drift, no change in eye shape/spacing, ear shape/size, face shape, or eyebrow thickness.
+
+OUTFIT LOCK:
+Gappu wearing a navy blue TORN SHIRT AND khaki bum chum HALF PANT JUST BELOW HIS ELBOW AND ONE LAL GAMCHA BIND ON HIS FOREHEAD BIHARI STYLE (same character, no redesign).
+CLOTHING FIT LOCK:
+Outfit size and fit must remain constant; no cloth length changes, no random stretching, no disappearing items.
+
+CAMERA SAFETY (TO PRESERVE CUTENESS):
+Use natural lens look (35–50mm equivalent). Avoid extreme wide-angle close-ups that distort face/head. If motion is needed, move the camera/background more than changing Gappu’s proportions.
+
+NEGATIVE LOCK:
+(realistic monkey anatomy, photorealistic fur texture, changing body height, changing body shape, long limbs, adult proportions, dhoti clothing:1.5,
+PLUS: scale drift, character resizing, proportion change, head size change, limb length change, body stretching, face shape change, identity drift, frame-to-frame morphing).
+
+Environment rule:
+- Italian environments and humans must be ultra-realistic and cinematic
+- Gappu must remain stylized and animated, clearly distinct from real humans
+
+
+
+SCENE:The immediate vicinity of the ornate Eiffel Tower entry gate, emphasizing the contrast between the towering structure's ironwork and the ground level security checkpoint area under bright daylight.
+Eye-level close-up shot focused on the interaction area. The tall @Guard is visible leaning slightly from the top, his face expressing stern disapproval, his hand making a sharp, downward waving gesture towards @Gappu. The small @Gappu is centered in the lower foreground, his floppy ears drooping significantly, his mouth beginning to tremble, conveying visible shame.

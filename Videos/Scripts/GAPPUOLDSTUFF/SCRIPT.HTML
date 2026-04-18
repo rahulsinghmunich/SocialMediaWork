@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>script.html — Gappu Shot Planner (Typing Fixed)</title>
+  <style>
+    :root { --bg:#0b0f14; --card:#121923; --muted:#8aa0b8; --text:#e8eef5; --line:#223043; --ok:#34d399; --bad:#fb7185; }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:linear-gradient(180deg,#070a0f,#0b0f14); color:var(--text); }
+    header{ padding:16px; border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(11,15,20,.92); backdrop-filter: blur(8px); z-index:5; }
+    header h1{ margin:0; font-size:15px; }
+    header .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.4; }
+    main{ max-width:1150px; margin:0 auto; padding:14px; display:grid; grid-template-columns: 1.15fr .85fr; gap:12px; }
+    @media (max-width: 980px){ main{ grid-template-columns:1fr; } }
+    .card{ background:rgba(18,25,35,.9); border:1px solid var(--line); border-radius:16px; padding:12px; }
+    label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
+    input[type="text"], textarea, select, input[type="number"]{
+      width:100%; padding:10px; border-radius:12px; border:1px solid var(--line);
+      background:#0c121b; color:var(--text); outline:none;
+    }
+    textarea{ min-height:90px; resize:vertical; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .row > *{ flex:1; min-width:200px; }
+    .btnbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+    button{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,#121923,#0f1620);
+      color:var(--text); padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:800; font-size:12px;
+    }
+    button:hover{ border-color:#2f425d; }
+    .primary{ border-color:#2b4a61; background:linear-gradient(180deg,#0f2230,#0e1a24); }
+    .danger{ border-color:#5a2230; background:linear-gradient(180deg,#2b0f18,#1a0b10); color:#ffd5de; }
+    .tag{ display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:12px; }
+    .tag strong{ color:var(--text); }
+    .mini{ font-size:11px; color:var(--muted); line-height:1.4; }
+    .hr{ height:1px; background:var(--line); margin:12px 0; }
+    details{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:rgba(12,18,27,.65); }
+    details + details{ margin-top:10px; }
+    summary{ list-style:none; cursor:pointer; padding:12px; display:flex; justify-content:space-between; gap:10px; }
+    summary::-webkit-details-marker{ display:none; }
+    .pill{ font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); background:rgba(0,0,0,.18); white-space:nowrap; }
+    .sumTitle{ font-weight:950; font-size:13px; }
+    .sumMeta{ color:var(--muted); font-size:12px; margin-top:2px; }
+    .sceneBody{ padding:12px; }
+    .two{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .three{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    @media (max-width: 800px){ .three{ grid-template-columns:1fr; } }
+    @media (max-width: 650px){ .two{ grid-template-columns:1fr; } }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .checkboxRow{ display:flex; gap:8px; align-items:center; padding:8px 10px; border:1px solid var(--line); border-radius:12px; background:rgba(0,0,0,.12); color:var(--muted); font-size:12px; user-select:none; }
+    .checkboxRow input{ width:auto; }
+    .hidden{ display:none !important; }
+    .hintBox{ border:1px dashed #2b3b52; border-radius:14px; padding:10px; background:rgba(0,0,0,.12); }
+    .stickyRight{ position:sticky; top:86px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>script.html — Shot Planner (Typing Fixed + Optional Other Character)</h1>
+  <div class="sub">
+    ✅ No focus loss while typing. Other character is optional (OFF by default). Emotion map generates once + locks.
+  </div>
+</header>
+
+<main>
+  <!-- LEFT -->
+  <section class="card">
+    <div class="row">
+      <div>
+        <label>Project Title</label>
+        <input id="p_title" type="text" placeholder="Gappu Rescue — Chitrakoot Waterfalls" />
+      </div>
+      <div>
+        <label>Default Location</label>
+        <input id="p_location" type="text" placeholder="Chitrakoot Waterfalls, Chhattisgarh, India" />
+      </div>
+    </div>
+
+    <div class="two">
+      <div>
+        <label>Universal Character Lock (GLOBAL)</label>
+        <textarea id="p_lock" class="mono" placeholder="Paste Gappu character lock here..."></textarea>
+      </div>
+      <div>
+        <label>Global Negative Prompt (GLOBAL)</label>
+        <textarea id="p_neg" class="mono" placeholder="No redesign, no photoreal anatomy change, no cartoon flat environment..."></textarea>
+      </div>
+    </div>
+
+    <label>Global Direction Rules (GLOBAL)</label>
+    <textarea id="p_dir" class="mono" placeholder="Emotion-first: emotion → micro body language → camera. Controlled stillness. No fast motion unless needed. Vertical 9:16."></textarea>
+
+    <div class="hr"></div>
+
+    <label>Paste rough draft here (scene 1 / front view / emotion...)</label>
+    <textarea id="bulk" class="mono" placeholder="Paste your full draft..."></textarea>
+
+    <div class="btnbar">
+      <button class="primary" id="parseBtn">⚡ Auto-Create Scenes</button>
+      <button class="danger" id="clearScenesBtn">Clear Scenes</button>
+
+      <label class="checkboxRow" style="margin:0;">
+        <input type="checkbox" id="minimalMode" checked />
+        Minimal Mode (fewer fields)
+      </label>
+
+      <label class="checkboxRow" style="margin:0;">
+        <input type="checkbox" id="autoFillEmotionMap" checked />
+        Auto-fill Emotion Map (once)
+      </label>
+
+      <span class="tag">Scenes: <strong id="sceneCount">0</strong></span>
+      <span class="tag">Autosave: <strong style="color:var(--ok)">ON</strong></span>
+    </div>
+
+    <div class="hr"></div>
+    <div id="scenes"></div>
+  </section>
+
+  <!-- RIGHT -->
+  <aside class="card stickyRight">
+    <div class="btnbar">
+      <button class="primary" id="exportMdBtn">Generate Markdown</button>
+      <button class="primary" id="exportJsonBtn">Generate JSON</button>
+      <button id="copyBtn">Copy Output</button>
+      <button id="downloadBtn">Download</button>
+    </div>
+
+    <label>Output</label>
+    <textarea id="output" class="mono" placeholder="Generate Markdown/JSON..."></textarea>
+
+    <div class="hr"></div>
+    <div class="hintBox mini">
+      <b>Now typing is smooth.</b><br/>
+      Other Character stays hidden unless you enable it per scene.
+    </div>
+  </aside>
+</main>
+
+<script>
+(() => {
+  const LS_KEY = "gappu_script_html_typing_fixed_v1";
+  const $ = (id)=>document.getElementById(id);
+
+  const shotTypes = ["Front view","Side view","Back view","Top aerial","Close-up","Wide","POV (Gappu)","POV (Girl)","Over-shoulder"];
+  const moods = ["Calm","Tense","Panic","Hope","Relief","Joy","Sadness","Triumph","Struggle","Awe","Fear","Shock"];
+
+  const emotionMapTemplate = {
+    "Panic":   "PANIC → wide eyes + eyebrows raised + tiny shaky hands → quick push-in to face, water roar SFX",
+    "Tense":   "TENSE → frozen body + micro breathing + stiff shoulders → steady hold, slow push-in",
+    "Struggle":"STRUGGLE → clenched jaw + shaking arms + wet blinking → medium tight + water spray",
+    "Hope":    "HOPE → eyes brighten + small nod + focused brow → gentle push-in to eyes",
+    "Relief":  "RELIEF → shoulders drop + soft smile + slow blink → hold close-up for 1 second",
+    "Joy":     "JOY → proud tiny chest lift + smile + relaxed hands → steady hero frame + crowd claps",
+    "Sadness": "SADNESS → watery eyes + stillness + tiny sniffle → slow push-in, hold on hug",
+    "Triumph": "QUIET TRIUMPH → calm smile + steady posture → stable close-up, end freeze-worthy",
+    "Calm":    "CALM → relaxed shoulders + soft eyes → wide establish, slow push-in",
+    "Awe":     "AWE → open mouth slightly + head tilt → slow push-in, ambient mist",
+    "Fear":    "FEAR → eyes wider + body stiff + hands close to chest → slow push-in, hold tension",
+    "Shock":   "SHOCK → instant freeze + blink + mouth slightly open → snap-in then steady hold"
+  };
+
+  let state = loadState() || {
+    project: { title:"", location:"", lock:"", neg:"", globalDirection:"", settings:{ autoFillEmotionMap:true } },
+    scenes: []
+  };
+
+  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
+  function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||""); }catch{ return null; } }
+
+  // Debounced autosave (no rerender)
+  let saveTimer = null;
+  function saveStateDebounced(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=> {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    }, 250);
+  }
+
+  function escapeHtml(s){
+    return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+  function escapeAttr(s){
+    return String(s||"").replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+
+  function sceneTemplate(scene, idx, minimal){
+    const n = idx+1;
+    const otherLabel = scene.hasOtherChar ? (scene.otherCharName || "Other") : "";
+    const otherMeta = scene.hasOtherChar ? ` • ${escapeHtml(otherLabel)}: ${escapeHtml(scene.otherCharEmotion||"—")}` : "";
+    return `
+      <details data-id="${scene.id}" ${scene.open ? "open":""}>
+        <summary>
+          <div>
+            <div class="sumTitle" data-sum-title>#${n} — ${escapeHtml(scene.title || ("Scene "+n))}</div>
+            <div class="sumMeta" data-sum-meta>
+              ${escapeHtml(scene.shotType||"—")} • ${escapeHtml(scene.duration||3)}s
+              • Gappu: ${escapeHtml(scene.gappuEmotion||"—")}
+              ${otherMeta}
+            </div>
+          </div>
+          <div class="pill">${escapeHtml(scene.shotType||"Shot")}</div>
+        </summary>
+
+        <div class="sceneBody">
+          <div class="two">
+            <div>
+              <label>Title</label>
+              <input type="text" data-k="title" value="${escapeAttr(scene.title||"")}" />
+            </div>
+            <div>
+              <label>Shot Type</label>
+              <select data-k="shotType">
+                ${shotTypes.map(v=>`<option ${v===scene.shotType?"selected":""}>${escapeHtml(v)}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+
+          <div class="two">
+            <div>
+              <label>Gappu Emotion</label>
+              <select data-k="gappuEmotion" data-emotion="gappu">
+                <option value="">—</option>
+                ${moods.map(v=>`<option ${v===scene.gappuEmotion?"selected":""}>${escapeHtml(v)}</option>`).join("")}
+              </select>
+
+              ${minimal ? "" : `
+                <label class="checkboxRow" style="margin-top:10px;">
+                  <input type="checkbox" data-k="emotionMapLocked" ${scene.emotionMapLocked ? "checked":""} />
+                  Lock Emotion Map (don’t overwrite)
+                </label>
+              `}
+            </div>
+
+            <div>
+              <label>Duration (sec)</label>
+              <input type="number" min="1" max="15" data-k="duration" value="${escapeAttr(scene.duration||3)}" />
+              <label style="margin-top:10px;">Location (optional override)</label>
+              <input type="text" data-k="location" value="${escapeAttr(scene.location||"")}" placeholder="Leave empty to use Default Location" />
+            </div>
+          </div>
+
+          <label>Action (what we SEE)</label>
+          <textarea data-k="action">${escapeHtml(scene.action||"")}</textarea>
+
+          <label>Scene Direction / Director Notes (HOW to show it)</label>
+          <textarea data-k="direction" placeholder="Camera emphasis, micro expressions, pacing, stillness, SFX cues...">${escapeHtml(scene.direction||"")}</textarea>
+
+          ${minimal ? "" : `
+            <label>Emotion Mapping (emotion → micro body → camera)</label>
+            <textarea data-k="emotionMap">${escapeHtml(scene.emotionMap||"")}</textarea>
+          `}
+
+          <!-- Optional other character -->
+          <div style="margin-top:10px;">
+            <label class="checkboxRow" style="margin:0;">
+              <input type="checkbox" data-k="hasOtherChar" ${scene.hasOtherChar ? "checked":""} />
+              Enable Other Character (only if needed)
+            </label>
+
+            <div data-other-block class="${scene.hasOtherChar ? "" : "hidden"}" style="margin-top:10px;">
+              <div class="two">
+                <div>
+                  <label>Other Character Name</label>
+                  <input type="text" data-k="otherCharName" value="${escapeAttr(scene.otherCharName||"")}" placeholder="Girl / Guard / Crowd..." />
+                </div>
+                <div>
+                  <label>Other Character Emotion</label>
+                  <select data-k="otherCharEmotion">
+                    <option value="">—</option>
+                    ${moods.map(v=>`<option ${v===scene.otherCharEmotion?"selected":""}>${escapeHtml(v)}</option>`).join("")}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="btnbar">
+            <button class="ghost" data-act="dup">Duplicate</button>
+            <button class="ghost" data-act="up">Move Up</button>
+            <button class="ghost" data-act="down">Move Down</button>
+            <button class="danger" data-act="del">Delete</button>
+          </div>
+        </div>
+      </details>
+    `;
+  }
+
+  function render(){
+    // project inputs
+    $("p_title").value = state.project.title || "";
+    $("p_location").value = state.project.location || "";
+    $("p_lock").value = state.project.lock || "";
+    $("p_neg").value = state.project.neg || "";
+    $("p_dir").value = state.project.globalDirection || "";
+    $("autoFillEmotionMap").checked = !!state.project.settings.autoFillEmotionMap;
+
+    const minimal = $("minimalMode").checked;
+    $("sceneCount").textContent = state.scenes.length;
+    $("scenes").innerHTML = state.scenes.map((s,i)=>sceneTemplate(s,i,minimal)).join("");
+
+    // restore open states without rerender while typing
+    document.querySelectorAll("details[data-id]").forEach(det=>{
+      const id = det.getAttribute("data-id");
+      const scene = state.scenes.find(x=>x.id===id);
+      det.addEventListener("toggle", ()=>{
+        scene.open = det.open;
+        saveStateDebounced();
+      });
+    });
+  }
+
+  function findSceneByEl(el){
+    const det = el.closest("details[data-id]");
+    if(!det) return null;
+    const id = det.getAttribute("data-id");
+    const scene = state.scenes.find(s=>s.id===id);
+    return { det, scene, id };
+  }
+
+  function updateSummary(det, scene, idx){
+    const titleEl = det.querySelector("[data-sum-title]");
+    const metaEl  = det.querySelector("[data-sum-meta]");
+    if(titleEl) titleEl.textContent = `#${idx+1} — ${scene.title || ("Scene " + (idx+1))}`;
+
+    const otherLabel = scene.hasOtherChar ? (scene.otherCharName || "Other") : "";
+    const otherMeta = scene.hasOtherChar ? ` • ${otherLabel}: ${scene.otherCharEmotion || "—"}` : "";
+
+    if(metaEl){
+      metaEl.textContent =
+        `${scene.shotType || "—"} • ${scene.duration || 3}s • Gappu: ${scene.gappuEmotion || "—"}${otherMeta}`;
+    }
+  }
+
+  // Event delegation: NO rerender while typing
+  $("scenes").addEventListener("input", (e)=>{
+    const el = e.target;
+    if(!el.hasAttribute("data-k")) return;
+    const pack = findSceneByEl(el);
+    if(!pack) return;
+    const { det, scene } = pack;
+    const key = el.getAttribute("data-k");
+
+    if(el.type === "checkbox"){
+      scene[key] = el.checked;
+    } else {
+      scene[key] = el.value;
+    }
+
+    // If other char toggle changes, show/hide block immediately
+    if(key === "hasOtherChar"){
+      const block = det.querySelector("[data-other-block]");
+      if(block) block.classList.toggle("hidden", !scene.hasOtherChar);
+    }
+
+    // Auto-fill emotion map ONCE then lock (no overwrites)
+    if(el.getAttribute("data-emotion") === "gappu"){
+      const autoOn = !!state.project.settings.autoFillEmotionMap;
+      if(autoOn && !scene.emotionMapLocked){
+        if(!scene.emotionMap || scene.emotionMap.trim()===""){
+          scene.emotionMap = emotionMapTemplate[scene.gappuEmotion] || "";
+          if(scene.emotionMap && scene.emotionMap.trim() !== ""){
+            scene.emotionMapLocked = true; // save once generated
+            // if emotionMap textarea exists, update its UI value without rerender
+            const emTa = det.querySelector('textarea[data-k="emotionMap"]');
+            const lockCb = det.querySelector('input[type="checkbox"][data-k="emotionMapLocked"]');
+            if(emTa) emTa.value = scene.emotionMap;
+            if(lockCb) lockCb.checked = true;
+          }
+        }
+      }
+    }
+
+    // Update summary (no rerender)
+    const idx = state.scenes.findIndex(s=>s.id===scene.id);
+    updateSummary(det, scene, idx);
+
+    saveStateDebounced();
+  });
+
+  // Buttons (dup/up/down/del) require rerender
+  $("scenes").addEventListener("click", (e)=>{
+    const btn = e.target.closest("[data-act]");
+    if(!btn) return;
+    e.preventDefault();
+
+    const pack = findSceneByEl(btn);
+    if(!pack) return;
+    const { id } = pack;
+    const idx = state.scenes.findIndex(s=>s.id===id);
+    if(idx < 0) return;
+
+    const act = btn.getAttribute("data-act");
+    if(act==="del"){
+      state.scenes.splice(idx,1);
+    } else if(act==="dup"){
+      const clone = JSON.parse(JSON.stringify(state.scenes[idx]));
+      clone.id = uid(); clone.open = true;
+      state.scenes.splice(idx+1,0,clone);
+    } else if(act==="up" && idx>0){
+      const t = state.scenes[idx-1]; state.scenes[idx-1]=state.scenes[idx]; state.scenes[idx]=t;
+    } else if(act==="down" && idx<state.scenes.length-1){
+      const t = state.scenes[idx+1]; state.scenes[idx+1]=state.scenes[idx]; state.scenes[idx]=t;
+    }
+
+    saveStateDebounced();
+    render();
+  });
+
+  function parseDraft(text){
+    const defaultLoc = $("p_location").value.trim();
+    const chunks = text.replace(/\r/g,"")
+      .split(/\n?\s*scene\s*\d+\s*[:\-]\s*/i)
+      .map(s=>s.trim()).filter(Boolean);
+
+    const scenes = [];
+    for(const c of chunks){
+      let shotType = "Front view";
+      const st = c.match(/(front view|side view|back view|top aerial|aerial view|close[- ]?up|wide|pov)/i);
+      if(st){
+        const v = st[1].toLowerCase();
+        if(v.includes("front")) shotType = "Front view";
+        else if(v.includes("side")) shotType = "Side view";
+        else if(v.includes("back")) shotType = "Back view";
+        else if(v.includes("aerial")) shotType = "Top aerial";
+        else if(v.includes("close")) shotType = "Close-up";
+        else if(v.includes("wide")) shotType = "Wide";
+        else if(v.includes("pov")) shotType = "POV (Gappu)";
+      }
+
+      let emo = "";
+      const em = c.match(/emotion\s*[:\-]\s*([^\n]+)/i);
+      if(em){
+        const raw = em[1].toLowerCase();
+        if(raw.includes("panic")) emo = "Panic";
+        else if(raw.includes("tense")) emo = "Tense";
+        else if(raw.includes("relief")) emo = "Relief";
+        else if(raw.includes("sad")) emo = "Sadness";
+        else if(raw.includes("joy") || raw.includes("happy") || raw.includes("smile")) emo = "Joy";
+        else if(raw.includes("hope")) emo = "Hope";
+        else if(raw.includes("struggle")) emo = "Struggle";
+        else if(raw.includes("shock")) emo = "Shock";
+        else if(raw.includes("fear")) emo = "Fear";
+      }
+
+      const firstLine = c.split("\n")[0].replace(/^(front view|side view|back view|top aerial|aerial view)\s*[:\-]?\s*/i,"").trim();
+      const title = firstLine ? firstLine.slice(0,70) : "Untitled";
+
+      const emoMap = emo ? (emotionMapTemplate[emo]||"") : "";
+
+      scenes.push({
+        id: uid(),
+        open: false,
+        title,
+        shotType,
+        duration: 3,
+        location: defaultLoc,
+        action: c.trim(),
+        direction: "",
+        gappuEmotion: emo,
+        emotionMap: emoMap,
+        emotionMapLocked: !!emoMap,
+        // Other character optional (OFF)
+        hasOtherChar: false,
+        otherCharName: "",
+        otherCharEmotion: ""
+      });
+    }
+    return scenes;
+  }
+
+  function exportMarkdown(){
+    const p = state.project;
+    let md = `# ${p.title || "Project"}\n\n`;
+    md += `**Default Location:** ${p.location || "—"}\n\n`;
+    if(p.lock?.trim()) md += `## Universal Character Lock (GLOBAL)\n\n\`\`\`\n${p.lock.trim()}\n\`\`\`\n\n`;
+    if(p.neg?.trim()) md += `## Global Negative Prompt (GLOBAL)\n\n\`\`\`\n${p.neg.trim()}\n\`\`\`\n\n`;
+    if(p.globalDirection?.trim()) md += `## Global Direction Rules (GLOBAL)\n\n\`\`\`\n${p.globalDirection.trim()}\n\`\`\`\n\n`;
+
+    md += `## Scenes\n\n`;
+    state.scenes.forEach((s,i)=>{
+      md += `### Scene ${i+1}: ${s.title || "(untitled)"}\n`;
+      md += `- Shot: ${s.shotType || "—"}\n`;
+      md += `- Duration: ${s.duration || 3}s\n`;
+      md += `- Location: ${(s.location||"").trim() || p.location || "—"}\n`;
+      md += `- Gappu Emotion: ${s.gappuEmotion || "—"}\n`;
+      if(s.hasOtherChar){
+        md += `- Other Character: ${s.otherCharName || "Other"}\n`;
+        md += `- Other Emotion: ${s.otherCharEmotion || "—"}\n`;
+      }
+      md += `\n**Action (SEE):**\n${(s.action||"").trim()}\n\n`;
+      if(s.direction?.trim()) md += `**Direction (HOW):**\n${s.direction.trim()}\n\n`;
+      if(s.emotionMap?.trim()) md += `**Emotion Mapping:**\n${s.emotionMap.trim()}\n\n`;
+      md += `---\n\n`;
+    });
+    return md.trim();
+  }
+
+  function exportJSON(){
+    return JSON.stringify(state, null, 2);
+  }
+
+  function downloadText(filename, text){
+    const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // Project binds (no rerender)
+  function bindProject(){
+    $("p_title").addEventListener("input", ()=>{ state.project.title = $("p_title").value.trim(); saveStateDebounced(); });
+    $("p_location").addEventListener("input", ()=>{ state.project.location = $("p_location").value.trim(); saveStateDebounced(); });
+    $("p_lock").addEventListener("input", ()=>{ state.project.lock = $("p_lock").value; saveStateDebounced(); });
+    $("p_neg").addEventListener("input", ()=>{ state.project.neg = $("p_neg").value; saveStateDebounced(); });
+    $("p_dir").addEventListener("input", ()=>{ state.project.globalDirection = $("p_dir").value; saveStateDebounced(); });
+
+    $("minimalMode").addEventListener("change", ()=> render());
+    $("autoFillEmotionMap").addEventListener("change", ()=>{
+      state.project.settings.autoFillEmotionMap = $("autoFillEmotionMap").checked;
+      saveStateDebounced();
+    });
+  }
+
+  // Actions
+  function bindActions(){
+    $("parseBtn").addEventListener("click", ()=>{
+      const t = $("bulk").value.trim();
+      if(!t) return alert("Paste your draft first.");
+      state.scenes = parseDraft(t);
+      saveStateDebounced();
+      render();
+    });
+
+    $("clearScenesBtn").addEventListener("click", ()=>{
+      if(confirm("Clear all scenes?")){ state.scenes = []; saveStateDebounced(); render(); }
+    });
+
+    $("exportMdBtn").addEventListener("click", ()=>{ $("output").value = exportMarkdown(); });
+    $("exportJsonBtn").addEventListener("click", ()=>{ $("output").value = exportJSON(); });
+
+    $("copyBtn").addEventListener("click", async ()=>{
+      const text = $("output").value.trim();
+      if(!text) return alert("Generate output first.");
+      try{ await navigator.clipboard.writeText(text); alert("Copied."); }
+      catch{ alert("Copy failed. Select all and copy manually."); }
+    });
+
+    $("downloadBtn").addEventListener("click", ()=>{
+      const text = $("output").value.trim();
+      if(!text) return alert("Generate output first.");
+      const isJson = text.startsWith("{");
+      const name = (state.project.title || "gappu_project").replace(/[^\w\-]+/g,"_").slice(0,60);
+      downloadText(isJson ? `${name}.json` : `${name}.md`, text);
+    });
+  }
+
+  // Init
+  bindProject();
+  bindActions();
+  render();
+
+  // restore project inputs
+  $("p_title").value = state.project.title || "";
+  $("p_location").value = state.project.location || "";
+  $("p_lock").value = state.project.lock || "";
+  $("p_neg").value = state.project.neg || "";
+  $("p_dir").value = state.project.globalDirection || "";
+  $("autoFillEmotionMap").checked = !!state.project.settings.autoFillEmotionMap;
+})();
+</script>
+</body>
+</html>

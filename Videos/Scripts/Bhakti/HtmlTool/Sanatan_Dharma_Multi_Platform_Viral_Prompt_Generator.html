@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanatan Dharma — Multi-Platform Viral Metadata Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Hind:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0800;
+    --surface: #130f00;
+    --surface2: #1c1700;
+    --surface3: #242000;
+    --border: rgba(255,200,50,0.07);
+    --border-glow: rgba(255,200,50,0.25);
+    --saffron: #ff6f00;
+    --gold: #ffc107;
+    --gold2: #ffe082;
+    --deep-red: #b71c1c;
+    --maroon: #7b1fa2;
+    --lotus: #f48fb1;
+    --sky: #81d4fa;
+    --ig-pink: #E1306C;
+    --ig-purple: #833AB4;
+    --fb-blue: #1877F2;
+    --yt-red: #FF0000;
+    --text: #fff8e1;
+    --muted: rgba(255,248,225,0.45);
+    --muted2: rgba(255,248,225,0.15);
+    --green: #66bb6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hind', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,193,7,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 20% 80%, rgba(255,111,0,0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 80% 60%, rgba(123,31,162,0.05) 0%, transparent 40%);
+    pointer-events: none; z-index: 0;
+    animation: aurabreathe 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes aurabreathe { from { opacity: 0.7; } to { opacity: 1; } }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,193,7,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── HEADER ── */
+  header { padding: 50px 0 36px; text-align: center; }
+
+  .om-symbol {
+    font-size: 52px; display: block; margin-bottom: 10px;
+    animation: glow 3s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 12px rgba(255,193,7,0.5));
+  }
+
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 8px rgba(255,193,7,0.4)); }
+    to { filter: drop-shadow(0 0 20px rgba(255,111,0,0.7)); }
+  }
+
+  .header-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,193,7,0.08);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 40px; padding: 5px 16px;
+    font-size: 11px; font-weight: 600;
+    color: var(--gold); letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(24px, 5.5vw, 46px);
+    font-weight: 900; line-height: 1.05; letter-spacing: 1px;
+  }
+
+  .h1-top {
+    background: linear-gradient(135deg, var(--gold2), var(--gold), var(--saffron));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; display: block;
+  }
+
+  .h1-bot {
+    color: rgba(255,248,225,0.7);
+    font-size: 0.5em; letter-spacing: 4px; display: block; margin-top: 4px;
+  }
+
+  .header-sub { color: var(--muted); font-size: 13px; margin-top: 12px; line-height: 1.7; }
+
+  .platform-badges {
+    display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap;
+  }
+
+  .p-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 30px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+    font-family: 'Cinzel', serif;
+  }
+
+  .p-badge.ig { background: rgba(225,48,108,0.12); border: 1px solid rgba(225,48,108,0.3); color: var(--ig-pink); }
+  .p-badge.fb { background: rgba(24,119,242,0.1); border: 1px solid rgba(24,119,242,0.25); color: var(--fb-blue); }
+  .p-badge.yt { background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.25); color: var(--yt-red); }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 6px 0 14px; opacity: 0.3;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .divider span { color: var(--gold); font-size: 14px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px; padding: 26px; margin-bottom: 14px;
+    transition: border-color 0.3s; position: relative; overflow: hidden;
+  }
+
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), var(--gold), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+
+  .card:hover { border-color: rgba(255,193,7,0.15); }
+  .card:hover::before { opacity: 1; }
+
+  .card-hd { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+
+  .card-ico {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+
+  .card-ttl { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 700; color: var(--gold); }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── FORM ── */
+  .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width:560px){ .fgrid { grid-template-columns: 1fr; } }
+  .fg { display: flex; flex-direction: column; gap: 6px; }
+  .fg.full { grid-column: 1/-1; }
+
+  label {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    font-family: 'Cinzel', serif;
+  }
+
+  input[type="text"], textarea, select {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 14px;
+    color: var(--text); font-family: 'Hind', sans-serif;
+    font-size: 14px; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255,193,7,0.08);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: #1c1700; }
+
+  /* ── PILL SELECTORS ── */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .pill {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 30px; padding: 7px 14px;
+    color: var(--muted); font-family: 'Hind', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .pill:hover { border-color: rgba(255,193,7,0.3); color: var(--text); }
+  .pill.active { background: rgba(255,193,7,0.1); border-color: var(--gold); color: var(--gold); }
+
+  /* ── VIDEO TYPE ── */
+  .vid-type-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .vid-type-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; text-align: center;
+    cursor: pointer; transition: all 0.2s;
+  }
+
+  .vid-type-btn.active { background: rgba(255,193,7,0.08); border-color: var(--gold); }
+  .vid-type-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  .vid-type-label { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; color: var(--gold); }
+  .vid-type-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── PLATFORM CHECKBOXES ── */
+  .plat-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .plat-check {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 16px;
+    cursor: pointer; transition: all 0.2s;
+    user-select: none;
+  }
+
+  .plat-check:hover { border-color: rgba(255,193,7,0.3); }
+  .plat-check.active.ig { background: rgba(225,48,108,0.08); border-color: rgba(225,48,108,0.35); }
+  .plat-check.active.fb { background: rgba(24,119,242,0.08); border-color: rgba(24,119,242,0.3); }
+  .plat-check.active.yt { background: rgba(255,0,0,0.08); border-color: rgba(255,0,0,0.3); }
+
+  .plat-check .dot {
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 2px solid var(--muted); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 11px; transition: all 0.15s;
+  }
+
+  .plat-check.active .dot { border-color: var(--gold); background: var(--gold); color: #000; }
+  .plat-check .plbl { font-size: 13px; font-weight: 600; }
+
+  /* ── VIDEO UPLOAD ── */
+  .upload-zone {
+    border: 2px dashed rgba(255,193,7,0.25);
+    border-radius: 14px; padding: 28px 20px; text-align: center;
+    cursor: pointer; transition: all 0.2s; position: relative;
+    background: rgba(255,193,7,0.02);
+  }
+
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--gold); background: rgba(255,193,7,0.05); }
+
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    width: 100%; height: 100%; border: none; padding: 0; background: none;
+  }
+
+  .upload-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+  .upload-label { color: var(--gold); font-weight: 600; font-size: 14px; font-family: 'Cinzel', serif; }
+  .upload-hint { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+  .opt-tag {
+    display: inline-block; background: rgba(255,193,7,0.08);
+    border: 1px solid rgba(255,193,7,0.2); border-radius: 20px;
+    padding: 2px 10px; font-size: 10px; font-weight: 600;
+    color: var(--gold); letter-spacing: 1px; text-transform: uppercase;
+    margin-left: 8px; vertical-align: middle; font-family: 'Hind', sans-serif;
+  }
+
+  /* Video panel */
+  .video-panel { display: none; margin-top: 16px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,193,7,0.2); background: #000; }
+  .video-panel video { width: 100%; max-height: 340px; display: block; object-fit: contain; background: #000; cursor: pointer; }
+  .vid-controls { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface2); border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .vid-play { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--saffron)); border: none; color: #000; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+  .vid-play:hover { transform: scale(1.1); }
+  .vid-prog { flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer; position: relative; min-width: 80px; }
+  .vid-prog-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--saffron)); border-radius: 4px; width: 0%; pointer-events: none; }
+  .vid-time { font-size: 11px; color: var(--muted); white-space: nowrap; flex-shrink: 0; font-family: 'Cinzel', serif; }
+  .vid-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; background: var(--surface); flex-wrap: wrap; gap: 8px; }
+  .vid-fname { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+  .vid-acts { display: flex; gap: 8px; }
+  .vbtn { background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.2); border-radius: 8px; padding: 5px 12px; color: var(--gold); font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Hind', sans-serif; transition: all 0.15s; }
+  .vbtn:hover { background: rgba(255,193,7,0.18); }
+  .vbtn.red { color: var(--saffron); border-color: rgba(255,111,0,0.25); background: rgba(255,111,0,0.07); }
+  .vbtn.red:hover { background: rgba(255,111,0,0.15); }
+
+  .frames-strip { display: none; padding: 12px 14px; background: var(--surface); border-top: 1px solid var(--border); gap: 8px; overflow-x: auto; }
+  .frames-strip.show { display: flex; }
+  .frame-th { flex-shrink: 0; position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent; transition: border-color 0.15s; }
+  .frame-th:hover { border-color: rgba(255,193,7,0.4); }
+  .frame-th img { width: 100px; height: 56px; object-fit: cover; display: block; }
+  .frame-th-lbl { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); font-size: 9px; font-weight: 700; color: #fff; text-align: center; padding: 2px 4px; }
+
+  /* ── GEN BTN ── */
+  .gen-btn {
+    width: 100%; padding: 17px;
+    background: linear-gradient(135deg, var(--saffron), var(--gold), var(--saffron));
+    background-size: 200% 100%; border: none; border-radius: 14px;
+    font-family: 'Cinzel', serif; font-size: 17px; font-weight: 700;
+    color: #1a0a00; cursor: pointer; letter-spacing: 1px;
+    box-shadow: 0 4px 30px rgba(255,111,0,0.25);
+    transition: all 0.3s; margin-bottom: 14px;
+    animation: shimmer 3s linear infinite;
+  }
+
+  @keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(255,111,0,0.35); }
+  .gen-btn:active { transform: translateY(0); }
+  .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; animation: none; }
+
+  /* ── LOADING ── */
+  .loading { text-align: center; padding: 50px 20px; display: none; }
+  .loading-flame { font-size: 48px; display: block; animation: flicker 0.8s ease-in-out infinite alternate; margin-bottom: 14px; }
+  @keyframes flicker { from { transform: scale(1) rotate(-2deg); filter: brightness(1); } to { transform: scale(1.1) rotate(2deg); filter: brightness(1.3); } }
+  .loading-step { color: var(--gold); font-weight: 700; font-size: 15px; font-family: 'Cinzel', serif; margin-bottom: 4px; }
+  .loading p { color: var(--muted); font-size: 13px; }
+
+  /* ── ERROR ── */
+  .err-box { background: rgba(183,28,28,0.1); border: 1px solid rgba(183,28,28,0.3); border-radius: 12px; padding: 16px; color: #ef9a9a; text-align: center; font-size: 14px; display: none; margin-bottom: 14px; }
+
+  /* ── RESULTS ── */
+  .results { display: none; }
+
+  /* Mode tabs */
+  .mode-tabs {
+    display: flex; gap: 0; margin-bottom: 18px; border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .mode-tab {
+    flex: 1; padding: 14px 10px; text-align: center;
+    background: var(--surface2); color: var(--muted);
+    font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; border: none;
+    border-right: 1px solid var(--border);
+  }
+
+  .mode-tab:last-child { border-right: none; }
+  .mode-tab:hover { color: var(--text); background: var(--surface3); }
+  .mode-tab.active { background: rgba(255,193,7,0.1); color: var(--gold); }
+  .mode-tab .m-ico { font-size: 18px; display: block; margin-bottom: 4px; }
+
+  .mode-content { display: none; }
+  .mode-content.active { display: block; }
+
+  /* Prompt output box */
+  .prompt-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px; margin-bottom: 14px;
+    position: relative;
+  }
+
+  .prompt-box-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+  }
+
+  .prompt-box-label {
+    font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .prompt-box-label.ig { color: var(--ig-pink); }
+  .prompt-box-label.fb { color: var(--fb-blue); }
+  .prompt-box-label.yt { color: var(--yt-red); }
+  .prompt-box-label.all { color: var(--gold); }
+
+  .prompt-text {
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,193,7,0.1);
+    border-radius: 10px; padding: 16px; font-size: 13px;
+    line-height: 1.7; color: rgba(255,248,225,0.85);
+    white-space: pre-wrap; max-height: 400px; overflow-y: auto;
+    font-family: 'Hind', sans-serif;
+  }
+
+  .prompt-text::-webkit-scrollbar { width: 6px; }
+  .prompt-text::-webkit-scrollbar-track { background: transparent; }
+  .prompt-text::-webkit-scrollbar-thumb { background: rgba(255,193,7,0.2); border-radius: 3px; }
+
+  .copy-btn {
+    background: linear-gradient(135deg, var(--saffron), var(--gold));
+    border: none; border-radius: 10px; padding: 8px 18px;
+    color: #1a0a00; font-family: 'Cinzel', serif; font-size: 12px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .copy-btn:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(255,111,0,0.3); }
+  .copy-btn.copied { background: linear-gradient(135deg, var(--green), #43a047); }
+
+  /* Quick action row */
+  .quick-row {
+    display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+  }
+
+  .quick-btn {
+    background: rgba(255,193,7,0.06); border: 1px solid rgba(255,193,7,0.15);
+    border-radius: 8px; padding: 6px 14px; color: var(--gold);
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    font-family: 'Hind', sans-serif; transition: all 0.15s;
+  }
+
+  .quick-btn:hover { background: rgba(255,193,7,0.14); }
+
+  /* Video analysis */
+  .vid-analysis { display: none; margin-bottom: 14px; }
+
+  .rsec {
+    background: var(--surface2); border-radius: 14px; padding: 16px;
+    margin-bottom: 12px; border-left: 3px solid var(--gold);
+  }
+
+  .rsec.saffron { border-left-color: var(--saffron); }
+  .rsec.lotus { border-left-color: var(--lotus); }
+  .rsec.sky { border-left-color: var(--sky); }
+
+  .rsec-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
+  .rsec-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); font-family: 'Cinzel', serif; }
+  .rsec.saffron .rsec-lbl { color: var(--saffron); }
+  .rsec.lotus .rsec-lbl { color: var(--lotus); }
+  .rsec.sky .rsec-lbl { color: var(--sky); }
+  .rsec-body { color: rgba(255,248,225,0.85); font-size: 14px; line-height: 1.75; white-space: pre-wrap; }
+
+  footer {
+    text-align: center; padding: 30px;
+    color: rgba(255,193,7,0.2); font-size: 12px;
+    position: relative; z-index: 1;
+    font-family: 'Cinzel', serif; letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <span class="om-symbol">🕉️</span>
+    <div class="header-eyebrow">✨ Instagram · Facebook · YouTube · Viral Metadata</div>
+    <h1>
+      <span class="h1-top">Sanatan Dharma</span>
+      <span class="h1-bot">Multi-Platform Viral Prompt Generator</span>
+    </h1>
+    <p class="header-sub">Generate ready-to-paste Claude prompts for accurate viral metadata<br>Optimised for algorithm reach across all platforms</p>
+    <div class="platform-badges">
+      <span class="p-badge ig">📸 @sanatandharmatheeternalpath</span>
+      <span class="p-badge fb">📘 Sanatan Dharma</span>
+      <span class="p-badge yt">▶️ YouTube Channel</span>
+    </div>
+  </header>
+
+  <div class="divider"><span>✦</span></div>
+
+  <!-- VIDEO DETAILS CARD -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-ico">🎬</div>
+      <div>
+        <div class="card-ttl">Video Details</div>
+        <div class="card-sub">Tell us about your devotional content</div>
+      </div>
+    </div>
+
+    <div class="fgrid">
+
+      <div class="fg full">
+        <label>Video Type</label>
+        <div class="vid-type-row">
+          <div class="vid-type-btn active" onclick="setVideoType('short', this)">
+            <span class="vid-type-icon">⚡</span>
+            <div class="vid-type-label">Reel / Short</div>
+            <div class="vid-type-sub">15 – 90 seconds · 9:16</div>
+          </div>
+          <div class="vid-type-btn" onclick="setVideoType('long', this)">
+            <span class="vid-type-icon">🎞️</span>
+            <div class="vid-type-label">Long Form</div>
+            <div class="vid-type-sub">1 – 10 minutes · 16:9 or 9:16</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg full">
+        <label>Target Platforms</label>
+        <div class="plat-row">
+          <div class="plat-check active ig" onclick="togglePlat(this,'ig')">
+            <div class="dot">✓</div>
+            <span class="plbl">📸 Instagram</span>
+          </div>
+          <div class="plat-check active fb" onclick="togglePlat(this,'fb')">
+            <div class="dot">✓</div>
+            <span class="plbl">📘 Facebook</span>
+          </div>
+          <div class="plat-check active yt" onclick="togglePlat(this,'yt')">
+            <div class="dot">✓</div>
+            <span class="plbl">▶️ YouTube</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Deity / Main Subject</label>
+        <input type="text" id="deity" placeholder="e.g. Shri Krishna, Lord Shiva, Maa Durga">
+      </div>
+
+      <div class="fg">
+        <label>Story / Episode Title</label>
+        <input type="text" id="title" placeholder="e.g. Govardhan Parvat, Neelkanth, Mahishasur Vadh">
+      </div>
+
+      <div class="fg full">
+        <label>Content Type</label>
+        <div class="pill-row" id="contentPills">
+          <button class="pill active" onclick="setPill(this,'contentType','Animated Mythology Story')">🎭 Animated Story</button>
+          <button class="pill" onclick="setPill(this,'contentType','Devotional Cinematic')">🎥 Cinematic</button>
+          <button class="pill" onclick="setPill(this,'contentType','Spiritual Facts & Knowledge')">📿 Spiritual Facts</button>
+          <button class="pill" onclick="setPill(this,'contentType','Bhajan / Katha')">🎵 Bhajan/Katha</button>
+          <button class="pill" onclick="setPill(this,'contentType','Shloka / Mantra Explanation')">🔱 Shloka/Mantra</button>
+        </div>
+      </div>
+
+      <div class="fg full">
+        <label>Mood / Energy</label>
+        <div class="pill-row" id="moodPills">
+          <button class="pill active" onclick="setPill(this,'mood','Devotional & Peaceful')">🪔 Devotional</button>
+          <button class="pill" onclick="setPill(this,'mood','Cinematic Epic')">⚔️ Epic</button>
+          <button class="pill" onclick="setPill(this,'mood','Powerful & Fierce')">🔱 Powerful</button>
+          <button class="pill" onclick="setPill(this,'mood','Emotional & Moving')">💛 Emotional</button>
+          <button class="pill" onclick="setPill(this,'mood','Mystical & Divine')">✨ Mystical</button>
+          <button class="pill" onclick="setPill(this,'mood','Educational & Inspiring')">📖 Educational</button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Language of Narration</label>
+        <select id="language">
+          <option value="Hindi">Hindi</option>
+          <option value="Hindi + Sanskrit shlokas">Hindi + Sanskrit Shlokas</option>
+          <option value="Sanskrit">Sanskrit</option>
+          <option value="English">English</option>
+          <option value="Hindi + English mix">Hindi + English Mix</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label>Estimated Duration</label>
+        <select id="duration">
+          <option value="15-30 seconds">15-30 seconds</option>
+          <option value="30-60 seconds" selected>30-60 seconds</option>
+          <option value="60-90 seconds">60-90 seconds</option>
+          <option value="1-3 minutes">1-3 minutes</option>
+          <option value="3-5 minutes">3-5 minutes</option>
+          <option value="5-10 minutes">5-10 minutes</option>
+        </select>
+      </div>
+
+      <div class="fg full">
+        <label>Key Spiritual Message / Shloka (optional)</label>
+        <textarea id="message" placeholder="e.g. यदा यदा हि धर्मस्य — share the shloka or spiritual message this video carries"></textarea>
+      </div>
+
+      <div class="fg full">
+        <label>Story Summary / Script Notes</label>
+        <textarea id="summary" placeholder="Briefly describe what happens in this video — key scenes, emotions, climax..."></textarea>
+      </div>
+
+      <div class="fg full">
+        <label>Special Notes (any specific request for the prompt)</label>
+        <textarea id="notes" placeholder="e.g. Focus on trending Navratri hashtags, include Ayodhya angle, target diaspora audience..." style="min-height:60px"></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VIDEO UPLOAD CARD -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-ico">🎥</div>
+      <div>
+        <div class="card-ttl">Upload Your Video <span class="opt-tag">Optional</span></div>
+        <div class="card-sub">Extract frames — visual context will be added to the prompt</div>
+      </div>
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="vidFile" accept="video/*" onchange="handleUpload(event)">
+      <span class="upload-icon">🕉️</span>
+      <div class="upload-label">Drop your video or click to browse</div>
+      <div class="upload-hint">MP4 · MOV · WEBM — Max 100MB</div>
+    </div>
+
+    <div class="video-panel" id="videoPanel">
+      <video id="vidEl" preload="metadata" onclick="togglePlay()"></video>
+      <div class="vid-controls">
+        <button class="vid-play" id="playBtn" onclick="togglePlay()">▶</button>
+        <div class="vid-prog" id="progBar" onclick="seekVid(event)">
+          <div class="vid-prog-fill" id="progFill"></div>
+        </div>
+        <div class="vid-time" id="vidTime">0:00 / 0:00</div>
+      </div>
+      <div class="vid-bar">
+        <div class="vid-fname" id="vidFname">—</div>
+        <div class="vid-acts">
+          <button class="vbtn" onclick="extractFrames()">🖼️ Extract Frames</button>
+          <button class="vbtn red" onclick="removeVid()">✕ Remove</button>
+        </div>
+      </div>
+      <div class="frames-strip" id="framesStrip"></div>
+    </div>
+
+    <canvas id="fCanvas" style="display:none"></canvas>
+  </div>
+
+  <!-- GENERATE -->
+  <button class="gen-btn" id="genBtn" onclick="generate()">
+    🕉️ Generate Viral Metadata Prompts
+  </button>
+
+  <div class="loading" id="loading">
+    <span class="loading-flame">🔥</span>
+    <div class="loading-step" id="loadStep">Channelling divine strategy...</div>
+    <p>Building platform-specific viral prompts</p>
+  </div>
+
+  <div class="err-box" id="errBox"></div>
+
+  <!-- VIDEO ANALYSIS -->
+  <div class="vid-analysis card" id="vidAnalCard">
+    <div class="card-hd">
+      <div class="card-ico">🔬</div>
+      <div><div class="card-ttl">Visual Analysis from Your Video</div></div>
+    </div>
+    <div id="vidAnalBody"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <div class="mode-tabs" id="modeTabs"></div>
+
+    <div id="modeContents"></div>
+
+  </div>
+
+</div>
+
+<footer>🕉️ Sanatan Dharma Multi-Platform Viral Prompt Generator — Built for Rahul · Jai Shri Ram 🙏</footer>
+
+<script>
+  // ── STATE ──
+  let videoType = 'short';
+  let contentType = 'Animated Mythology Story';
+  let mood = 'Devotional & Peaceful';
+  let platforms = { ig: true, fb: true, yt: true };
+  let vidFrames = [];
+  let vidLoaded = false;
+
+  // ── SETTERS ──
+  function setVideoType(val, btn) {
+    document.querySelectorAll('.vid-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    videoType = val;
+  }
+
+  function setPill(btn, field, val) {
+    btn.closest('.pill-row').querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (field === 'contentType') contentType = val;
+    if (field === 'mood') mood = val;
+  }
+
+  function togglePlat(el, key) {
+    platforms[key] = !platforms[key];
+    el.classList.toggle('active', platforms[key]);
+    el.querySelector('.dot').textContent = platforms[key] ? '✓' : '';
+  }
+
+  // ── VIDEO PLAYER (same logic) ──
+  function handleUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 100 * 1024 * 1024) { alert('Video too large. Max 100MB.'); return; }
+    const url = URL.createObjectURL(file);
+    const vid = document.getElementById('vidEl');
+    vid.src = url; vid.load();
+    document.getElementById('vidFname').textContent = file.name;
+    document.getElementById('videoPanel').style.display = 'block';
+    document.getElementById('uploadZone').style.display = 'none';
+    vid.addEventListener('loadedmetadata', () => {
+      document.getElementById('vidTime').textContent = `0:00 / ${fmt(vid.duration)}`;
+    }, { once: true });
+    vid.addEventListener('timeupdate', updateProg);
+    vid.addEventListener('ended', () => document.getElementById('playBtn').textContent = '▶');
+    vidLoaded = true; vidFrames = [];
+  }
+
+  function togglePlay() {
+    const vid = document.getElementById('vidEl');
+    const btn = document.getElementById('playBtn');
+    if (vid.paused) { vid.play(); btn.textContent = '⏸'; }
+    else { vid.pause(); btn.textContent = '▶'; }
+  }
+
+  function updateProg() {
+    const vid = document.getElementById('vidEl');
+    if (!vid.duration) return;
+    document.getElementById('progFill').style.width = (vid.currentTime / vid.duration * 100) + '%';
+    document.getElementById('vidTime').textContent = `${fmt(vid.currentTime)} / ${fmt(vid.duration)}`;
+  }
+
+  function seekVid(e) {
+    const vid = document.getElementById('vidEl');
+    const bar = document.getElementById('progBar');
+    vid.currentTime = Math.max(0, Math.min(1, (e.clientX - bar.getBoundingClientRect().left) / bar.offsetWidth)) * vid.duration;
+  }
+
+  function fmt(s) { const m = Math.floor(s / 60); return `${m}:${Math.floor(s % 60).toString().padStart(2,'0')}`; }
+
+  function removeVid() {
+    const vid = document.getElementById('vidEl');
+    vid.pause(); vid.src = '';
+    document.getElementById('vidFile').value = '';
+    document.getElementById('videoPanel').style.display = 'none';
+    document.getElementById('uploadZone').style.display = 'block';
+    document.getElementById('framesStrip').innerHTML = '';
+    document.getElementById('framesStrip').classList.remove('show');
+    vidFrames = []; vidLoaded = false;
+  }
+
+  function extractFrames() {
+    const vid = document.getElementById('vidEl');
+    const canvas = document.getElementById('fCanvas');
+    const ctx = canvas.getContext('2d');
+    const dur = vid.duration;
+    if (!dur) { alert('Video not ready.'); return; }
+    canvas.width = 320; canvas.height = 180;
+    vidFrames = [];
+    const times = [0.04, 0.2, 0.4, 0.6, 0.8, 0.96].map(p => p * dur);
+    let idx = 0;
+    const strip = document.getElementById('framesStrip');
+    strip.innerHTML = '<span style="color:var(--muted);font-size:12px;align-self:center">Extracting frames...</span>';
+    strip.classList.add('show');
+
+    function onSeek() {
+      ctx.drawImage(vid, 0, 0, 320, 180);
+      vidFrames.push(canvas.toDataURL('image/jpeg', 0.75).split(',')[1]);
+      idx++;
+      if (idx < times.length) vid.currentTime = times[idx];
+      else { vid.removeEventListener('seeked', onSeek); renderStrip(); }
+    }
+
+    vid.addEventListener('seeked', onSeek);
+    vid.currentTime = times[0];
+  }
+
+  function renderStrip() {
+    const strip = document.getElementById('framesStrip');
+    const labels = ['5%','20%','40%','60%','80%','96%'];
+    strip.innerHTML = '';
+    vidFrames.forEach((f, i) => {
+      const div = document.createElement('div');
+      div.className = 'frame-th';
+      div.innerHTML = `<img src="data:image/jpeg;base64,${f}"><div class="frame-th-lbl">${labels[i]}</div>`;
+      strip.appendChild(div);
+    });
+    strip.classList.add('show');
+  }
+
+  // Drag drop
+  const uz = document.getElementById('uploadZone');
+  uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag'); });
+  uz.addEventListener('dragleave', () => uz.classList.remove('drag'));
+  uz.addEventListener('drop', e => {
+    e.preventDefault(); uz.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('video/')) {
+      const dt = new DataTransfer(); dt.items.add(f);
+      document.getElementById('vidFile').files = dt.files;
+      handleUpload({ target: { files: [f] } });
+    }
+  });
+
+  // ── COPY ──
+  function copyPrompt(id, btn) {
+    const el = document.getElementById(id);
+    navigator.clipboard.writeText(el.textContent).then(() => {
+      btn.textContent = '✅ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy Prompt'; btn.classList.remove('copied'); }, 2500);
+    });
+  }
+
+  // ── MAIN GENERATE ──
+  async function generate() {
+    const deity = document.getElementById('deity').value.trim();
+    const title = document.getElementById('title').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const summary = document.getElementById('summary').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+    const language = document.getElementById('language').value;
+    const duration = document.getElementById('duration').value;
+
+    if (!deity || !title) { alert('Please fill in Deity and Story Title!'); return; }
+
+    const activePlats = Object.entries(platforms).filter(([,v]) => v).map(([k]) => k);
+    if (activePlats.length === 0) { alert('Select at least one platform!'); return; }
+
+    document.getElementById('genBtn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('errBox').style.display = 'none';
+    document.getElementById('vidAnalCard').style.display = 'none';
+
+    const steps = ['Channelling divine strategy...','Building SEO signals...','Mapping bhakti audience...','Crafting viral hooks...','Optimising hashtags...'];
+    let si = 0;
+    const timer = setInterval(() => { si = (si + 1) % steps.length; document.getElementById('loadStep').textContent = steps[si]; }, 1100);
+
+    try {
+      // Video analysis if frames exist
+      let videoCtx = '';
+      if (vidLoaded && vidFrames.length > 0) {
+        document.getElementById('loadStep').textContent = '🎬 Analysing video frames...';
+        const va = await analyseFrames();
+        videoCtx = buildVideoCtx(va);
+        renderVidAnalysis(va);
+      }
+
+      // Build prompts
+      document.getElementById('loadStep').textContent = '🕉️ Building viral prompts...';
+
+      const baseContext = buildBaseContext(deity, title, message, summary, notes, language, duration, videoCtx);
+      const prompts = {};
+
+      if (platforms.ig) prompts.ig = buildInstagramPrompt(baseContext);
+      if (platforms.fb) prompts.fb = buildFacebookPrompt(baseContext);
+      if (platforms.yt) prompts.yt = buildYouTubePrompt(baseContext);
+
+      // Now call Claude to enhance each prompt with real-time trending knowledge
+      const enhanced = await enhancePrompts(prompts, baseContext);
+
+      renderResults(enhanced);
+
+    } catch(err) {
+      console.error(err);
+      document.getElementById('errBox').textContent = `⚠️ ${err.message || 'Something went wrong. Please try again.'} 🙏`;
+      document.getElementById('errBox').style.display = 'block';
+    } finally {
+      clearInterval(timer);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('genBtn').disabled = false;
+    }
+  }
+
+  // ── VIDEO ANALYSIS ──
+  async function analyseFrames() {
+    const imgs = vidFrames.map((f, i) => ([
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: f } },
+      { type: 'text', text: `Frame ${i+1}` }
+    ])).flat();
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514", max_tokens: 1000,
+        messages: [{ role: "user", content: [...imgs, { type: "text", text: `Analyse these frames from a Sanatan Dharma / Hindu mythology animated devotional video. Return JSON ONLY (no markdown):
+{
+  "visual_mood": "<3 words>",
+  "color_palette": "<dominant colors>",
+  "cinematic_quality": "<Rough | Average | Good | Cinematic | Divine Quality>",
+  "deity_presence": "<clear / partially visible / absent>",
+  "devotional_authenticity": "<Low | Medium | High | Very High>",
+  "visual_emotion": "<dominant spiritual rasa>",
+  "scene_descriptions": ["<frame 1>","<frame 2>","<frame 3>","<frame 4>","<frame 5>","<frame 6>"],
+  "hook_strength": "<Weak | Moderate | Strong | Very Strong>",
+  "hook_notes": "<what works or doesn't in first frame>",
+  "thumbnail_recommendation": "<best frame number and why>",
+  "improvement_tip": "<one specific visual improvement>"
+}` }] }]
+      })
+    });
+    const data = await res.json();
+    return JSON.parse(data.content.map(i => i.text||'').join('').replace(/```json|```/g,'').trim());
+  }
+
+  function buildVideoCtx(va) {
+    return `
+VIDEO VISUAL ANALYSIS (from uploaded frames):
+- Visual Mood: ${va.visual_mood}
+- Color Palette: ${va.color_palette}
+- Cinematic Quality: ${va.cinematic_quality}
+- Deity Presence: ${va.deity_presence}
+- Devotional Authenticity: ${va.devotional_authenticity}
+- Hook Strength: ${va.hook_strength} — ${va.hook_notes}
+- Visual Emotion/Rasa: ${va.visual_emotion}
+- Thumbnail: ${va.thumbnail_recommendation}
+- Scenes: ${va.scene_descriptions.join(' | ')}
+- Improvement: ${va.improvement_tip}`;
+  }
+
+  function renderVidAnalysis(va) {
+    const sec = (label, content, cls='') =>
+      `<div class="rsec ${cls}"><div class="rsec-hd"><span class="rsec-lbl">${label}</span></div><div class="rsec-body">${content}</div></div>`;
+    document.getElementById('vidAnalBody').innerHTML =
+      sec('🎨 Visual Mood & Colors', `${va.visual_mood} · ${va.color_palette}`) +
+      sec('🕉️ Quality & Authenticity', `${va.cinematic_quality} · ${va.devotional_authenticity}`, 'saffron') +
+      sec('⚡ Hook Strength', `${va.hook_strength} — ${va.hook_notes}`, 'lotus') +
+      sec('🖼️ Thumbnail', va.thumbnail_recommendation, 'sky') +
+      sec('💡 Improvement', va.improvement_tip, 'saffron');
+    document.getElementById('vidAnalCard').style.display = 'block';
+  }
+
+  // ── BUILD CONTEXT ──
+  function buildBaseContext(deity, title, message, summary, notes, language, duration, videoCtx) {
+    return {
+      deity, title, message, summary, notes, language, duration, videoCtx,
+      videoType,
+      contentType,
+      mood,
+      platforms: Object.entries(platforms).filter(([,v]) => v).map(([k]) => k)
+    };
+  }
+
+  // ── PLATFORM PROMPT BUILDERS ──
+
+  function buildInstagramPrompt(ctx) {
+    return `You are an Instagram Reels viral metadata expert specialising in Sanatan Dharma, Hindu mythology, and devotional content for Indian and global audiences.
+
+CHANNEL: @sanatandharmatheeternalpath
+NICHE: Sanatan Dharma · Hindu Mythology · Bhakti · Spiritual Wisdom
+FORMAT: ${ctx.contentType} — ${ctx.videoType === 'short' ? 'Instagram Reel (9:16)' : 'Instagram Video/IGTV'}
+LANGUAGE: ${ctx.language}
+DURATION: ${ctx.duration}
+CREATOR LOCATION: Germany (content for global Hindi-speaking audience)
+
+VIDEO DETAILS:
+- Deity / Subject: ${ctx.deity}
+- Story / Title: ${ctx.title}
+- Content Type: ${ctx.contentType}
+- Mood / Energy: ${ctx.mood}
+- Spiritual Message / Shloka: ${ctx.message || 'Not specified'}
+- Story Summary: ${ctx.summary || 'Not provided'}
+${ctx.notes ? `- Special Notes: ${ctx.notes}` : ''}
+${ctx.videoCtx}
+
+Generate the MOST VIRAL Instagram metadata possible. Return JSON ONLY (no markdown, no backticks):
+
+{
+  "caption": "<Full Instagram caption — max 2200 chars. Start with a powerful hook line that stops scroll. Include the spiritual message. Use line breaks for readability. Include a strong CTA (save, share, follow). End with relevant hashtags block.>",
+  "hashtags_primary": ["<10 high-volume hashtags directly about this deity/topic — e.g. #ShriKrishna #SanatanDharma>"],
+  "hashtags_trending": ["<5 currently trending hashtags in the Hindu/spiritual niche>"],
+  "hashtags_reach": ["<5 broad reach hashtags — e.g. #spiritual #motivation #india>"],
+  "hashtags_niche": ["<5 niche community hashtags — e.g. #bhakti #dharmic #sanatanis>"],
+  "total_hashtag_count": "<must be exactly 25-30>",
+  "reel_cover_text": "<Bold text to overlay on Reel cover — max 8 words, Hindi or English>",
+  "reel_audio_suggestion": "<trending audio or original audio strategy>",
+  "best_posting_time": "<specific day + IST time with reason>",
+  "hook_text": "<first line of caption — the scroll-stopping hook>",
+  "cta_strategy": "<what action to ask: save/share/comment/follow and why>",
+  "story_slide_ideas": ["<3 Instagram Story ideas to cross-promote this Reel>"],
+  "collab_tag_suggestions": ["<3 accounts to tag or collab with>"],
+  "alt_text": "<Instagram alt text for accessibility and SEO — describe the visual>",
+  "carousel_repurpose": "<how to turn this into a carousel post for extra reach>",
+  "comment_pin": "<a pinned comment to boost engagement>"
+}`;
+  }
+
+  function buildFacebookPrompt(ctx) {
+    return `You are a Facebook viral content strategist specialising in Sanatan Dharma, Hindu mythology, and devotional content for Indian and global audiences.
+
+PAGE: Sanatan Dharma (Facebook Page)
+NICHE: Sanatan Dharma · Hindu Mythology · Bhakti · Spiritual Wisdom
+FORMAT: ${ctx.contentType} — ${ctx.videoType === 'short' ? 'Facebook Reel (9:16)' : 'Facebook Video'}
+LANGUAGE: ${ctx.language}
+DURATION: ${ctx.duration}
+CREATOR LOCATION: Germany (content for global Hindi-speaking audience)
+
+VIDEO DETAILS:
+- Deity / Subject: ${ctx.deity}
+- Story / Title: ${ctx.title}
+- Content Type: ${ctx.contentType}
+- Mood / Energy: ${ctx.mood}
+- Spiritual Message / Shloka: ${ctx.message || 'Not specified'}
+- Story Summary: ${ctx.summary || 'Not provided'}
+${ctx.notes ? `- Special Notes: ${ctx.notes}` : ''}
+${ctx.videoCtx}
+
+Generate the MOST VIRAL Facebook metadata. Facebook algorithm favours shares, comments and watch time. Return JSON ONLY (no markdown, no backticks):
+
+{
+  "post_text": "<Full Facebook post text. Start with an emotionally powerful hook. Use storytelling format. Include the spiritual message. Add a strong engagement question at the end. Include relevant hashtags inline. Max 500 words but front-load the hook in first 2 lines.>",
+  "headline": "<Short powerful headline for link/video title — max 80 chars>",
+  "headline_hindi": "<Same headline in Hindi Devanagari>",
+  "hashtags": ["<15 Facebook hashtags — mix of Hindi, English, Sanskrit>"],
+  "best_posting_time": "<specific day + IST time with reason — Facebook peak times>",
+  "engagement_question": "<a question to put in comments to drive discussion>",
+  "share_hook": "<why would someone share this? The emotional trigger>",
+  "facebook_group_strategy": "<3 specific Facebook groups/communities to share in>",
+  "thumbnail_text": "<text overlay for Facebook video thumbnail>",
+  "first_comment": "<what to post as first comment to boost algorithm>",
+  "cross_post_strategy": "<how to use this on Facebook Stories, Reels, and main feed>",
+  "boost_recommendation": "<if boosting with ₹500-1000, target audience settings>",
+  "cta": "<call to action — share/comment/react and why>",
+  "emotional_trigger": "<primary emotion: devotion/pride/curiosity/nostalgia/awe>",
+  "virality_factors": ["<3 specific reasons this could go viral on Facebook>"]
+}`;
+  }
+
+  function buildYouTubePrompt(ctx) {
+    const isShort = ctx.videoType === 'short';
+    return `You are a YouTube SEO and viral growth expert specialising in Sanatan Dharma, Hindu mythology, and devotional content for Hindi-speaking Indian and global audiences.
+
+CHANNEL: Sanatan Dharma (YouTube)
+NICHE: Sanatan Dharma · Hindu Mythology · Bhakti · Spiritual Wisdom
+FORMAT: ${ctx.contentType} — ${isShort ? 'YouTube Short (9:16, 15-60s)' : 'Long Form YouTube Video (16:9 or 9:16)'}
+LANGUAGE: ${ctx.language}
+DURATION: ${ctx.duration}
+CREATOR LOCATION: Germany (content for global Hindi-speaking audience)
+GOAL: Maximum subscribers and watch time
+
+VIDEO DETAILS:
+- Deity / Subject: ${ctx.deity}
+- Story / Title: ${ctx.title}
+- Content Type: ${ctx.contentType}
+- Mood / Energy: ${ctx.mood}
+- Spiritual Message / Shloka: ${ctx.message || 'Not specified'}
+- Story Summary: ${ctx.summary || 'Not provided'}
+${ctx.notes ? `- Special Notes: ${ctx.notes}` : ''}
+${ctx.videoCtx}
+
+Generate the MOST OPTIMISED YouTube metadata for maximum algorithm reach. Return JSON ONLY (no markdown, no backticks):
+
+{
+  "title_english": "<SEO-optimised title max ${isShort ? '60' : '70'} chars — powerful, searchable, click-worthy>",
+  "title_hindi": "<same title in Hindi Devanagari>",
+  "title_alternatives": ["<3 alternative title options with different angles>"],
+  "description": "<Full YouTube description — ${isShort ? '100' : '300'} words. Include: story summary, keywords naturally woven in, subscribe CTA, ${isShort ? '' : 'timestamps placeholder, '}social links placeholder, relevant shlokas. Front-load keywords in first 2 lines.>",
+  "tags": ["<${isShort ? '20' : '30'} YouTube tags — mix of Hindi, English, Sanskrit. Include deity name, topic, trending terms, broad spiritual terms>"],
+  "hashtags": ["<${isShort ? '5' : '8'} hashtags for description — most important first>"],
+  "thumbnail_concept": "<detailed thumbnail description — expression, colors, text overlay, composition>",
+  "hook_first_3_seconds": "<exactly what must appear in first 3 seconds to maximise retention>",
+  "end_screen_strategy": "<what to show in last ${isShort ? '3' : '20'} seconds>",
+  "best_posting_time": "<specific day + IST time with detailed reason>",
+  "primary_keyword": "<the #1 YouTube search keyword to rank for>",
+  "secondary_keywords": ["<8 long-tail keywords for YouTube search>"],
+  "search_intent": "<what devotees search that leads to this video>",
+  "competitor_gap": "<what most Sanatan channels miss that this video can own>",
+  "playlist_name": "<which playlist to add this to>",
+  ${isShort ? '' : '"chapter_suggestions": ["<4-6 chapter timestamps with titles>"],'}
+  "community_post": "<a YouTube Community post to publish alongside — drives views>",
+  "comment_pin": "<pinned comment to boost engagement>",
+  "cards_strategy": "<what cards/end screens to link to>",
+  "shorts_funnel": "<${isShort ? 'how to funnel Short viewers to long form' : 'which Short clip to extract from this long form'}>",
+  "growth_score": <1-100>,
+  "growth_reason": "<2 sentences on viral potential>"
+}`;
+  }
+
+  // ── ENHANCE WITH CLAUDE ──
+  async function enhancePrompts(prompts, ctx) {
+    const platNames = { ig: 'Instagram', fb: 'Facebook', yt: 'YouTube' };
+    const results = {};
+
+    for (const [key, prompt] of Object.entries(prompts)) {
+      document.getElementById('loadStep').textContent = `🕉️ Generating ${platNames[key]} viral metadata...`;
+
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514", max_tokens: 1000,
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      const data = await res.json();
+      const text = data.content.map(i => i.text||'').join('');
+      let parsed;
+      try {
+        parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+      } catch(e) {
+        parsed = null;
+      }
+
+      results[key] = {
+        prompt,
+        response: parsed,
+        rawText: text
+      };
+    }
+
+    return results;
+  }
+
+  // ── RENDER RESULTS ──
+  function renderResults(enhanced) {
+    const platConfig = {
+      ig: { icon: '📸', label: 'Instagram', cls: 'ig' },
+      fb: { icon: '📘', label: 'Facebook', cls: 'fb' },
+      yt: { icon: '▶️', label: 'YouTube', cls: 'yt' }
+    };
+
+    const activePlats = Object.keys(enhanced);
+
+    // Build tabs
+    let tabsHtml = '';
+    let contentsHtml = '';
+
+    // Add "All Prompts" tab first
+    tabsHtml += `<button class="mode-tab active" onclick="switchMode('all',this)"><span class="m-ico">🕉️</span>All Prompts</button>`;
+    activePlats.forEach(key => {
+      const cfg = platConfig[key];
+      tabsHtml += `<button class="mode-tab" onclick="switchMode('${key}',this)"><span class="m-ico">${cfg.icon}</span>${cfg.label}</button>`;
+    });
+
+    document.getElementById('modeTabs').innerHTML = tabsHtml;
+
+    // All prompts view
+    let allHtml = '<div class="mode-content active" id="mode-all">';
+    activePlats.forEach(key => {
+      const cfg = platConfig[key];
+      const pid = `prompt-all-${key}`;
+      allHtml += `
+        <div class="prompt-box">
+          <div class="prompt-box-hd">
+            <span class="prompt-box-label ${cfg.cls}">${cfg.icon} ${cfg.label} Prompt</span>
+            <button class="copy-btn" onclick="copyPrompt('${pid}',this)">📋 Copy Prompt</button>
+          </div>
+          <div class="prompt-text" id="${pid}">${escHtml(enhanced[key].prompt)}</div>
+        </div>`;
+    });
+    allHtml += '</div>';
+    contentsHtml += allHtml;
+
+    // Per-platform views with response
+    activePlats.forEach(key => {
+      const cfg = platConfig[key];
+      const pid = `prompt-${key}`;
+      let html = `<div class="mode-content" id="mode-${key}">`;
+
+      // The prompt
+      html += `
+        <div class="prompt-box">
+          <div class="prompt-box-hd">
+            <span class="prompt-box-label ${cfg.cls}">${cfg.icon} ${cfg.label} — Claude Prompt</span>
+            <button class="copy-btn" onclick="copyPrompt('${pid}',this)">📋 Copy Prompt</button>
+          </div>
+          <div class="prompt-text" id="${pid}">${escHtml(enhanced[key].prompt)}</div>
+        </div>`;
+
+      // The generated response
+      if (enhanced[key].response) {
+        const rid = `response-${key}`;
+        html += `
+          <div class="prompt-box" style="border-color: rgba(102,187,106,0.2);">
+            <div class="prompt-box-hd">
+              <span class="prompt-box-label all">✅ Generated Metadata (Preview)</span>
+              <button class="copy-btn" onclick="copyPrompt('${rid}',this)">📋 Copy JSON</button>
+            </div>
+            <div class="prompt-text" id="${rid}" style="font-size:12px;line-height:1.6">${escHtml(JSON.stringify(enhanced[key].response, null, 2))}</div>
+          </div>`;
+
+        // Quick copy buttons for key fields
+        html += renderQuickCopies(key, enhanced[key].response);
+      }
+
+      html += '</div>';
+      contentsHtml += html;
+    });
+
+    document.getElementById('modeContents').innerHTML = contentsHtml;
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function renderQuickCopies(key, resp) {
+    if (!resp) return '';
+    let btns = '<div class="quick-row">';
+
+    if (key === 'ig') {
+      if (resp.caption) btns += qbtn('Caption', resp.caption);
+      const allTags = [...(resp.hashtags_primary||[]), ...(resp.hashtags_trending||[]), ...(resp.hashtags_reach||[]), ...(resp.hashtags_niche||[])];
+      if (allTags.length) btns += qbtn('All Hashtags', allTags.join(' '));
+      if (resp.hook_text) btns += qbtn('Hook', resp.hook_text);
+      if (resp.reel_cover_text) btns += qbtn('Cover Text', resp.reel_cover_text);
+      if (resp.alt_text) btns += qbtn('Alt Text', resp.alt_text);
+      if (resp.comment_pin) btns += qbtn('Pin Comment', resp.comment_pin);
+    }
+
+    if (key === 'fb') {
+      if (resp.post_text) btns += qbtn('Post Text', resp.post_text);
+      if (resp.headline) btns += qbtn('Headline', resp.headline);
+      if (resp.hashtags) btns += qbtn('Hashtags', resp.hashtags.join(' '));
+      if (resp.first_comment) btns += qbtn('1st Comment', resp.first_comment);
+      if (resp.engagement_question) btns += qbtn('Question', resp.engagement_question);
+    }
+
+    if (key === 'yt') {
+      if (resp.title_english) btns += qbtn('Title (EN)', resp.title_english);
+      if (resp.title_hindi) btns += qbtn('Title (HI)', resp.title_hindi);
+      if (resp.description) btns += qbtn('Description', resp.description);
+      if (resp.tags) btns += qbtn('Tags', resp.tags.join(', '));
+      if (resp.hashtags) btns += qbtn('Hashtags', resp.hashtags.join(' '));
+      if (resp.comment_pin) btns += qbtn('Pin Comment', resp.comment_pin);
+      if (resp.community_post) btns += qbtn('Community Post', resp.community_post);
+    }
+
+    btns += '</div>';
+    return btns;
+  }
+
+  function qbtn(label, text) {
+    const safe = text.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+    return `<button class="quick-btn" onclick="copyText('${safe}',this)">📋 ${label}</button>`;
+  }
+
+  function copyText(text, btn) {
+    const decoded = text.replace(/\\n/g, '\n').replace(/\\'/g, "'");
+    navigator.clipboard.writeText(decoded).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => btn.textContent = orig, 2000);
+    });
+  }
+
+  function switchMode(id, btn) {
+    document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('mode-' + id).classList.add('active');
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>

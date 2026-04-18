@@ -1,0 +1,18 @@
+ 
+For Cinematic Section:
+ Generate the full video content in Hindi only, including male voiceover, explanations, and on-screen text. Do not use English anywhere in the output.
+- Focus on the intense dramatic journey of the characters.
+- Use cinematic descriptions to build emotional depth.
+
+For Custom Prompt:
+Act as a Cinematic Director and Scriptwriter. Using the provided sources, draft a high-end video script strictly in Hindi. The script must follow a 'Cinematic Flow' which includes:
+
+Narrative Voiceover (Male): Write a poetic and powerful narration suited for a deep, resonant male voice. Use 'Shuddh' (pure) but accessible Hindi to create a sense of gravity and epic scale.
+
+Visual Storytelling (Screenplay Style): For every line of dialogue, describe the cinematic visual—mentioning camera movements (e.g., 'Slow Zoom', 'Low Angle'), lighting (e.g., 'Chiaroscuro', 'God rays'), and atmosphere.
+
+On-Screen Text (Overlay): Minimalist, high-impact Hindi keywords that appear at key emotional peaks.
+
+Pacing and Transitions: Include instructions for music swells, silence, and sound design (SFX) to ensure a rhythmic, professional flow.
+
+Constraints: Zero English usage in the output. The tone must be devotional, grand, and emotionally moving. Focus on the 'soul' of the content rather than just the facts.

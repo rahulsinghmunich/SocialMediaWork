@@ -1,0 +1,95 @@
+{
+  "project": "ObjectAi — Green Tea Freshener",
+  "topic": "Green Tea Leaf the Freshener",
+  "date": "2026-04-14",
+  "scenes": [
+    {
+      "scene_id": "scene_01",
+      "title": "Green Tea Leaf the Freshener",
+      "scenario": "Single Speaker 8s",
+      "speakers": 1,
+      "duration_seconds": 8,
+
+      "generation_mode": "FIXED_FIRST_FRAME",
+      "flow_image_asset_id": "d7dfc90f-e7cd-40fb-9ddd-53a14a46165b",
+
+      "source_image": {
+        "image_prompt": "SUBJECT: A small anthropomorphic green tea leaf character — shiny, deep forest-green surface with fine leaf veins, upright humanoid form, tiny arms and legs, round friendly face with eyes FIRMLY SEALED and mouth completely CLOSED — no gap, no lips parted, zero open mouth. Face geometry LOCKED. CHARACTER LOCKED: same leaf shape, same green color, same size in all frames. ACTION: snapping into a dynamic martial arts striking pose — weight forward, one arm raised, confident and fierce expression — THIS IS BEAT 1 FROZEN FRAME. SETTING: standing CENTER-FRAME on a large pink tongue surface, wet and shiny like the inside of a mouth. In the background, a dark greenish fog entity (bad breath cloud) looms ominously. Bright, clean environment — pink walls of mouth visible in background. CAMERA: 9:16 vertical frame, character centered, full body visible, static shot. LIGHTING: bright studio-style overhead lighting, soft rim light on leaf character, slightly dramatic to emphasize the face-off mood. STYLE: Pixar 3D animated, vibrant colors, clean render, smooth surfaces, no grain, no watermarks. PURPOSE: This image will be used as a Veo 3.1 animation start frame — character position, expression, and environment must be photorealistic 3D render quality, absolutely no open mouth.",
+        "scene_description": "Green Tea Leaf character in a wide-legged martial arts stance with arms raised, standing CENTER-FRAME on a glistening pink tongue surface inside an open mouth. Pink lips and teeth visible at the edges. Background shows the interior of a mouth — bright, clean. Character is shiny deep forest-green with visible leaf veins, fierce expression, mouth firmly SEALED.",
+        "allowed_animation_only": "Character can animate its pose and arm movements per beat. Mouth OPENS only during Beat 2 (speaking). Bad breath cloud can animate — shrinks Beat 1, shatters Beat 3. Blue energy blast appears Beat 2. Camera slow push in on Beat 3 then settles. No repositioning of character from CENTER.",
+        "first_frame_instruction": "FIXED FIRST FRAME: use the provided image exactly as Beat 1 start. Green Tea Leaf in wide martial arts stance, arms raised, mouth SEALED, standing on pink tongue surface. Character centered. Animate from this frame — do NOT alter character position, color, or expression at Beat 1."
+      },
+
+      "object_type": "green_tea_leaf_character",
+      "description": "Anthropomorphic green tea leaf — shiny deep forest-green body, visible leaf veins, upright humanoid with small arms and legs, wide-legged martial arts stance, round fierce face with prominent eyes, vibrant Pixar 3D style",
+      "face": "SEALED — mouth completely closed for Beat 1 and Beat 3. OPENS naturally during Beat 2 only (speaker is talking).",
+      "face_geometry_lock": "Face geometry LOCKED — same character face, same green leaf shape, same scale in all frames. Match exactly the face visible in the provided first frame image.",
+      "location_lock": "CENTER-FRAME — character stays centered throughout all 3 beats, no repositioning",
+
+      "environment": {
+        "setting": "Interior of mouth — large glistening pink tongue surface as floor. Pink lips and teeth visible at frame edges. Bright, open oral environment.",
+        "lighting": "Bright natural overhead lighting, clean and vibrant. Slight warm glow on the tongue surface. Rim light on the leaf character edges.",
+        "atmosphere": "Clean, fresh, bright interior-of-mouth scene. Slightly cinematic as bad breath cloud appears and shatters.",
+        "background_elements": "Pink lips visible at top and sides of frame, white teeth at edges, bright interior mouth background",
+        "foreground_props": "Bad breath cloud: dark greenish-grey fog entity — not visible in first frame but materializes from background. BEAT 1: emerges/visible, shrinks back slightly in fear of Green Tea Leaf. BEAT 2: recoils as blue energy blast hits it. BEAT 3: completely shatters and vanishes — fragments dissolving. Pink tongue surface throughout. Blue energy blast appears Beat 2 only — shoots from character hands toward cloud."
+      },
+
+      "global_motion_rules": {
+        "camera_rule": "Static camera with slow push in on Beat 3, then settles — no cuts, no angle changes",
+        "animation_rule": "Beat 1: Green Tea Leaf snaps into striking martial arts pose, bad breath cloud shrinks back in fear, mouths SEALED. Beat 2: punches forward while speaking, blue energy blast shoots from hands toward bad breath cloud, mouth OPENS. Beat 3: calm power stance, bad breath cloud completely shatters and vanishes, mouth SEALED silent payoff. Camera slow push in then settles."
+      },
+
+      "beats": [
+        {
+          "beat": 1,
+          "time_range": "00:00-00:02",
+          "dialogue": "",
+          "mouth_animation": "SEALED — no movement, no lip sync",
+          "visuals": "Green Tea Leaf snaps into a striking martial arts pose. The bad breath cloud shrinks back slightly in fear. Eyes fierce, mouth strictly SEALED.",
+          "foreground_content": "Pink tongue surface, Green Tea Leaf CENTER in striking pose, bad breath cloud visible in background shrinking back"
+        },
+        {
+          "beat": 2,
+          "time_range": "00:02-00:05",
+          "dialogue": "Main green tea hoon, mujhse kulla karo aur saanson ki badboo hamesha bhagao.",
+          "word_count": 13,
+          "wps": 4.33,
+          "wps_status": "SAFE",
+          "mouth_animation": "OPENS naturally for Hindi speech — lip sync to full dialogue line",
+          "visuals": "Green Tea Leaf punches forward while speaking. A blast of fresh blue energy shoots from its hands toward the bad breath cloud. Mouth OPENS naturally.",
+          "foreground_content": "Pink tongue surface, Green Tea Leaf CENTER punching forward, blue energy blast shooting from hands, bad breath cloud recoiling"
+        },
+        {
+          "beat": 3,
+          "time_range": "00:05-00:08",
+          "dialogue": "",
+          "mouth_animation": "SEALED — silent payoff beat",
+          "visuals": "Green Tea Leaf returns to calm power stance. The bad breath cloud completely shatters and vanishes. Mouth SEALED. Camera slow push in then settles.",
+          "foreground_content": "Pink tongue surface, Green Tea Leaf CENTER in calm power stance, bad breath cloud fragments dissolving. FOREGROUND LOCK: tongue and Green Tea Leaf only after cloud vanishes."
+        }
+      ],
+
+      "fallback_dialogue": {
+        "use_if_rushed": {
+          "beat2_shorter_11w": "Main green tea hoon, kulla karo aur badboo hamesha bhagao.",
+          "beat2_shorter_9w": "Mujhse kulla karo, badboo hamesha bhagao."
+        }
+      },
+
+      "negative_prompt": [
+        "no subtitle text or captions",
+        "no camera cuts or angle changes",
+        "no repositioning of character from center frame",
+        "no extra speaking characters added to scene",
+        "no blurry face or distorted face geometry",
+        "no teeth showing in Beat 1 or Beat 3",
+        "no open mouth in Beat 1 or Beat 3",
+        "no additional mouth opening besides Beat 2",
+        "no watermark no logo no UI overlay",
+        "no realistic human skin — must stay Pixar 3D animated"
+      ],
+
+      "final_compact_prompt_for_veo": "Pixar 3D animated. An anthropomorphic green tea leaf character — shiny deep forest-green with fine veins, round sealed face — stands CENTER-FRAME on a glistening pink tongue surface inside a mouth. A dark greenish bad breath cloud looms in the background. Beat 1 (0-2s): Green Tea Leaf snaps into a fierce striking martial arts pose. Bad breath cloud shrinks back in fear. Mouth SEALED. Beat 2 (2-5s): Green Tea Leaf punches forward and speaks — 'Main green tea hoon, mujhse kulla karo aur saanson ki badboo hamesha bhagao.' A blast of fresh blue energy shoots from its hands, hitting the bad breath cloud. Mouth OPENS naturally for Hindi lip sync. Beat 3 (5-8s): Green Tea Leaf settles into calm power stance. Bad breath cloud completely shatters and vanishes — fragments dissolving. Mouth SEALED. Camera slow push in then settles. Static camera throughout — no cuts, no angle changes. Bright oral environment, clean Pixar 3D render."
+    }
+  ]
+}

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veo Pacer V10.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Devanagari:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080A0F;--sf:#0E1117;--cd:#151921;--bd:#1E2530;--bb:#2A3444;--fire:#FF4D1A;--fg:rgba(255,77,26,.12);--fd:#CC3300;--em:#FF8C42;--gold:#FFD166;--cy:#22D3EE;--gr:#10B981;--rd:#EF4444;--pu:#A78BFA;--tx:#E8ECF1;--mu:#6B7A8D;--mo:'JetBrains Mono',monospace;--ui:'Space Grotesk','DM Sans',sans-serif;--hi:'Noto Sans Devanagari',sans-serif;--r:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--ui);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 600px 400px at 20% 10%,rgba(255,77,26,.04),transparent),radial-gradient(ellipse 400px 300px at 80% 90%,rgba(34,211,238,.03),transparent);pointer-events:none}
+.w{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:40px 24px 100px}
+header{text-align:center;margin-bottom:40px}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--fg);border:1px solid var(--fire);border-radius:100px;padding:6px 18px;font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--fire);text-transform:uppercase;margin-bottom:16px}
+h1{font-size:clamp(32px,6vw,56px);font-weight:700;line-height:1.05;letter-spacing:-.03em;background:linear-gradient(135deg,#fff 40%,var(--fire));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{margin-top:8px;font-size:12px;color:var(--mu)}.sub b{color:var(--fire)}
+.tabs{display:flex;gap:4px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:4px;margin-bottom:24px}
+.tab{flex:1;background:0;border:0;border-radius:9px;padding:10px 8px;font-family:var(--ui);font-size:12px;font-weight:700;color:var(--mu);cursor:pointer;text-align:center;transition:.2s}
+.tab:hover{color:var(--tx)}.tab.on{background:var(--fire);color:#fff;box-shadow:0 2px 12px rgba(255,77,26,.3)}
+.pnl{display:none}.pnl.on{display:block}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:24px;margin-bottom:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fire),var(--em),transparent)}
+.lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--fire);text-transform:uppercase;margin-bottom:8px}
+.row{display:flex;gap:10px;align-items:stretch}
+input[type=text],textarea{flex:1;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-family:var(--ui);font-size:14px;font-weight:700;color:var(--tx);outline:0;transition:.2s}
+input::placeholder,textarea::placeholder{color:var(--mu);font-weight:400}
+input:focus,textarea:focus{border-color:var(--fire);box-shadow:0 0 0 3px var(--fg)}
+textarea.code{font-family:var(--mo);font-size:12px;font-weight:400;line-height:1.7;min-height:140px;resize:vertical}
+textarea.sm{min-height:60px;font-size:12px;font-weight:400;line-height:1.5}
+.btn{background:var(--fire);color:#fff;border:0;border-radius:10px;padding:12px 22px;font-family:var(--ui);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s}
+.btn:hover{background:var(--fd)}.btn:active{transform:scale(.97)}
+.orow{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.olbl{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--mu);text-transform:uppercase;margin-right:2px}
+.ob{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:5px 11px;font-family:var(--ui);font-size:11px;font-weight:700;color:var(--mu);cursor:pointer;transition:.15s}
+.ob:hover{border-color:var(--fire);color:var(--fire)}.ob.on{background:var(--fg);border-color:var(--fire);color:var(--fire)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.chip{background:var(--sf);border:1px solid var(--bd);border-radius:100px;padding:4px 11px;font-size:11px;color:var(--mu);cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--fire);color:var(--fire);background:var(--fg)}
+.sec{margin-top:14px;border-top:1px solid var(--bd);padding-top:14px}
+.tog{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;font-weight:700;color:var(--em);margin-bottom:8px}.tog:hover{color:var(--fire)}
+.bdy{display:none}.bdy.on{display:block}
+.out{display:none}.out.on{display:block}
+.oh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.ot{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--gr);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.dp{width:7px;height:7px;background:var(--gr);border-radius:50%;animation:p 1.5s ease-in-out infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+.cpb{display:flex;align-items:center;gap:7px;background:var(--gr);color:#000;border:0;border-radius:8px;padding:8px 16px;font-family:var(--ui);font-size:12px;font-weight:700;cursor:pointer;transition:.2s}
+.cpb:hover{background:#0ea572}.cpb.ok{background:var(--gold);color:#000}
+.pbox{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;font-family:var(--mo);font-size:11.5px;line-height:1.8;color:#D4D4D4;white-space:pre-wrap;word-break:break-word;max-height:600px;overflow-y:auto}
+.pbox::-webkit-scrollbar{width:5px}.pbox::-webkit-scrollbar-thumb{background:var(--bb);border-radius:3px}
+.sbar{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding:12px 16px;background:var(--cd);border:1px solid var(--bd);border-radius:10px}
+.st{display:flex;flex-direction:column;gap:2px}.sv{font-size:16px;font-weight:700;color:var(--fire)}.sl{font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--mu);text-transform:uppercase}
+.ir{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ip{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase}.ip b{color:var(--fire)}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gr);color:#000;font-family:var(--ui);font-weight:700;font-size:13px;padding:10px 22px;border-radius:100px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:1000}.toast.on{transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:40px 20px;color:var(--mu)}.empty p{font-size:13px;line-height:1.6}
+.imgup{border:2px dashed var(--bd);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.2s;margin-top:8px;position:relative}
+.imgup:hover{border-color:var(--fire);background:var(--fg)}
+.imgup input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.imgup .preview{max-width:100%;max-height:180px;border-radius:8px;margin-top:8px;display:none}
+.imgup .txt{font-size:11px;color:var(--mu)}.imgup .txt b{color:var(--fire)}
+.rstatus{margin-top:10px;padding:10px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;font-size:12px;color:var(--mu);line-height:1.6;display:none}.rstatus.on{display:block}
+.preview-panel{margin-top:14px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:16px;display:none}
+.preview-panel.on{display:block}
+.preview-panel h4{font-size:11px;font-weight:700;color:var(--cy);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.turn-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--cd);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;font-size:12px}
+.turn-num{width:24px;height:24px;border-radius:50%;background:var(--fire);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.turn-name{font-weight:700;color:var(--cy);min-width:80px}
+.turn-line{color:var(--pu);font-family:var(--hi);font-size:13px;flex:1}
+.turn-swap{background:var(--fg);border:1px solid var(--fire);color:var(--fire);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0}
+.turn-swap:hover{background:var(--fire);color:#fff}
+.val-row{padding:8px 12px;border-radius:8px;margin-bottom:4px;font-size:11px;display:flex;align-items:center;gap:8px}
+.val-ok{background:rgba(16,185,129,.08);border:1px solid var(--gr);color:var(--gr)}
+.val-err{background:rgba(239,68,68,.08);border:1px solid var(--rd);color:var(--rd)}
+.val-warn{background:rgba(255,209,102,.08);border:1px solid var(--gold);color:var(--gold)}
+@media(max-width:600px){.row{flex-direction:column}.w{padding:20px 14px 80px}}
+</style>
+</head>
+<body>
+<div class="w">
+<header>
+  <div class="badge">Object Talk JSON Engine</div>
+  <h1>VEO PACER V10.1</h1>
+  <p class="sub">Native <b>Multi-Speaker</b> | JSON | Image-to-Video | Beat-Synced Dialogue | Validation</p>
+</header>
+<div class="tabs">
+  <button class="tab on" onclick="swTab('gen')">Generate JSON</button>
+  <button class="tab" onclick="swTab('imp')">Raw Import</button>
+</div>
+
+<!-- GENERATE -->
+<div class="pnl on" id="pGen">
+<div class="card">
+  <label class="lbl">Video Topic</label>
+  <div class="row">
+    <input type="text" id="topicIn" placeholder="e.g. Sendha Namak vs Table Salt, Liver and Muscle scene..." autocomplete="off"/>
+    <button class="btn" onclick="doGen()">Generate</button>
+  </div>
+  <div class="orow"><span class="olbl">Content:</span>
+    <button class="ob on" onclick="so('content',this,'ayurveda')">Ayurveda</button>
+    <button class="ob" onclick="so('content',this,'science')">Science</button>
+    <button class="ob" onclick="so('content',this,'comedy')">Comedy</button>
+    <button class="ob" onclick="so('content',this,'custom')">Custom</button>
+  </div>
+  <div class="orow"><span class="olbl">Tone:</span>
+    <button class="ob on" onclick="so('tone',this,'Funny Swag')">Funny Swag</button>
+    <button class="ob" onclick="so('tone',this,'Villain Swag')">Villain Swag</button>
+    <button class="ob" onclick="so('tone',this,'Savage')">Savage</button>
+    <button class="ob" onclick="so('tone',this,'Emotional')">Emotional</button>
+    <button class="ob" onclick="so('tone',this,'Cute')">Cute</button>
+  </div>
+  <div class="orow"><span class="olbl">Duration:</span>
+    <button class="ob on" onclick="so('dur',this,8)">8s</button>
+    <button class="ob" onclick="so('dur',this,16)">16s</button>
+    <button class="ob" onclick="so('dur',this,24)">24s</button>
+  </div>
+  <div class="sec">
+    <div class="tog" onclick="tgl('genImg')">+ Reference Image</div>
+    <div class="bdy" id="genImg">
+      <div class="imgup"><div class="txt">Click to <b>upload reference image</b> for Veo Image-to-Video</div><input type="file" accept="image/*" onchange="hImg(this,'gen')"/><img class="preview" id="genPrev"/></div>
+      <textarea class="sm" id="genImgD" style="margin-top:8px" placeholder="Or describe Frame 1 scene for image generation..."></textarea>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="tog" onclick="tgl('genCtx')">+ Custom Context</div>
+    <div class="bdy" id="genCtx"><textarea class="sm" id="genCtxIn" placeholder="Character details, rules, visual style..."></textarea></div>
+  </div>
+  <div class="chips">
+    <div class="chip" onclick="qS('Sendha Namak vs Table Salt')">Sendha Namak vs Salt</div>
+    <div class="chip" onclick="qS('Neem Datun vs Chemical Toothpaste')">Neem vs Toothpaste</div>
+    <div class="chip" onclick="qS('Tulsi vs Lung Congestion')">Tulsi vs Lung</div>
+    <div class="chip" onclick="qS('Diya - Navratri story')">Diya Navratri</div>
+  </div>
+</div>
+</div>
+
+<!-- RAW IMPORT -->
+<div class="pnl" id="pImp">
+<div class="card">
+  <label class="lbl">Paste Idea / Script</label>
+  <textarea class="code" id="rawIn" placeholder="Paste any script with dialogue...&#10;&#10;Liver: &quot;फिर से इंसुलिन शुगर को लेकर आ रहा है।&quot;&#10;Muscle: &quot;हूँ... शटर बंद करो!&quot;"></textarea>
+  <div class="orow"><span class="olbl">Content:</span>
+    <button class="ob on" onclick="so('rc',this,'auto')">Auto</button>
+    <button class="ob" onclick="so('rc',this,'ayurveda')">Ayurveda</button>
+    <button class="ob" onclick="so('rc',this,'comedy')">Comedy</button>
+    <button class="ob" onclick="so('rc',this,'custom')">Custom</button>
+  </div>
+  <div class="orow"><span class="olbl">Tone:</span>
+    <button class="ob on" onclick="so('rt',this,'Auto')">Auto</button>
+    <button class="ob" onclick="so('rt',this,'Funny Swag')">Funny Swag</button>
+    <button class="ob" onclick="so('rt',this,'Emotional')">Emotional</button>
+    <button class="ob" onclick="so('rt',this,'Savage')">Savage</button>
+  </div>
+  <div class="sec">
+    <div class="tog" onclick="tgl('rawImg')">+ Reference Image</div>
+    <div class="bdy" id="rawImg">
+      <div class="imgup"><div class="txt">Click to <b>upload reference image</b></div><input type="file" accept="image/*" onchange="hImg(this,'raw')"/><img class="preview" id="rawPrev"/></div>
+      <textarea class="sm" id="rawImgD" style="margin-top:8px" placeholder="Or describe Frame 1..."></textarea>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="tog" onclick="tgl('rawCtx')">+ Custom Context</div>
+    <div class="bdy" id="rawCtx"><textarea class="sm" id="rawCtxIn" placeholder="Extra instructions..."></textarea></div>
+  </div>
+  <div style="margin-top:14px"><button class="btn" onclick="doImp()">Build JSON</button></div>
+  <div class="preview-panel" id="turnPreview"></div>
+  <div class="rstatus" id="rawSt"></div>
+</div>
+</div>
+
+<!-- OUTPUT -->
+<div class="out" id="outSec">
+  <div class="ir" id="infoR"></div>
+  <div class="oh">
+    <div class="ot"><div class="dp"></div><span id="outLbl">JSON Ready</span></div>
+    <button class="cpb" id="cpBtn" onclick="cpOut()">Copy JSON</button>
+  </div>
+  <div class="pbox" id="pBox"></div>
+  <div id="valPanel" style="margin-top:12px"></div>
+  <div class="sbar" id="stBar"></div>
+</div>
+<div class="empty" id="empty"><div style="font-size:36px;margin-bottom:12px">{ }</div><p>V10.1: Native <b>multi-speaker</b> support. Characters[], per-beat active_speaker, lip_sync schedules, validation, and turn-order preview.</p></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var S={tone:'Funny Swag',content:'ayurveda',dur:8,rc:'auto',rt:'Auto',prompt:'',topic:'',genImg:null,rawImg:null};
+var MW=13,LM=3;
+
+// ── UI ──
+function swTab(t){document.querySelectorAll('.tab').forEach(function(b,i){b.classList.toggle('on',t==='gen'?i===0:i===1)});document.getElementById('pGen').classList.toggle('on',t==='gen');document.getElementById('pImp').classList.toggle('on',t==='imp')}
+function so(k,b,v){b.closest('.orow').querySelectorAll('.ob').forEach(function(x){x.classList.remove('on')});b.classList.add('on');S[k]=v}
+function tgl(id){document.getElementById(id).classList.toggle('on')}
+function qS(t){document.getElementById('topicIn').value=t;doGen()}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},2500)}
+function cp(t,b,r){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){b.textContent='Copied!';b.classList.add('ok');toast('Copied!');setTimeout(function(){b.textContent=r;b.classList.remove('ok')},3e3)}).catch(function(){toast('Failed')})}else toast('Not available')}
+function ft(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function hImg(inp,pre){var f=inp.files[0];if(!f)return;var p=document.getElementById(pre+'Prev');var r=new FileReader();r.onload=function(e){p.src=e.target.result;p.style.display='block';S[pre+'Img']=e.target.result;inp.closest('.imgup').querySelector('.txt').innerHTML='Loaded: <b>'+f.name+'</b>'};r.readAsDataURL(f)}
+function sanitize(s){return s.replace(/<[^>]*>/g,'').replace(/&[a-z]+;/gi,'').replace(/\s+/g,' ').trim()}
+
+// ── PARSE DIALOGUE TURNS ──
+function parseTurns(raw){
+  var turns = [];
+  var re = /(?:^|[\n>*\-])\s*([A-Za-z\u0900-\u097F][A-Za-z\u0900-\u097F ]{0,20}?)\s*:\s*[""\u201C]([^"""\u201C\u201D]+)[""\u201D]/gm;
+  var m;
+  while((m=re.exec(raw))!==null){
+    var name=m[1].trim(), line=sanitize(m[2]);
+    if(/image prompt|motion|dialogue|scene|shot|showing|camera|lighting|hindi/i.test(name))continue;
+    if(name.length>20||line.length<3)continue;
+    turns.push({name:name,line:line,words:line.split(/\s+/).length});
+  }
+  // Fallback: extract any Hindi in quotes if no named turns found
+  if(turns.length===0){
+    var hm=raw.match(/[""\u201C]([^"""\u201C\u201D]*[\u0900-\u097F]+[^"""\u201C\u201D]*)[""\u201D]/g);
+    if(hm)hm.forEach(function(x){var c=sanitize(x.replace(/["""\u201C\u201D]/g,''));if(c.length>2)turns.push({name:'Speaker',line:c,words:c.split(/\s+/).length})});
+  }
+  return turns;
+}
+
+function getUniqueNames(turns){
+  var seen={},order=[];
+  turns.forEach(function(t){if(!seen[t.name]){seen[t.name]=true;order.push(t.name)}});
+  return order;
+}
+
+// ── TURN PREVIEW UI ──
+function showTurnPreview(turns){
+  var panel=document.getElementById('turnPreview');
+  if(turns.length===0){panel.classList.remove('on');return}
+  panel.classList.add('on');
+  var names=getUniqueNames(turns);
+  var html='<h4>Detected Speaker Turns ('+turns.length+' lines, '+names.length+' speaker'+(names.length>1?'s':'')+')</h4>';
+  turns.forEach(function(t,i){
+    html+='<div class="turn-row"><span class="turn-num">'+(i+1)+'</span><span class="turn-name">'+t.name+'</span><span class="turn-line">'+t.line+'</span><span style="color:var(--em);font-size:10px;font-weight:700">'+t.words+'w</span></div>';
+  });
+  if(names.length>1){
+    html+='<div style="margin-top:8px;font-size:10px;color:var(--cy)">Speaker order: '+names.join(' → ')+' | Mode: MULTI-SPEAKER</div>';
+  }
+  panel.innerHTML=html;
+}
+
+// ── BUILD CHARACTERS ARRAY ──
+function buildCharacters(names, hasImage){
+  var chars = [];
+  names.forEach(function(name,i){
+    var c = {
+      "name": name,
+      "object_type": "[FILL: what object is "+name+"? e.g. bottle/jar/tube/lamp. Repeat 5+ times in final prompt.]",
+      "position": i===0?"RIGHT":i===1?"LEFT":"CENTER",
+      "location_lock": "[FILL: Where "+name+" exists for ALL seconds. Where it does NOT appear.]",
+      "description": "[FILL: Full Pixar 3D visual — shape, color, texture, material, size]",
+      "face": "expressive face formed in [FILL: material] texture",
+      "face_geometry_lock": "[FILL: How face sits on surface. Must NOT inflate/balloon/protrude.]",
+      "voice": {"language":"Hindi","tone":"[FILL]","pace":"natural Hindi conversational"},
+      "mouth_animation": {
+        "active_beats": "[FILL: which beats this character speaks in]",
+        "sealed_beats": "[FILL: which beats this character's mouth is SEALED]",
+        "style": "loose natural talking rhythm — not strict phoneme sync"
+      },
+      "animation": {}
+    };
+    chars.push(c);
+  });
+  return chars;
+}
+
+// ── BUILD BEATS FROM TURNS ──
+function buildBeatsFromTurns(turns, names, dur){
+  var beats = [];
+  var totalTurns = turns.length;
+  var segCount = Math.ceil(dur/8);
+
+  for(var seg=0;seg<segCount;seg++){
+    var base=seg*8;
+    // Silent hook for each segment
+    beats.push({
+      "beat":beats.length+1,
+      "time":ft(base)+"-"+ft(base+2),
+      "type":"silent_hook",
+      "active_speaker":null,
+      "sealed_characters":names.slice(),
+      "visuals":"[FILL: Bring scene to life. All characters breathe subtly. No dialogue.]",
+      "foreground_content":"[FILL: List everything in foreground. No empty space.]",
+      "character_positions_this_beat":"[FILL: Confirm every character position.]",
+      "dialogue":null,
+      "audio":{"music":"[FILL: very soft LOW]","ambient":"[FILL]","sfx":["[FILL]"]}
+    });
+  }
+
+  // Distribute dialogue turns across available time
+  var dialogueStart = 2; // after first hook
+  var totalDialogueTime = dur - (segCount * 2); // subtract hook time per segment
+  var timePerTurn = Math.max(LM, Math.floor(totalDialogueTime / Math.max(totalTurns,1)));
+  var currentTime = dialogueStart;
+
+  turns.forEach(function(turn, i){
+    var tEnd = Math.min(currentTime + timePerTurn, dur);
+    if(i===turns.length-1) tEnd = dur; // last turn takes remaining time
+
+    var sealed = names.filter(function(n){return n!==turn.name});
+    var isLast = i===turns.length-1;
+
+    beats.push({
+      "beat":beats.length+1,
+      "time":ft(currentTime)+"-"+ft(tEnd),
+      "type":isLast?"mic_drop":"dialogue",
+      "active_speaker":turn.name,
+      "sealed_characters":sealed,
+      "speaker_activation_rule":"ONLY "+turn.name+" mouth animates this beat. "+sealed.join(', ')+(sealed.length>0?" may react with eyes/posture ONLY — mouth SEALED.":""),
+      "visuals":"[FILL: "+turn.name+" speaks. Action-sync each phrase to visual change."+(sealed.length>0?" "+sealed.join(', ')+" reacts from their position, mouth SEALED.":"")+" ]",
+      "foreground_content":"[FILL: Account for ALL foreground space."+(isLast?" CRITICAL: highest hallucination risk beat.":"")+" ]",
+      "character_positions_this_beat":"[FILL: "+names.map(function(n){return n+" at [location]"}).join('. ')+". No teleporting.]",
+      "dialogue":{
+        "speaker_name":turn.name,
+        "line":turn.line,
+        "delivery":"[FILL]",
+        "word_count":turn.words,
+        "duration_seconds":tEnd-currentTime,
+        "pace_note":"natural Hindi conversational",
+        "action_sync":{"[FILL: key phrase]":"[FILL: visual change]"}
+      },
+      "audio":{"music":"[FILL: LOW]","ambient":"[FILL]","sfx":["[FILL: synced to key word]"]}
+    });
+    currentTime = tEnd;
+  });
+
+  return beats;
+}
+
+// ── BUILD BEATS TEMPLATE (no pre-existing turns) ──
+function buildBeatsTemplate(names, dur, beatsPerSeg){
+  var beats=[];
+  var segs=Math.ceil(dur/8);
+  for(var seg=0;seg<segs;seg++){
+    var base=seg*8;
+    beats.push({"beat":beats.length+1,"time":ft(base)+"-"+ft(base+2),"type":"silent_hook","active_speaker":null,"sealed_characters":names.slice(),"visuals":"[FILL]","foreground_content":"[FILL]","character_positions_this_beat":"[FILL]","dialogue":null,"audio":{"music":"[FILL: LOW]","ambient":"[FILL]","sfx":["[FILL]"]}});
+
+    if(names.length>=2 && beatsPerSeg>=2){
+      beats.push({"beat":beats.length+1,"time":ft(base+2)+"-"+ft(base+5),"type":"dialogue","active_speaker":names[0],"sealed_characters":names.slice(1),"speaker_activation_rule":"ONLY "+names[0]+" speaks. Others mouth SEALED.","visuals":"[FILL]","foreground_content":"[FILL]","character_positions_this_beat":"[FILL]","dialogue":{"speaker_name":names[0],"line":"[FILL: Hindi ~10-13 words]","delivery":"[FILL]","word_count":"[FILL]","duration_seconds":3,"pace_note":"natural Hindi conversational","action_sync":{}},"audio":{"music":"[FILL]","ambient":"[FILL]","sfx":["[FILL]"]}});
+      beats.push({"beat":beats.length+1,"time":ft(base+5)+"-"+ft(base+8),"type":"mic_drop","active_speaker":names[1],"sealed_characters":[names[0]],"speaker_activation_rule":"ONLY "+names[1]+" speaks. "+names[0]+" mouth SEALED.","visuals":"[FILL]","foreground_content":"[FILL: CRITICAL final beat]","character_positions_this_beat":"[FILL]","dialogue":{"speaker_name":names[1],"line":"[FILL: mic-drop 4-8 words]","delivery":"[FILL]","word_count":"[FILL]","duration_seconds":3,"pace_note":"natural Hindi conversational","action_sync":{}},"audio":{"music":"[FILL]","ambient":"[FILL]","sfx":["[FILL]"]}});
+    } else {
+      beats.push({"beat":beats.length+1,"time":ft(base+2)+"-"+ft(base+5),"type":"dialogue","active_speaker":names[0],"sealed_characters":names.slice(1),"speaker_activation_rule":"ONLY "+names[0]+" speaks.","visuals":"[FILL]","foreground_content":"[FILL]","character_positions_this_beat":"[FILL]","dialogue":{"speaker_name":names[0],"line":"[FILL: Hindi natural pace, 10-13 words]","delivery":"[FILL]","word_count":"[FILL]","duration_seconds":3,"pace_note":"natural Hindi conversational","action_sync":{}},"audio":{"music":"[FILL]","ambient":"[FILL]","sfx":["[FILL]"]}});
+      beats.push({"beat":beats.length+1,"time":ft(base+5)+"-"+ft(base+8),"type":"silent_payoff","active_speaker":null,"sealed_characters":names.slice(),"visuals":"[FILL: visual climax, hero freeze]","foreground_content":"[FILL: CRITICAL]","character_positions_this_beat":"[FILL]","dialogue":null,"audio":{"music":"[FILL]","ambient":"[FILL]","sfx":["[FILL]"]}});
+    }
+  }
+  return beats;
+}
+
+// ── VALIDATION ──
+function validate(json){
+  var issues=[];
+  var chars=json.characters||[];
+  var beats=json.beats||[];
+
+  // Check: multi-speaker mode but character has dialogue with no active beats
+  chars.forEach(function(c){
+    if(c.mouth_animation&&c.mouth_animation.active_beats==='none'&&beats.some(function(b){return b.active_speaker===c.name}))
+      issues.push({type:'err',msg:c.name+' has dialogue beats but mouth_animation.active_beats="none"'});
+  });
+
+  // Check: negative prompts contradict speakers
+  var neg=json.negative_prompt||[];
+  chars.forEach(function(c){
+    neg.forEach(function(n){
+      if(typeof n==='string'&&n.toLowerCase().indexOf('no mouth movement for '+c.name.toLowerCase())>-1){
+        if(beats.some(function(b){return b.active_speaker===c.name}))
+          issues.push({type:'err',msg:'Negative prompt forbids mouth for "'+c.name+'" but they have dialogue beats. Remove: "'+n+'"'});
+      }
+    });
+  });
+
+  // Check sealed contradictions
+  beats.forEach(function(b){
+    if(b.active_speaker&&b.sealed_characters&&b.sealed_characters.indexOf(b.active_speaker)>-1)
+      issues.push({type:'err',msg:'Beat '+b.beat+': '+b.active_speaker+' is both active_speaker AND in sealed_characters'});
+  });
+
+  return issues;
+}
+
+function renderValidation(issues){
+  var el=document.getElementById('valPanel');
+  if(!issues.length){el.innerHTML='<div class="val-ok">All checks passed</div>';return}
+  var html='';
+  issues.forEach(function(i){html+='<div class="val-'+i.type+'">'+i.msg+'</div>'});
+  el.innerHTML=html;
+}
+
+// ── BUILD FULL JSON ──
+function buildJSON(title, names, turns, imgData, imgDesc, custom){
+  var ctx=S.content==='science'?'Science / Knowledge':S.content==='comedy'?'Comedy / Fun':S.content==='custom'?'Custom':'Ayurveda / Health';
+  var hasImg=!!imgData;
+  var isMulti=names.length>1;
+  var speakerMode=isMulti?'MULTI_SPEAKER':'SINGLE_SPEAKER';
+  var chars=buildCharacters(names,hasImg);
+  var beats=turns.length>0?buildBeatsFromTurns(turns,names,S.dur):buildBeatsTemplate(names,S.dur,isMulti?2:1);
+
+  // Build mouth_animation schedules
+  chars.forEach(function(c){
+    var active=[],sealed=[];
+    beats.forEach(function(b){
+      if(b.active_speaker===c.name)active.push(b.beat);
+      else if(b.sealed_characters&&b.sealed_characters.indexOf(c.name)>-1)sealed.push(b.beat);
+    });
+    c.mouth_animation.active_beats=active.length?active:'[FILL]';
+    c.mouth_animation.sealed_beats=sealed.length?sealed:'[FILL]';
+  });
+
+  var turnRule=isMulti?'Only ONE character speaks at a time. Per beat: active_speaker has lip sync, all sealed_characters have mouth SEALED and may only react with eyes/posture.':'Only '+names[0]+' speaks. All other elements are silent.';
+
+  var negatives=[
+    hasImg?"do not regenerate the image":null,
+    hasImg?"no scene redesign":null,
+    "no human figures — all characters are animated objects",
+    "no man, no person, no human body",
+    "characters are objects NOT people",
+    "no new characters","no additional characters"
+  ];
+  names.forEach(function(n,i){
+    negatives.push("no duplicate "+n+" anywhere in frame");
+    if(i>0)negatives.push("no "+n+" appearing near "+names[0]+"'s position");
+    negatives.push("no mini/small version of "+n+" spawning");
+  });
+  negatives=negatives.concat([
+    "no subtitles","no camera cuts","no camera angle change",
+    "no character repositioning","no exaggerated cartoon motion","no fast speech",
+    "no balloon face or inflated face geometry",
+    "no separate 3D head object on any character"
+  ]);
+  // Only seal mouth for chars that NEVER speak
+  var neverSpeaks=names.filter(function(n){return !beats.some(function(b){return b.active_speaker===n})});
+  neverSpeaks.forEach(function(n){negatives.push("no mouth movement for "+n+" — mouth stays sealed entire video")});
+  negatives.push("[FILL: scene-specific negatives]");
+  negatives=negatives.filter(Boolean);
+
+  var json={
+    "_instructions":"PASTE THIS JSON INTO CLAUDE"+(hasImg?" with your reference image":"")+". Fill every [FILL]. Hindi Devanagari dialogue. Natural Hindi conversational pace. Veo speaks dialogue AND animates mouth loosely — not strict phoneme sync. Pause-based delivery where it feels natural. Action-synced. (Language: Hindi)(no subtitles). Use character NAMES everywhere (never Hero/Target). Repeat object_type word 5+ times. Never 'muscular character' — always 'muscular BOTTLE'. Fill final_compact_prompt_for_veo.",
+    "title":title,
+    "duration_seconds":S.dur,
+    "aspect_ratio":"9:16",
+    "style":"cinematic Pixar-style 3D, "+S.tone,
+    "content_type":ctx,
+    "generation_mode":hasImg?"IMAGE_TO_VIDEO":"TEXT_TO_VIDEO",
+    "model_target":"VEO 3.1",
+
+    "_speaker_mode":speakerMode,
+    "_speaker_count":names.length,
+    "_speaker_order":names,
+    "_first_speaker":turns.length>0?turns[0].name:names[0],
+    "_turn_rule":turnRule,
+
+    "_rules":{
+      "tone":S.tone,
+      "mouth_animation":"loose natural talking rhythm — not strict phoneme sync",
+      "dialogue_delivery":"Veo speaks Hindi audio AND animates mouth loosely together",
+      "pace_note":"Natural Hindi conversational pace — 3 to 4 words per second is normal speech",
+      "max_words_per_8s":MW,
+      "custom":custom||null
+    },
+
+    "source_image":{
+      "mode":"FIXED_FIRST_FRAME",
+      "generation_mode":hasImg?"IMAGE_TO_VIDEO":"TEXT_TO_VIDEO_WITH_FRAME1_PROMPT",
+      "file_reference":hasImg?"uploaded image":"[generate image first]",
+      "first_frame_instruction":hasImg?"Start on this exact uploaded image. Hold nearly still for 0.3s.":null,
+      "image_prompt":imgDesc||"[FILL: Frame 1 image prompt — all characters in starting positions, 9:16 vertical]",
+      "scene_description":"[FILL: exact Frame 1 scene]",
+      "what_must_not_change":["camera angle","camera height","scene composition","character positions","background","props","lighting","character colors/shapes"],
+      "allowed_animation_only":["facial micro-expressions","subtle breathing","tiny hand/arm motion","glow/particle effects","lip sync only for speakers"]
+    },
+
+    "scene_integrity":{
+      "character_count":"EXACTLY "+names.length+" characters",
+      "character_positions":names.map(function(n){return n+" — [FILL: exact fixed location for all "+S.dur+"s. Does NOT appear elsewhere.]"}),
+      "position_lock":"Positions FIXED for all "+S.dur+"s. No teleporting, duplicating, or new locations.",
+      "foreground_fill_rule":"[FILL: Every beat must explicitly fill ALL foreground space. Empty space = Veo hallucination.]",
+      "narrative_completion_warning":"If dialogue is directed at another character, Veo may hallucinate them closer. Anchor positions in EVERY beat."
+    },
+
+    "global_motion_rules":{
+      "camera_rule":"[FILL: based on scene]",
+      "character_rule":"[FILL: based on scene]",
+      "animation_rule":"[FILL: based on scene]",
+      "style_rule":"[FILL: based on tone]"
+    },
+
+    "characters":chars,
+
+    "environment":{"setting":"[FILL]","lighting":"[FILL]","atmosphere":"[FILL]","background_elements":["[FILL]"],"foreground_props":["[FILL]"]},
+
+    "beats":beats,
+
+    "audio":{"dialogue_priority":"Dialogue dominant over music/effects","subtitles":false,"soundtrack_level":"low","overall_feel":"[FILL]"},
+
+    "veo_3_1_optimization":{
+      "primary_instruction":hasImg?"Animate uploaded image into "+S.dur+"s cinematic video keeping original composition intact.":"Generate "+S.dur+"s cinematic Pixar 3D video.",
+      "motion_budget":"[FILL: based on scene]",
+      "mouth_animation_model":"LOOSE — Veo generates Hindi audio and animates mouth with natural talking rhythm. Not strict phoneme-by-phoneme sync.",
+      "priority_order":[hasImg?"preserve exact source frame":"establish scene"].concat(names.map(function(n){return"natural loose mouth animation on "+n+" in their speaking beats only"})).concat(["[FILL: key visual actions]","[FILL: camera movement]"]),
+      "performance_note":"[FILL]"
+    },
+
+    "negative_prompt":negatives,
+    "fallback_dialogue":{"use_if_rushed":turns.length>0?turns.reduce(function(o,t,i){o["beat"+(i+2)+"_shorter"]="[FILL: shorter version of "+t.name+"'s line]";return o},{}):"[FILL]"},
+    "final_compact_prompt_for_veo":"[FILL: Start with SCENE INTEGRITY LOCK. Repeat each object_type 5+ times. Never 'character' — always 'the BOTTLE'. "+(hasImg?"'Animate uploaded image...'":"'Generate 9:16 Pixar 3D video...'")+" Anchor all character positions every mention. Foreground lock on final beat. End with: 'Mouth animation is LOOSE and NATURAL — not strict phoneme sync. Veo speaks the Hindi line and animates mouth with natural talking rhythm.']",
+    "density_check":{
+      "total_words":"[FILL]",
+      "total_spoken_seconds":"[FILL]",
+      "total_silent_seconds":"[FILL]",
+      "natural_speech_pace":"Hindi conversational — 3 to 4 WPS",
+      "status":"[FILL: SAFE for natural speech]"
+    },
+    "keywords":["9:16","Object Talk AI","Hindi",ctx,S.tone,"viral"]
+  };
+
+  if(custom)json._rules.custom=custom;
+  if(turns.length>0)json.original_dialogue_turns=turns;
+
+  // Run validation
+  var issues=validate(json);
+  // Auto-repair: remove contradictory negatives
+  issues.forEach(function(iss){
+    if(iss.type==='err'&&iss.msg.indexOf('Negative prompt forbids')>-1){
+      var badNeg=iss.msg.match(/Remove: "([^"]+)"/);
+      if(badNeg)json.negative_prompt=json.negative_prompt.filter(function(n){return n!==badNeg[1]});
+    }
+  });
+
+  return {json:json,issues:validate(json)};
+}
+
+// ── GENERATE TAB ──
+function doGen(){
+  var topic=document.getElementById('topicIn').value.trim();
+  if(!topic){document.getElementById('topicIn').style.borderColor='#EF4444';setTimeout(function(){document.getElementById('topicIn').style.borderColor=''},800);return}
+  S.topic=topic;
+  var custom=(document.getElementById('genCtxIn')||{}).value||'';
+  var imgDesc=(document.getElementById('genImgD')||{}).value||'';
+
+  var vs=topic.match(/(.+?)\s+vs\s+(.+)/i);
+  var names=vs?[vs[1].trim(),vs[2].trim()]:[topic.split(/[-,]/)[0].trim()];
+  var result=buildJSON(topic,names,[],S.genImg,imgDesc.trim(),custom.trim());
+  S.prompt=JSON.stringify(result.json,null,2);
+  showOut(topic,names,result.issues);
+}
+
+// ── RAW IMPORT ──
+function doImp(){
+  var raw=document.getElementById('rawIn').value.trim();
+  if(!raw)return;
+  var custom=(document.getElementById('rawCtxIn')||{}).value||'';
+  var imgDesc=(document.getElementById('rawImgD')||{}).value||'';
+  if(S.rt!=='Auto')S.tone=S.rt;
+  if(S.rc!=='auto')S.content=S.rc;
+  else{var lc=raw.toLowerCase();S.content=/ayurved|health|herb|tulsi|neem|ginger|haldi/i.test(lc)?'ayurveda':/science|physics|magnet/i.test(lc)?'science':/funny|comedy|joke/i.test(lc)?'comedy':'custom'}
+
+  // Parse turns preserving exact order
+  var turns=parseTurns(raw);
+  showTurnPreview(turns);
+
+  var names=getUniqueNames(turns);
+  if(names.length===0){
+    var vs=raw.match(/(.+?)\s+vs\s+(.+)/i);
+    names=vs?[vs[1].trim(),vs[2].trim()]:['Character'];
+  }
+
+  var title=names.length>=2?names[0]+' vs '+names[1]:names[0];
+  var result=buildJSON(title,names,turns,S.rawImg,imgDesc.trim(),custom.trim());
+  S.prompt=JSON.stringify(result.json,null,2);
+  S.topic=title;
+
+  var st=document.getElementById('rawSt');st.classList.add('on');
+  var parts=['<span style="color:var(--gr);font-weight:700">JSON built!</span>'];
+  if(names.length>1)parts.push('<span style="color:var(--cy)">MULTI-SPEAKER</span>');
+  names.forEach(function(n){var c=turns.filter(function(t){return t.name===n}).length;parts.push('<b>'+n+'</b>: '+c+' line'+(c!==1?'s':''))});
+  parts.push(turns.length+' total turns');
+  st.innerHTML=parts.join(' | ');
+
+  showOut(title,names,result.issues);
+}
+
+// ── DISPLAY ──
+function showOut(topic,names,issues){
+  document.getElementById('empty').style.display='none';
+  var o=document.getElementById('outSec');o.classList.add('on');
+  renderJ(S.prompt);
+  renderValidation(issues);
+  var mode=names.length>1?'MULTI ('+names.length+')':'SINGLE';
+  document.getElementById('infoR').innerHTML='<div class="ip"><b>'+topic+'</b></div><div class="ip">'+S.tone+'</div><div class="ip"><b>'+mode+'</b></div><div class="ip">'+S.dur+'s</div><div class="ip">V10.1</div>';
+  document.getElementById('stBar').innerHTML='<div class="st"><div class="sv">'+S.dur+'s</div><div class="sl">Duration</div></div><div class="st"><div class="sv">'+names.length+'</div><div class="sl">Speakers</div></div><div class="st"><div class="sv">'+MW+'</div><div class="sl">Max W/8s</div></div><div class="st"><div class="sv">Loose</div><div class="sl">Mouth Sync</div></div>';
+  document.getElementById('outLbl').textContent='JSON Ready — Paste into Claude'+(S.genImg||S.rawImg?' with image':'');
+  var cb=document.getElementById('cpBtn');cb.textContent='Copy JSON';cb.classList.remove('ok');
+  o.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderJ(text){
+  var s=text.replace(/&/g,'&amp;').replace(/\x3c/g,'&lt;').replace(/>/g,'&gt;');
+  document.getElementById('pBox').innerHTML=s
+    .replace(/"([^"]+)"(\s*:)/g,'<span style="color:var(--cy)">"$1"</span>$2')
+    .replace(/:\s*"([^"]*[\u0900-\u097F][^"]*)"/g,': <span style="color:var(--pu);font-family:var(--hi);font-size:13px">"$1"</span>')
+    .replace(/:\s*"([^"]*)"/g,': <span style="color:var(--gr)">"$1"</span>')
+    .replace(/:\s*(\d+\.?\d*)/g,': <span style="color:var(--em)">$1</span>')
+    .replace(/:\s*(true|false|null)/g,': <span style="color:var(--gold)">$1</span>')
+    .replace(/(SAFE)/g,'<span style="color:var(--gr);font-weight:700">$1</span>')
+    .replace(/(DENSE)/g,'<span style="color:var(--gold);font-weight:700">$1</span>')
+    .replace(/(WILL_TRUNCATE)/g,'<span style="color:var(--rd);font-weight:700">$1</span>')
+    .replace(/(MULTI_SPEAKER|IMAGE_TO_VIDEO|FIXED_FIRST_FRAME)/g,'<span style="color:var(--cy);font-weight:700">$1</span>')
+    .replace(/(SINGLE_SPEAKER|TEXT_TO_VIDEO)/g,'<span style="color:var(--em);font-weight:700">$1</span>')
+    .replace(/(\[FILL[^\]]*\])/g,'<span style="color:var(--fire)">$1</span>');
+}
+
+function cpOut(){if(S.prompt)cp(S.prompt,document.getElementById('cpBtn'),'Copy JSON')}
+document.getElementById('topicIn').addEventListener('keydown',function(e){if(e.key==='Enter')doGen()});
+</script>
+</body>
+</html>
