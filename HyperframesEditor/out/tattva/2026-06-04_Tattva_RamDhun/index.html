@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tattva — RamDhun Visualizer</title>
+</head>
+<body>
+  <!--
+    Tattva cinematic-meditation visualizer. LANDSCAPE 1920x1080 (native 16:9 source).
+    T = 2062.83s (audio.wav), N = 8 images, clip = 257.85375s.
+    Cross-dissolve = 3s alpha fade centered on each boundary.
+    Odd scenes track 0, even scenes track 1 → 3s overlap without same-track collision.
+    HF intro (intro.mp4, 5.04s) track 2, fades out at 5s.
+    Camera drift: scale 1.0->1.12 + deterministic X/Y pan (px) across each scene window.
+    Grade: contrast(1.15) brightness(0.92) saturate(0.85). Radial vignette over all.
+    Edge-only white/cream lotus petals (L/R margins), track 3.
+    Spec: compositions/tattva/TATTVA_VIDEO_ENGINEER.md
+  -->
+  <div
+    id="root"
+    data-composition-id="tattva-ramdhun"
+    data-start="0"
+    data-duration="2062.83"
+    data-width="1920"
+    data-height="1080"
+  >
+    <div id="scene-1" class="scene clip" data-start="0"          data-duration="259.35375" data-track-index="0"></div>
+    <div id="scene-2" class="scene clip" data-start="256.35375"  data-duration="260.85375" data-track-index="1"></div>
+    <div id="scene-3" class="scene clip" data-start="514.2075"   data-duration="260.85375" data-track-index="0"></div>
+    <div id="scene-4" class="scene clip" data-start="772.06125"  data-duration="260.85375" data-track-index="1"></div>
+    <div id="scene-5" class="scene clip" data-start="1029.915"   data-duration="260.85375" data-track-index="0"></div>
+    <div id="scene-6" class="scene clip" data-start="1287.76875" data-duration="260.85375" data-track-index="1"></div>
+    <div id="scene-7" class="scene clip" data-start="1545.6225"  data-duration="260.85375" data-track-index="0"></div>
+    <div id="scene-8" class="scene clip" data-start="1803.47625" data-duration="259.35375" data-track-index="1"></div>
+
+    <!-- HF intro overlay (track 2) -->
+    <video
+      id="intro"
+      src="assets/intro.mp4"
+      data-start="0"
+      data-duration="5.04"
+      data-track-index="2"
+      muted
+      playsinline
+      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:50;opacity:1;"
+    ></video>
+
+    <!-- Vignette overlay -->
+    <div id="vignette" class="vignette clip" data-start="0" data-duration="2062.83" data-track-index="9"></div>
+
+    <!-- Lotus petal particle layer -->
+    <div id="petals" class="clip" data-start="0" data-duration="2062.83" data-track-index="3"
+         style="position:absolute;inset:0;pointer-events:none;z-index:40;overflow:hidden;"></div>
+
+    <!-- Audio track -->
+    <audio
+      id="audio"
+      src="assets/audio.wav"
+      data-start="0"
+      data-duration="2062.83"
+      data-track-index="10"
+    ></audio>
+
+    <style>
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #000;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+      #root * { box-sizing: border-box; }
+
+      #root .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        filter: contrast(1.15) brightness(0.92) saturate(0.85);
+        will-change: transform, opacity;
+        transform-origin: center center;
+      }
+
+      #scene-1 { background-image: url("assets/scene_01.png"); }
+      #scene-2 { background-image: url("assets/scene_02.png"); }
+      #scene-3 { background-image: url("assets/scene_03.png"); }
+      #scene-4 { background-image: url("assets/scene_04.png"); }
+      #scene-5 { background-image: url("assets/scene_05.png"); }
+      #scene-6 { background-image: url("assets/scene_06.png"); }
+      #scene-7 { background-image: url("assets/scene_07.png"); }
+      #scene-8 { background-image: url("assets/scene_08.png"); }
+
+      #root .vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(circle, transparent 35%, rgba(0, 0, 0, 0.75) 100%);
+        opacity: 1;
+        z-index: 30;
+      }
+
+      .petal {
+        position: absolute;
+        top: -40px;
+        width: 18px;
+        height: 24px;
+        background: radial-gradient(ellipse at 40% 30%,
+          rgba(255, 253, 245, 0.92) 0%,
+          rgba(255, 240, 210, 0.7) 50%,
+          rgba(255, 230, 190, 0.0) 100%);
+        border-radius: 50% 50% 50% 0;
+        pointer-events: none;
+        will-change: transform, opacity;
+      }
+    </style>
+
+    <script src="assets/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      const T = 2062.83;
+      const N = 8;
+      const CLIP = T / N;          // 257.85375
+      const XFADE = 3;
+      const SCALE_TO = 1.12;
+      const W = 1920;
+      const H = 1080;
+
+      // Deterministic per-scene pan offsets — alternating drift directions.
+      const pans = [
+        { x: 24,  y: 18  },
+        { x: -22, y: 20  },
+        { x: 20,  y: -18 },
+        { x: -24, y: -16 },
+        { x: 18,  y: 22  },
+        { x: -20, y: -20 },
+        { x: 26,  y: 14  },
+        { x: -18, y: 18  },
+      ];
+
+      for (let i = 1; i <= N; i++) {
+        const sel = "#scene-" + i;
+        const sceneStart = (i - 1) * CLIP;
+        const fadeInAt  = i === 1 ? 0 : sceneStart - XFADE / 2;
+        const fadeOutAt = i === N ? (N * CLIP - XFADE / 2) : (sceneStart + CLIP - XFADE / 2);
+        const drift = pans[i - 1];
+
+        // Cross-dissolve in
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: XFADE, ease: "power1.inOut" }, fadeInAt);
+
+        // Continuous camera drift (Ken Burns) across entire active window
+        const driftStart = i === 1 ? 0 : sceneStart - XFADE / 2;
+        const driftDur   = (i === 1 || i === N) ? CLIP + XFADE / 2 : CLIP + XFADE;
+        tl.fromTo(
+          sel,
+          { scale: 1.0, x: 0, y: 0 },
+          { scale: SCALE_TO, x: drift.x, y: drift.y, duration: driftDur, ease: "none" },
+          driftStart
+        );
+
+        // Cross-dissolve out (final scene holds to end)
+        if (i !== N) {
+          tl.to(sel, { opacity: 0, duration: XFADE, ease: "power1.inOut" }, fadeOutAt);
+        }
+      }
+
+      // HF intro: fade out at 5s
+      tl.to("#intro", { opacity: 0, duration: 1.0, ease: "power1.out" }, 4.04);
+
+      // ── Lotus petals (edge-only, L/R margins) ──
+      const petalLayer = document.getElementById("petals");
+      const seeds = [
+        { x: 2,  s: 0.8, sway: 60,  dur: 11, delay: 0,   spin: 220,  op: 0.85 },
+        { x: 7,  s: 1.0, sway: -70, dur: 14, delay: 2.5, spin: -260, op: 0.9  },
+        { x: 11, s: 0.65,sway: 50,  dur: 9,  delay: 5,   spin: 180,  op: 0.78 },
+        { x: 5,  s: 0.9, sway: -55, dur: 13, delay: 1.2, spin: 300,  op: 0.88 },
+        { x: 13, s: 1.1, sway: 65,  dur: 16, delay: 7,   spin: -200, op: 0.92 },
+        { x: 9,  s: 0.7, sway: -48, dur: 10, delay: 3.6, spin: 240,  op: 0.8  },
+        { x: 3,  s: 0.95,sway: 58,  dur: 12, delay: 0.6, spin: -280, op: 0.88 },
+        { x: 88, s: 0.8, sway: -60, dur: 15, delay: 4.4, spin: 210,  op: 0.85 },
+        { x: 93, s: 1.05,sway: 64,  dur: 13, delay: 6.2, spin: -240, op: 0.92 },
+        { x: 97, s: 0.6, sway: -50, dur: 9,  delay: 2,   spin: 190,  op: 0.78 },
+        { x: 90, s: 0.9, sway: 70,  dur: 14, delay: 8,   spin: -300, op: 0.88 },
+        { x: 95, s: 0.7, sway: -54, dur: 11, delay: 3,   spin: 230,  op: 0.82 },
+        { x: 86, s: 0.85,sway: 62,  dur: 17, delay: 9.5, spin: -210, op: 0.86 },
+        { x: 98, s: 0.75,sway: -58, dur: 12, delay: 5.8, spin: 270,  op: 0.82 },
+      ];
+      seeds.forEach((p) => {
+        const el = document.createElement("div");
+        el.className = "petal";
+        el.style.left = p.x + "%";
+        petalLayer.appendChild(el);
+        tl.fromTo(el,
+          { y: 0, x: 0, rotation: 0, opacity: 0, scale: p.s },
+          { y: H + 200, x: p.sway, rotation: p.spin, opacity: p.op, scale: p.s, duration: p.dur, ease: "none", repeat: Math.floor((T - p.delay) / p.dur) - 1 },
+          p.delay);
+      });
+
+      tl.set({}, {}, T);
+      window.__timelines["tattva-ramdhun"] = tl;
+    </script>
+  </div>
+</body>
+</html>
