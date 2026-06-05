@@ -1,0 +1,44 @@
+name: Hyperframes Cloud Render
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_path:
+        description: 'Relative path to the Hyperframes project folder (e.g. HyperframesEditor/out/tattva/2026-06-04_Tattva_RamDhun)'
+        required: true
+        type: string
+        default: 'HyperframesEditor/out/tattva/2026-06-04_Tattva_RamDhun'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install system dependencies (FFmpeg & Chrome libs)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libgbm1 libatk-bridge2.0-0 libgtk-3-0 libasound2
+
+      - name: Ensure Chrome Headless Shell
+        run: |
+          NODE_TLS_REJECT_UNAUTHORIZED=0 npx -y hyperframes browser ensure
+
+      - name: Render Composition
+        run: |
+          NODE_TLS_REJECT_UNAUTHORIZED=0 npx -y hyperframes render "${{ github.event.inputs.project_path }}"
+
+      - name: Upload Video Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-video
+          path: ${{ github.event.inputs.project_path }}/renders/*.mp4
+          if-no-files-found: error
+          retention-days: 7
